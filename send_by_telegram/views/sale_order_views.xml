@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_order_form_telegram" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.telegram</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add button after "Send by Email" for draft quotations -->
+            <xpath expr="//button[@id='send_by_email_primary']" position="after">
+                <button name="action_send_telegram" 
+                        type="object" 
+                        string="Send by Telegram" 
+                        class="btn-secondary"
+                        icon="fa-telegram"
+                        invisible="state != 'draft'"/>
+            </xpath>
+            
+            <!-- Add button after "Send by Email" for sent/sale orders -->
+            <xpath expr="//button[@id='send_by_email']" position="after">
+                <button name="action_send_telegram" 
+                        type="object" 
+                        string="Send by Telegram" 
+                        icon="fa-telegram"
+                        invisible="state not in ('sent', 'sale')"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

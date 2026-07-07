@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_telegram_message_wizard_form" model="ir.ui.view">
+        <field name="name">telegram.message.wizard.form</field>
+        <field name="model">telegram.message.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send via Telegram">
+                <group>
+                    <field name="res_model" invisible="1"/>
+                    <field name="res_id" invisible="1"/>
+                    <field name="mode" invisible="1"/>
+                    <field name="partner_id" readonly="1"/>
+                    
+                    <!-- For orders: show PDF report checkbox -->
+                    <field name="send_pdf_report" 
+                           invisible="mode != 'order' or res_model not in ('sale.order', 'purchase.order')"
+                           string="Attach Quotation/Order PDF"/>
+                    
+                    <!-- For chatter: show file attachment -->
+                    <field name="attachment_ids" 
+                           widget="many2many_binary"
+                           invisible="mode != 'chatter'"
+                           string="Attach Files"/>
+                    
+                    <field name="message" widget="text" placeholder="Enter your message..."/>
+                </group>
+                <footer>
+                    <button name="action_send" 
+                            string="Send" 
+                            type="object" 
+                            class="btn-primary"
+                            icon="fa-telegram"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,106 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * send_by_telegram
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-07 18:00+0000\n"
+"PO-Revision-Date: 2026-01-07 18:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Uzbek\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: send_by_telegram
+#: model:ir.model.fields,field_description:send_by_telegram.field_res_config_settings__telegram_bot_token
+msgid "Telegram Bot Token"
+msgstr "Telegram Bot Tokeni"
+
+#. module: send_by_telegram
+#: model:ir.model.fields,field_description:send_by_telegram.field_res_partner__telegram_group_id
+msgid "Telegram Group ID"
+msgstr "Telegram Gruppa ID"
+
+#. module: send_by_telegram
+msgid "Send via Telegram"
+msgstr "Telegram orqali yuborish"
+
+#. module: send_by_telegram
+msgid "Send by Telegram"
+msgstr "Telegram orqali yuborish"
+
+#. module: send_by_telegram
+msgid "Dear %(partner)s,\n\nYour quotation is ready, reference: <b>%(order)s</b>.\nPDF document is attached.\n\nBest regards"
+msgstr "Hurmatli %(partner)s,\n\nSizning tijoriy taklifingiz tayyor, uning raqami: <b>%(order)s</b>.\nPDF hujjat ilova qilingan.\n\nHurmat bilan"
+
+#. module: send_by_telegram
+msgid "Quotation_%s.pdf"
+msgstr "Tijoriy_taklif_%s.pdf"
+
+#. module: send_by_telegram
+msgid "RFQ_%s.pdf"
+msgstr "Sotib_olish_so'rovi_%s.pdf"
+
+#. module: send_by_telegram
+msgid "PurchaseOrder_%s.pdf"
+msgstr "Sotib_olish_buyurtmasi_%s.pdf"
+
+#. module: send_by_telegram
+msgid "Request for Quotation"
+msgstr "Sotib olish so'rovi"
+
+#. module: send_by_telegram
+msgid "Purchase Order"
+msgstr "Sotib olish buyurtmasi"
+
+#. module: send_by_telegram
+msgid "Test Bot"
+msgstr "Botni tekshirish"
+
+#. module: send_by_telegram
+msgid "Success!"
+msgstr "Muvaffaqiyatli!"
+
+#. module: send_by_telegram
+msgid "Bot connected successfully! Username: @%s"
+msgstr "Bot muvaffaqiyatli ulandi! Foydalanuvchi nomi: @%s"
+
+#. module: send_by_telegram
+msgid "Message sent successfully via Telegram!"
+msgstr "Xabar Telegram orqali muvaffaqiyatli yuborildi!"
+
+#. module: send_by_telegram
+msgid "Warning"
+msgstr "Ogohlantirish"
+
+#. module: send_by_telegram
+msgid "Customer '%s' does not have a Telegram Group ID configured."
+msgstr "'%s' mijozining Telegram Gruppa ID si sozlanmagan."
+
+#. module: send_by_telegram
+msgid "Vendor '%s' does not have a Telegram Group ID configured."
+msgstr "'%s' yetkazib beruvchining Telegram Gruppa ID si sozlanmagan."
+
+#. module: send_by_telegram
+msgid "Message"
+msgstr "Xabar"
+
+#. module: send_by_telegram
+msgid "Attach PDF Document"
+msgstr "PDF hujjatni biriktirish"
+
+#. module: send_by_telegram
+msgid "Recipient"
+msgstr "Qabul qiluvchi"
+
+#. module: send_by_telegram
+msgid "Send"
+msgstr "Yuborish"
+
+#. module: send_by_telegram
+msgid "Cancel"
+msgstr "Bekor qilish"

@@ -1,0 +1,106 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * send_by_telegram
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-07 18:00+0000\n"
+"PO-Revision-Date: 2026-01-07 18:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: send_by_telegram
+#: model:ir.model.fields,field_description:send_by_telegram.field_res_config_settings__telegram_bot_token
+msgid "Telegram Bot Token"
+msgstr "Токен Telegram бота"
+
+#. module: send_by_telegram
+#: model:ir.model.fields,field_description:send_by_telegram.field_res_partner__telegram_group_id
+msgid "Telegram Group ID"
+msgstr "ID группы Telegram"
+
+#. module: send_by_telegram
+msgid "Send via Telegram"
+msgstr "Отправить через Telegram"
+
+#. module: send_by_telegram
+msgid "Send by Telegram"
+msgstr "Отправить через Telegram"
+
+#. module: send_by_telegram
+msgid "Dear %(partner)s,\n\nYour quotation is ready, reference: <b>%(order)s</b>.\nPDF document is attached.\n\nBest regards"
+msgstr "Уважаемый %(partner)s,\n\nВаше коммерческое предложение готово, номер: <b>%(order)s</b>.\nPDF документ прикреплён.\n\nС уважением"
+
+#. module: send_by_telegram
+msgid "Quotation_%s.pdf"
+msgstr "Коммерческое_предложение_%s.pdf"
+
+#. module: send_by_telegram
+msgid "RFQ_%s.pdf"
+msgstr "Запрос_котировки_%s.pdf"
+
+#. module: send_by_telegram
+msgid "PurchaseOrder_%s.pdf"
+msgstr "Заказ_на_закупку_%s.pdf"
+
+#. module: send_by_telegram
+msgid "Request for Quotation"
+msgstr "Запрос котировки"
+
+#. module: send_by_telegram
+msgid "Purchase Order"
+msgstr "Заказ на закупку"
+
+#. module: send_by_telegram
+msgid "Test Bot"
+msgstr "Тест бота"
+
+#. module: send_by_telegram
+msgid "Success!"
+msgstr "Успешно!"
+
+#. module: send_by_telegram
+msgid "Bot connected successfully! Username: @%s"
+msgstr "Бот успешно подключён! Имя пользователя: @%s"
+
+#. module: send_by_telegram
+msgid "Message sent successfully via Telegram!"
+msgstr "Сообщение успешно отправлено через Telegram!"
+
+#. module: send_by_telegram
+msgid "Warning"
+msgstr "Предупреждение"
+
+#. module: send_by_telegram
+msgid "Customer '%s' does not have a Telegram Group ID configured."
+msgstr "У клиента '%s' не настроен ID группы Telegram."
+
+#. module: send_by_telegram
+msgid "Vendor '%s' does not have a Telegram Group ID configured."
+msgstr "У поставщика '%s' не настроен ID группы Telegram."
+
+#. module: send_by_telegram
+msgid "Message"
+msgstr "Сообщение"
+
+#. module: send_by_telegram
+msgid "Attach PDF Document"
+msgstr "Прикрепить PDF документ"
+
+#. module: send_by_telegram
+msgid "Recipient"
+msgstr "Получатель"
+
+#. module: send_by_telegram
+msgid "Send"
+msgstr "Отправить"
+
+#. module: send_by_telegram
+msgid "Cancel"
+msgstr "Отмена"

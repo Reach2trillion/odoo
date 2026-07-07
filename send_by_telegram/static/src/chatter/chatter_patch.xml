@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="send_by_telegram.Chatter" t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//*[contains(@class, 'o-mail-Chatter-activity')]" position="before">
+            <button t-if="state.thread"
+                class="btn btn-secondary text-nowrap me-1"
+                t-att-class="{'my-2': !props.compactHeight }"
+                title="Send via Telegram"
+                t-on-click="sendTelegram"
+            >
+                <i class="fa fa-telegram me-1"/>
+                <span>Telegram</span>
+            </button>
+        </xpath>
+    </t>
+</templates>

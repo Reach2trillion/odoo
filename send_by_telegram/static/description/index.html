@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #714B67;
+        }
+
+        .banner {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid #714B67;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #714B67 0%, #8B5A7B 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(113, 75, 103, 0.3);
+        }
+
+        .highlight h2 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .highlight p {
+            margin-bottom: 0;
+            font-size: 1.1em;
+        }
+
+        code {
+            background: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+        }
+
+        .steps {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px 25px 25px 45px;
+            margin: 20px 0;
+        }
+
+        .steps li {
+            margin: 12px 0;
+            padding-left: 10px;
+        }
+
+        .steps strong {
+            color: #714B67;
+        }
+
+        .telegram-blue {
+            color: #0088cc;
+        }
+
+        .requirements {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .requirements h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .tech-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tech-item {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tech-item strong {
+            display: block;
+            color: #714B67;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="banner.png" alt="Send by Telegram" class="banner">
+
+    <h1>📱 Send by Telegram</h1>
+    <p style="font-size: 1.2em;"><strong>Send quotations, orders, and files directly to your customers via
+            Telegram!</strong></p>
+
+    <div class="highlight">
+        <h2>⚡ Why Choose This Module?</h2>
+        <p>In today's fast-paced business world, email isn't always the quickest way to reach your customers.
+            With <strong>Send by Telegram</strong>, you can send quotations, purchase orders, and documents
+            instantly to Telegram groups where your customers are already active. No more waiting for email replies!</p>
+    </div>
+
+    <h2>✨ Key Features</h2>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3><span class="emoji">📄</span> PDF Documents</h3>
+            <p>Automatically generate and send PDF quotations and purchase orders with a single click. Professional
+                documents delivered instantly.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🖼️</span> Image Preview</h3>
+            <p>Send images with full preview - not as file attachments. Your customers see images immediately in the
+                chat.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">👥</span> Group Messaging</h3>
+            <p>Send messages to Telegram groups. Perfect for B2B communication with dedicated client groups.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">💬</span> Chatter Integration</h3>
+            <p>Send messages directly from Odoo's chatter. Attach any files and they appear in the message history.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🌐</span> Multilingual</h3>
+            <p>Full support for Uzbek, Russian, and English languages. Messages automatically adapt to the user's
+                language preference.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🔄</span> Status Updates</h3>
+            <p>Quotation status automatically changes to "Sent" when your message is delivered via Telegram.</p>
+        </div>
+    </div>
+
+    <h2>🚀 How It Works</h2>
+    <ol class="steps">
+        <li><strong>Create Bot:</strong> Create a Telegram bot via <a href="https://t.me/BotFather"
+                class="telegram-blue">@BotFather</a> (free!)</li>
+        <li><strong>Configure Token:</strong> Add your bot token in Settings → General Settings → Send by Telegram</li>
+        <li><strong>Test Connection:</strong> Click "Test Bot" to verify everything works</li>
+        <li><strong>Add Group IDs:</strong> Configure Telegram Group ID for each customer/vendor in Contacts</li>
+        <li><strong>Start Sending:</strong> Click "Send by Telegram" on any quotation or purchase order!</li>
+    </ol>
+
+    <div class="requirements">
+        <h3>📋 Requirements</h3>
+        <ul>
+            <li><strong>Odoo 18.0</strong></li>
+            <li>Telegram Bot (create free via <a href="https://t.me/BotFather">@BotFather</a>)</li>
+            <li>Bot must be added as <strong>admin</strong> to target groups</li>
+            <li>Python <code>requests</code> library (usually pre-installed)</li>
+        </ul>
+    </div>
+
+    <h2>🛠 Technical Details</h2>
+    <div class="tech-details">
+        <div class="tech-item">
+            <strong>Odoo Version</strong>
+            18.0
+        </div>
+        <div class="tech-item">
+            <strong>License</strong>
+            LGPL-3
+        </div>
+        <div class="tech-item">
+            <strong>Dependencies</strong>
+            sale, purchase, mail
+        </div>
+        <div class="tech-item">
+            <strong>Languages</strong>
+            EN, UZ, RU
+        </div>
+    </div>
+
+    <h2>💡 Use Cases</h2>
+    <ul>
+        <li><strong>B2B Sales:</strong> Send quotations directly to client's Telegram group for faster response</li>
+        <li><strong>Procurement:</strong> Share purchase orders with vendors instantly</li>
+        <li><strong>Customer Support:</strong> Send documents and images from chatter during support conversations</li>
+        <li><strong>Field Sales:</strong> Sales team can send quotes on-the-go from mobile Odoo</li>
+    </ul>
+
+</body>
+
+</html>
