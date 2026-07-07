@@ -37,6 +37,11 @@ class SaleOrder(models.Model):
             ('date_order', '<=', day_end_utc),
         ], order='date_order asc')
 
+    @staticmethod
+    def _split_telegram_chat_ids(chat_id):
+        """Allow a comma-separated list of chat IDs (e.g. one per boss)."""
+        return [part.strip() for part in (chat_id or '').split(',') if part.strip()]
+
     @api.model
     def _get_daily_sales_caption_text(self, report_date, orders):
         total_amount = sum(orders.mapped('amount_total'))
@@ -76,10 +81,13 @@ class SaleOrder(models.Model):
             data={'report_date': report_date.strftime('%d/%m/%Y')},
         )
         filename = _("Daily_Sales_Report_%s.pdf") % report_date.strftime('%Y%m%d')
+        caption = self._get_daily_sales_caption_text(report_date, orders)
 
-        TelegramService(token).send_document(
-            chat_id=chat_id,
-            document_content=pdf_content,
-            filename=filename,
-            caption=self._get_daily_sales_caption_text(report_date, orders),
-        )
+        service = TelegramService(token)
+        for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
+            service.send_document(
+                chat_id=recipient_chat_id,
+                document_content=pdf_content,
+                filename=filename,
+                caption=caption,
+            )

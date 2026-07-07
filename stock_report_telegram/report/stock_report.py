@@ -7,7 +7,12 @@ def _build_stock_rows(on_hand, locations):
     rows = []
     for product in sorted(on_hand.keys(), key=lambda p: p.name or ''):
         loc_qtys = on_hand[product]
-        row = {'name': product.name, 'uom': product.uom_id.name, 'total': sum(loc_qtys.values())}
+        row = {
+            'name': product.name,
+            'sku': product.default_code or '',
+            'uom': product.uom_id.name,
+            'total': sum(loc_qtys.values()),
+        }
         for location in locations:
             row[location.id] = loc_qtys.get(location, 0.0)
         rows.append(row)
@@ -16,7 +21,12 @@ def _build_stock_rows(on_hand, locations):
 
 def _build_sold_rows(sold):
     return [
-        {'name': product.name, 'uom': product.uom_id.name, 'qty': qty}
+        {
+            'name': product.name,
+            'sku': product.default_code or '',
+            'uom': product.uom_id.name,
+            'qty': qty,
+        }
         for product, qty in sorted(sold.items(), key=lambda kv: kv[0].name or '')
     ]
 

@@ -14,7 +14,8 @@ class ResConfigSettings(models.TransientModel):
     sale_daily_report_telegram_chat_id = fields.Char(
         string="Daily Sales Report Telegram Chat ID",
         config_parameter='sale_daily_report_telegram.chat_id',
-        help="Telegram chat ID that receives the daily sales PDF report "
-             "(e.g. the boss's personal chat). The bot token itself is "
-             "configured in the Send by Telegram settings."
+        help="Telegram chat ID(s) that receive the daily sales PDF report "
+             "(e.g. the bosses' personal chats). Separate multiple IDs with "
+             "a comma to send to more than one recipient. The bot token "
+             "itself is configured in the Send by Telegram settings."
     )

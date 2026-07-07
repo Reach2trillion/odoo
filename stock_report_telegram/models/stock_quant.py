@@ -41,6 +41,11 @@ class StockQuant(models.Model):
         return data
 
     @staticmethod
+    def _split_telegram_chat_ids(chat_id):
+        """Allow a comma-separated list of chat IDs (e.g. one per boss)."""
+        return [part.strip() for part in (chat_id or '').split(',') if part.strip()]
+
+    @staticmethod
     def _get_move_line_done_qty(move_line):
         for fname in ('quantity', 'qty_done'):
             if fname in move_line._fields:
@@ -99,12 +104,15 @@ class StockQuant(models.Model):
             },
         )
         filename = _("Daily_Stock_Report_%s.pdf") % report_date.strftime('%Y%m%d')
-        TelegramService(token).send_document(
-            chat_id=chat_id,
-            document_content=pdf_content,
-            filename=filename,
-            caption=_("Daily Stock Report - %s") % report_date.strftime('%d/%m/%Y'),
-        )
+        caption = _("Daily Stock Report - %s") % report_date.strftime('%d/%m/%Y')
+        service = TelegramService(token)
+        for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
+            service.send_document(
+                chat_id=recipient_chat_id,
+                document_content=pdf_content,
+                filename=filename,
+                caption=caption,
+            )
 
     @api.model
     def _cron_send_monthly_stock_report_telegram(self):
@@ -147,9 +155,12 @@ class StockQuant(models.Model):
             },
         )
         filename = _("Monthly_Stock_Report_%s.pdf") % month_start.strftime('%Y%m')
-        TelegramService(token).send_document(
-            chat_id=chat_id,
-            document_content=pdf_content,
-            filename=filename,
-            caption=_("Monthly Stock Report - %s") % month_start.strftime('%B %Y'),
-        )
+        caption = _("Monthly Stock Report - %s") % month_start.strftime('%B %Y')
+        service = TelegramService(token)
+        for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
+            service.send_document(
+                chat_id=recipient_chat_id,
+                document_content=pdf_content,
+                filename=filename,
+                caption=caption,
+            )

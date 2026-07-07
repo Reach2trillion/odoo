@@ -17,7 +17,7 @@
                         </setting>
                         <setting id="sale_daily_report_telegram_chat_id_setting"
                                  string="Telegram Chat ID"
-                                 help="Telegram chat ID that receives the daily sales PDF report (e.g. the boss's personal chat). The bot token itself is configured in the Send by Telegram settings.">
+                                 help="Telegram chat ID(s) that receive the daily sales PDF report, comma-separated for multiple recipients (e.g. one boss's chat, one for another). The bot token itself is configured in the Send by Telegram settings.">
                             <field name="sale_daily_report_telegram_chat_id"/>
                         </setting>
                     </block>

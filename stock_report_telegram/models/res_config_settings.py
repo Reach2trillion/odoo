@@ -19,9 +19,10 @@ class ResConfigSettings(models.TransientModel):
     stock_report_telegram_chat_id = fields.Char(
         string="Stock Report Telegram Chat ID",
         config_parameter='stock_report_telegram.chat_id',
-        help="Telegram chat ID that receives the stock reports (e.g. the "
-             "boss's personal chat). The bot token itself is configured in "
-             "the Send by Telegram settings."
+        help="Telegram chat ID(s) that receive the stock reports (e.g. the "
+             "bosses' personal chats). Separate multiple IDs with a comma "
+             "to send to more than one recipient. The bot token itself is "
+             "configured in the Send by Telegram settings."
     )
     stock_report_telegram_location_1_id = fields.Many2one(
         'stock.location',
