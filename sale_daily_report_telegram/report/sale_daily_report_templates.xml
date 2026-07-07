@@ -6,7 +6,7 @@
             <div class="page gz_report">
                 <style>
                     .gz_report {
-                        font-family: 'Helvetica Neue', Arial, sans-serif;
+                        font-family: 'Khmer OS', 'Noto Sans Khmer', 'Helvetica Neue', Arial, sans-serif;
                         color: #1a1a2e;
                     }
                     .gz_header {
@@ -104,21 +104,19 @@
                 </style>
 
                 <div class="gz_header">
-                    <h1>📊 Daily Sales Report</h1>
-                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="report_date"/></p>
+                    <h1>Daily Sales Report</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="report_date"/></p>
                 </div>
 
                 <table class="gz_stats">
                     <tr>
                         <td class="gz_stat_card orders">
-                            <p class="gz_stat_label">🧾 Orders</p>
-                            <p class="gz_stat_value"><span t-esc="len(docs)"/></p>
+                            <p class="gz_stat_label">Orders</p>
+                            <p class="gz_stat_value"><span t-esc="len(order_rows)"/></p>
                         </td>
                         <td class="gz_stat_card revenue">
-                            <p class="gz_stat_label">💰 Revenue</p>
-                            <p class="gz_stat_value">
-                                <span t-esc="total_amount" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                            </p>
+                            <p class="gz_stat_label">Revenue</p>
+                            <p class="gz_stat_value"><span t-esc="total_amount_display"/></p>
                         </td>
                     </tr>
                 </table>
@@ -133,22 +131,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="docs" t-as="order">
-                            <td><strong><span t-esc="order.name"/></strong></td>
-                            <td><span t-esc="order.partner_id.name"/></td>
-                            <td><span t-esc="order.user_id.name"/></td>
-                            <td class="gz_amount">
-                                <span t-esc="order.amount_total"
-                                      t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
-                            </td>
+                        <tr t-foreach="order_rows" t-as="order">
+                            <td><strong><span t-esc="order['name']"/></strong></td>
+                            <td><span t-esc="order['partner_name']"/></td>
+                            <td><span t-esc="order['salesperson_name']"/></td>
+                            <td class="gz_amount"><span t-esc="order['total_display']"/></td>
                         </tr>
-                        <tr t-if="not docs">
-                            <td colspan="4" class="gz_empty">No orders today 👀</td>
+                        <tr t-if="not order_rows">
+                            <td colspan="4" class="gz_empty">No orders today</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_footer">Generated automatically · Sent via Telegram 🚀</p>
+                <p class="gz_footer">Generated automatically - Sent via Telegram</p>
             </div>
         </t>
     </template>
