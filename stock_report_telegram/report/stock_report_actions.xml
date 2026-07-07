@@ -5,7 +5,7 @@
         <field name="name">Daily Stock Report</field>
         <field name="model">stock.quant</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">send_by_telegram.report_stock_daily_document</field>
+        <field name="report_name">stock_report_telegram.report_stock_daily_document</field>
         <field name="binding_model_id" eval="False"/>
     </record>
 
@@ -13,7 +13,7 @@
         <field name="name">Monthly Stock Report</field>
         <field name="model">stock.quant</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">send_by_telegram.report_stock_monthly_document</field>
+        <field name="report_name">stock_report_telegram.report_stock_monthly_document</field>
         <field name="binding_model_id" eval="False"/>
     </record>
 

@@ -4,15 +4,14 @@
     'name': 'Send by Telegram',
     'version': '18.0.1.0.0',
     'category': 'Sales/Sales',
-    'summary': 'Send quotations, orders, and daily business reports via Telegram bot',
+    'summary': 'Send quotations, orders and files via Telegram bot',
     'description': """
 Send by Telegram - Instant Business Communication
 ==================================================
 
-Send sale quotations, purchase orders, and files directly to your customers
-and vendors via Telegram bot. Perfect for businesses that need instant
-communication with their partners - plus automatic daily/monthly business
-reports for management.
+Send sale quotations, purchase orders, and files directly to your customers 
+and vendors via Telegram bot. Perfect for businesses that need instant 
+communication with their partners.
 
 **Key Features:**
 
@@ -21,27 +20,15 @@ reports for management.
    - Attach any files from chatter
    - Images sent with preview (not as documents)
 
-👥 **Group Messaging**
+👥 **Group Messaging**  
    - Send to Telegram groups
    - Perfect for B2B communication
    - Dedicated groups per customer/vendor
-   - Reports can go to multiple chats at once (comma-separated IDs)
 
 💬 **Full Integration**
    - Chatter integration with Telegram button
    - All messages logged in Odoo
    - File attachments visible in chatter
-
-📋 **Daily Attendance Report** (requires Attendances app)
-   - Who worked today (check-in/check-out times) and who was absent
-   - Separate late-arrival alert earlier in the day
-
-📊 **Daily Sales Report**
-   - PDF summary of the day's confirmed orders, with total revenue
-
-📦 **Stock Reports** (requires Inventory app)
-   - Daily stock on hand (2 tracked locations) + what sold today
-   - Monthly stock on hand + what sold last month
 
 🌐 **Multilingual**
    - English, Uzbek, Russian support
@@ -55,10 +42,9 @@ reports for management.
 **How to Get Started:**
 
 1. Create a bot via @BotFather on Telegram
-2. Add bot token in Settings → General Settings → Send by Telegram
-3. Add Telegram Group IDs to your partners, and configure any reports
-   you want under the same settings page
-4. Start sending documents and reports instantly!
+2. Add bot token in Settings → General Settings
+3. Add Telegram Group IDs to your partners
+4. Start sending documents instantly!
 
 **Requirements:**
 - Odoo 18.0
@@ -68,12 +54,12 @@ reports for management.
     'author': 'MRDIL ODOO',
     'support': 'mrdil.odoo@gmail.com',
     'license': 'LGPL-3',
+    'price': 22,
+    'currency': 'USD',
     'depends': [
         'sale',
         'purchase',
         'mail',
-        'hr_attendance',
-        'stock',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -82,11 +68,6 @@ reports for management.
         'views/sale_order_views.xml',
         'views/purchase_order_views.xml',
         'wizard/telegram_message_wizard_views.xml',
-        'report/sale_daily_report_templates.xml',
-        'report/sale_daily_report_actions.xml',
-        'report/stock_report_templates.xml',
-        'report/stock_report_actions.xml',
-        'data/ir_cron.xml',
     ],
     'assets': {
         'web.assets_backend': [

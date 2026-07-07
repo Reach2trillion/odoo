@@ -4,7 +4,7 @@ from odoo import fields, models
 
 
 class SaleDailyReport(models.AbstractModel):
-    _name = 'report.send_by_telegram.report_sale_daily_document'
+    _name = 'report.sale_daily_report_telegram.report_sale_daily_document'
     _description = "Daily Sales Report (PDF)"
 
     @staticmethod

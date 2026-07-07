@@ -5,7 +5,7 @@
         <field name="name">Daily Sales Report</field>
         <field name="model">sale.order</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">send_by_telegram.report_sale_daily_document</field>
+        <field name="report_name">sale_daily_report_telegram.report_sale_daily_document</field>
         <field name="binding_model_id" eval="False"/>
     </record>
 

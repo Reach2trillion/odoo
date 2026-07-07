@@ -5,5 +5,3 @@ from . import res_partner
 from . import sale_order
 from . import purchase_order
 from . import mail_message
-from . import hr_employee
-from . import stock_quant
