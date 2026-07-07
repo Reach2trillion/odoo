@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 import pytz
 
@@ -132,6 +132,125 @@ class HrEmployee(models.Model):
             'absent_count': len(absent_employees),
             'absent_lines': absent_lines,
         }
+
+    def _get_telegram_expected_start_time(self, report_date, tz):
+        """Return the employee's scheduled start time on report_date, in UTC (naive)."""
+        self.ensure_one()
+        calendar = self.resource_calendar_id
+        if not calendar:
+            return None
+        weekday = str(report_date.weekday())
+        day_attendances = calendar.attendance_ids.filtered(lambda a: a.dayofweek == weekday)
+        if not day_attendances:
+            return None
+        hour_from = min(day_attendances.mapped('hour_from'))
+        hours, minutes = divmod(int(round(hour_from * 60)), 60)
+        local_dt = tz.localize(datetime.combine(report_date, time(hour=hours, minute=minutes)))
+        return local_dt.astimezone(pytz.UTC).replace(tzinfo=None)
+
+    @api.model
+    def _get_telegram_late_employees(self, report_date=None, reference_time_utc=None):
+        """Employees scheduled to work today who are late.
+
+        "Late" means: no check-in yet past their scheduled start time (+ grace
+        period), or their first check-in today was after that threshold.
+
+        Returns:
+            list[dict]: [{'employee': hr.employee, 'check_in': datetime (UTC) or None}, ...]
+        """
+        company = self.env.company
+        tz = self._get_telegram_report_tz()
+        report_date = report_date or fields.Date.context_today(self)
+        reference_time_utc = reference_time_utc or datetime.utcnow()
+
+        grace_minutes = int(self.env['ir.config_parameter'].sudo().get_param(
+            'attendance_telegram_report.late_grace_minutes', 0
+        ) or 0)
+
+        employees = self.search([('company_id', '=', company.id)])
+        scheduled_employees = employees.filtered(
+            lambda e: e._is_telegram_report_working_day(report_date)
+        )
+
+        day_start_utc = tz.localize(datetime.combine(report_date, time.min)).astimezone(pytz.UTC).replace(tzinfo=None)
+        day_end_utc = tz.localize(datetime.combine(report_date, time.max)).astimezone(pytz.UTC).replace(tzinfo=None)
+
+        attendances = self.env['hr.attendance'].search([
+            ('employee_id', 'in', scheduled_employees.ids),
+            ('check_in', '>=', day_start_utc),
+            ('check_in', '<=', day_end_utc),
+        ], order='check_in asc')
+
+        first_check_in = {}
+        for att in attendances:
+            first_check_in.setdefault(att.employee_id.id, att.check_in)
+
+        late_employees = []
+        for employee in scheduled_employees:
+            expected_start = employee._get_telegram_expected_start_time(report_date, tz)
+            if expected_start is None:
+                continue
+            threshold_utc = expected_start + timedelta(minutes=grace_minutes)
+
+            check_in = first_check_in.get(employee.id)
+            if check_in is None:
+                if reference_time_utc > threshold_utc:
+                    late_employees.append({'employee': employee, 'check_in': None})
+            elif check_in > threshold_utc:
+                late_employees.append({'employee': employee, 'check_in': check_in})
+
+        late_employees.sort(key=lambda data: data['employee'].name or '')
+        return late_employees
+
+    @api.model
+    def _get_telegram_late_report_text(self, report_date=None, reference_time_utc=None):
+        report_date = report_date or fields.Date.context_today(self)
+        late_employees = self._get_telegram_late_employees(report_date, reference_time_utc)
+        if not late_employees:
+            return None
+
+        tz = self._get_telegram_report_tz()
+        lines = "\n".join(
+            "⏰ %(name)s — %(status)s"
+            % {
+                'name': data['employee'].name,
+                'status': (
+                    _("checked in at %s") % self._format_telegram_report_time(data['check_in'], tz)
+                    if data['check_in'] else _("not checked in yet")
+                ),
+            }
+            for data in late_employees
+        )
+
+        return _(
+            "🚨 <b>Late Attendance Alert — %(date)s</b>\n\n%(lines)s"
+        ) % {
+            'date': report_date.strftime('%d/%m/%Y'),
+            'lines': lines,
+        }
+
+    @api.model
+    def _cron_send_telegram_late_report(self):
+        icp = self.env['ir.config_parameter'].sudo()
+        if icp.get_param('attendance_telegram_report.late_enabled', 'True') != 'True':
+            return
+
+        chat_id = (
+            icp.get_param('attendance_telegram_report.late_chat_id')
+            or icp.get_param('attendance_telegram_report.chat_id')
+        )
+        token = icp.get_param('send_by_telegram.bot_token')
+        if not chat_id or not token:
+            _logger.warning(
+                "Late attendance Telegram alert is not fully configured "
+                "(missing bot token or chat id); skipping."
+            )
+            return
+
+        message = self._get_telegram_late_report_text()
+        if not message:
+            return
+        TelegramService(token).send_message(chat_id=chat_id, text=message)
 
     @api.model
     def _cron_send_daily_telegram_attendance_report(self):

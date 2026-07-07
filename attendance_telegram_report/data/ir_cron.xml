@@ -18,4 +18,17 @@
         <field name="active">True</field>
     </record>
 
+    <!-- 02:01 UTC = 09:01 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_telegram_late_report" model="ir.cron">
+        <field name="name">Send Late Attendance Alert via Telegram</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_telegram_late_report()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 02:01:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
 </odoo>

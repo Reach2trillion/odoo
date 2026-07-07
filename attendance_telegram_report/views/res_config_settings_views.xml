@@ -21,6 +21,23 @@
                             <field name="attendance_telegram_chat_id"/>
                         </setting>
                     </block>
+                    <block title="Late Attendance Alert" name="attendance_telegram_late_setting_container">
+                        <setting id="attendance_telegram_late_enabled_setting"
+                                 string="Send Late Attendance Alert"
+                                 help="Send a Telegram alert of employees who are late, checked at the scheduled time each working day">
+                            <field name="attendance_telegram_late_enabled"/>
+                        </setting>
+                        <setting id="attendance_telegram_late_chat_id_setting"
+                                 string="Late Alert Telegram Chat ID"
+                                 help="Telegram chat/group ID that receives the late alert (e.g. the all-employees group). Leave empty to reuse the attendance report chat ID above.">
+                            <field name="attendance_telegram_late_chat_id"/>
+                        </setting>
+                        <setting id="attendance_telegram_late_grace_minutes_setting"
+                                 string="Late Grace Period (minutes)"
+                                 help="Number of minutes after the scheduled start time before an employee is considered late">
+                            <field name="attendance_telegram_late_grace_minutes"/>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

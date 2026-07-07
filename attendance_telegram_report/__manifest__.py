@@ -4,7 +4,7 @@
     'name': "Daily Attendance Report via Telegram",
     'version': '18.0.1.0.0',
     'category': 'Human Resources/Attendances',
-    'summary': "Send a daily Telegram report of who worked, how long, and who was absent",
+    'summary': "Send daily Telegram reports of attendance, and a late-arrival alert every morning",
     'description': """
 Daily Attendance Report via Telegram
 =====================================
@@ -12,20 +12,27 @@ Daily Attendance Report via Telegram
 Every day at 18:30 (Indochina Time, UTC+7, by default), sends a Telegram
 message reporting:
 
-* Employees who worked today, with total hours worked
+* Employees who worked today, with their check-in / check-out times
 * Employees who were scheduled to work today but have no attendance
   record (absent)
 
+Every day at 09:01 (Indochina Time, UTC+7, by default), sends a second
+Telegram message (e.g. to an all-employees group) listing employees who
+are late: no check-in yet past their scheduled start time (+ grace
+period), or whose first check-in today came after that threshold.
+
 Requires the "Send by Telegram" module, whose bot token configuration
-is reused to send this report.
+is reused to send these reports.
 
 Configuration
 -------------
 * Settings > General Settings > Attendance Telegram Report:
-  enable/disable the report and set the destination Telegram chat/group ID.
+  enable/disable each report, set the destination Telegram chat/group ID(s),
+  and the late grace period (minutes).
 * Settings > Technical > Scheduled Actions > "Send Daily Attendance Report
-  via Telegram": adjust the execution time if your company is not on
-  Indochina Time (UTC+7) — scheduled action times are stored in UTC.
+  via Telegram" / "Send Late Attendance Alert via Telegram": adjust the
+  execution time if your company is not on Indochina Time (UTC+7) —
+  scheduled action times are stored in UTC.
 """,
     'author': 'MRDIL ODOO',
     'license': 'LGPL-3',
