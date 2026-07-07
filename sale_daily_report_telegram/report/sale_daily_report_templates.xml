@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_sale_daily_document">
+        <t t-call="web.html_container">
+            <div class="page">
+                <div class="row">
+                    <div class="col-6">
+                        <h2>Daily Sales Report</h2>
+                        <p>
+                            <strong>Company:</strong> <span t-esc="company.name"/><br/>
+                            <strong>Date:</strong> <span t-esc="report_date"/>
+                        </p>
+                    </div>
+                </div>
+                <table class="table table-sm o_main_table mt-4">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Salesperson</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="docs" t-as="order">
+                            <td><span t-esc="order.name"/></td>
+                            <td><span t-esc="order.partner_id.name"/></td>
+                            <td><span t-esc="order.user_id.name"/></td>
+                            <td class="text-end">
+                                <span t-esc="order.amount_total"
+                                      t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row mt-4">
+                    <div class="col-6 offset-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Total Orders</strong></td>
+                                <td class="text-end"><span t-esc="len(docs)"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Revenue</strong></td>
+                                <td class="text-end">
+                                    <span t-esc="total_amount"
+                                          t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>
