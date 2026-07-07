@@ -13,7 +13,6 @@
         <field name="code">model._cron_send_daily_telegram_attendance_report()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="numbercall">-1</field>
         <field name="nextcall" eval="'2024-01-01 11:30:00'"/>
         <field name="user_id" ref="base.user_root"/>
         <field name="active">True</field>
