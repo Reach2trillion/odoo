@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
+
     <record id="res_config_settings_view_form_telegram" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.telegram</field>
         <field name="model">res.config.settings</field>
@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//block[@name='quotation_order_setting_container']" position="after">
                 <block title="Send by Telegram" name="telegram_setting_container">
-                    <setting id="telegram_bot_token_setting" 
+                    <setting id="telegram_bot_token_setting"
                              string="Telegram Bot"
                              help="Configure your Telegram bot for sending quotations and orders">
                         <div class="content-group">
@@ -19,9 +19,9 @@
                             <div class="row mt8">
                                 <div class="col-lg-3"/>
                                 <div class="col-lg-6">
-                                    <button name="action_test_telegram_bot" 
-                                            type="object" 
-                                            string="Test Bot" 
+                                    <button name="action_test_telegram_bot"
+                                            type="object"
+                                            string="Test Bot"
                                             class="btn-secondary"
                                             icon="fa-telegram"/>
                                 </div>
@@ -29,8 +29,77 @@
                         </div>
                     </setting>
                 </block>
+
+                <block title="Daily Attendance Report" name="telegram_attendance_setting_container">
+                    <setting id="attendance_telegram_report_enabled_setting"
+                             string="Send Daily Attendance Report"
+                             help="Send a daily Telegram report of who worked (check-in/check-out) and who was absent">
+                        <field name="attendance_telegram_report_enabled"/>
+                    </setting>
+                    <setting id="attendance_telegram_chat_id_setting"
+                             string="Telegram Chat ID"
+                             help="Telegram chat/group ID that receives the daily attendance report">
+                        <field name="attendance_telegram_chat_id"/>
+                    </setting>
+                    <setting id="attendance_telegram_late_enabled_setting"
+                             string="Send Late Attendance Alert"
+                             help="Send a Telegram alert of employees who are late, checked at the scheduled time each working day">
+                        <field name="attendance_telegram_late_enabled"/>
+                    </setting>
+                    <setting id="attendance_telegram_late_chat_id_setting"
+                             string="Late Alert Telegram Chat ID"
+                             help="Telegram chat/group ID that receives the late alert (e.g. the all-employees group). Leave empty to reuse the attendance report chat ID above">
+                        <field name="attendance_telegram_late_chat_id"/>
+                    </setting>
+                    <setting id="attendance_telegram_late_grace_minutes_setting"
+                             string="Late Grace Period (minutes)"
+                             help="Number of minutes after the scheduled start time before an employee is considered late">
+                        <field name="attendance_telegram_late_grace_minutes"/>
+                    </setting>
+                </block>
+
+                <block title="Daily Sales Report" name="telegram_sale_daily_report_setting_container">
+                    <setting id="sale_daily_report_telegram_enabled_setting"
+                             string="Send Daily Sales Report"
+                             help="Send a daily PDF summary of confirmed sales orders via Telegram">
+                        <field name="sale_daily_report_telegram_enabled"/>
+                    </setting>
+                    <setting id="sale_daily_report_telegram_chat_id_setting"
+                             string="Telegram Chat ID"
+                             help="Telegram chat ID(s) that receive the daily sales PDF report, comma-separated for multiple recipients (e.g. one boss's chat, one for another)">
+                        <field name="sale_daily_report_telegram_chat_id"/>
+                    </setting>
+                </block>
+
+                <block title="Stock Report" name="telegram_stock_report_setting_container">
+                    <setting id="stock_report_telegram_enabled_setting"
+                             string="Send Daily Stock Report"
+                             help="Send a daily PDF of stock on hand and stock sold today via Telegram">
+                        <field name="stock_report_telegram_enabled"/>
+                    </setting>
+                    <setting id="stock_report_telegram_monthly_enabled_setting"
+                             string="Send Monthly Stock Report"
+                             help="Send a monthly PDF of stock on hand and stock sold last month via Telegram">
+                        <field name="stock_report_telegram_monthly_enabled"/>
+                    </setting>
+                    <setting id="stock_report_telegram_chat_id_setting"
+                             string="Telegram Chat ID"
+                             help="Telegram chat ID(s) that receive the stock reports, comma-separated for multiple recipients (e.g. one boss's chat, one for another)">
+                        <field name="stock_report_telegram_chat_id"/>
+                    </setting>
+                    <setting id="stock_report_telegram_location_1_setting"
+                             string="Stock Location 1"
+                             help="First stock location to track (e.g. Warehouse)">
+                        <field name="stock_report_telegram_location_1_id"/>
+                    </setting>
+                    <setting id="stock_report_telegram_location_2_setting"
+                             string="Stock Location 2"
+                             help="Second stock location to track (e.g. Office Sale Stock)">
+                        <field name="stock_report_telegram_location_2_id"/>
+                    </setting>
+                </block>
             </xpath>
         </field>
     </record>
-    
+
 </odoo>

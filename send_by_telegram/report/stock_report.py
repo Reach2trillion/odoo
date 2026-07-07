@@ -32,7 +32,7 @@ def _build_sold_rows(sold):
 
 
 class StockDailyReport(models.AbstractModel):
-    _name = 'report.stock_report_telegram.report_stock_daily_document'
+    _name = 'report.send_by_telegram.report_stock_daily_document'
     _description = "Daily Stock Report (PDF)"
 
     def _get_report_values(self, docids, data=None):
@@ -54,7 +54,7 @@ class StockDailyReport(models.AbstractModel):
 
 
 class StockMonthlyReport(models.AbstractModel):
-    _name = 'report.stock_report_telegram.report_stock_monthly_document'
+    _name = 'report.send_by_telegram.report_stock_monthly_document'
     _description = "Monthly Stock Report (PDF)"
 
     def _get_report_values(self, docids, data=None):

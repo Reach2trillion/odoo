@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Scheduled action times are stored in UTC. If your company is not on
+        Indochina Time (UTC+7), edit the "Next Execution Date" under
+        Settings > Technical > Scheduled Actions for each of these.
+    -->
+
+    <!-- 02:01 UTC = 09:01 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_telegram_late_report" model="ir.cron">
+        <field name="name">Send Late Attendance Alert via Telegram</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_telegram_late_report()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 02:01:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 11:30 UTC = 18:30 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_telegram_attendance_report" model="ir.cron">
+        <field name="name">Send Daily Attendance Report via Telegram</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_daily_telegram_attendance_report()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 11:30:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 12:00 UTC = 19:00 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_sales_report_telegram" model="ir.cron">
+        <field name="name">Send Daily Sales Report via Telegram</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_daily_sales_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 12:00:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 12:30 UTC = 19:30 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_stock_report_telegram" model="ir.cron">
+        <field name="name">Send Daily Stock Report via Telegram</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_daily_stock_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 12:30:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 00:30 UTC on the 1st = 07:30 Indochina Time (UTC+7); reports on the previous month -->
+    <record id="ir_cron_monthly_stock_report_telegram" model="ir.cron">
+        <field name="name">Send Monthly Stock Report via Telegram</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_monthly_stock_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="nextcall" eval="'2024-02-01 00:30:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

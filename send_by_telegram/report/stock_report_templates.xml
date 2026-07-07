@@ -91,7 +91,7 @@
     <template id="report_stock_daily_document">
         <t t-call="web.html_container">
             <div class="page gz_report">
-                <t t-call="stock_report_telegram.stock_report_style"/>
+                <t t-call="send_by_telegram.stock_report_style"/>
 
                 <div class="gz_header">
                     <h1>Daily Stock Report</h1>
@@ -156,7 +156,7 @@
     <template id="report_stock_monthly_document">
         <t t-call="web.html_container">
             <div class="page gz_report">
-                <t t-call="stock_report_telegram.stock_report_style"/>
+                <t t-call="send_by_telegram.stock_report_style"/>
 
                 <div class="gz_header">
                     <h1>Monthly Stock Report</h1>

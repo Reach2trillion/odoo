@@ -7,7 +7,7 @@ import pytz
 
 from odoo import _, api, fields, models
 
-from odoo.addons.send_by_telegram.services.telegram_service import TelegramService
+from ..services.telegram_service import TelegramService
 
 _logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ class HrEmployee(models.Model):
         reference_time_utc = reference_time_utc or datetime.utcnow()
 
         grace_minutes = int(self.env['ir.config_parameter'].sudo().get_param(
-            'attendance_telegram_report.late_grace_minutes', 0
+            'send_by_telegram.attendance_late_grace_minutes', 0
         ) or 0)
 
         employees = self.search([('company_id', '=', company.id)])
@@ -232,12 +232,12 @@ class HrEmployee(models.Model):
     @api.model
     def _cron_send_telegram_late_report(self):
         icp = self.env['ir.config_parameter'].sudo()
-        if icp.get_param('attendance_telegram_report.late_enabled', 'True') != 'True':
+        if icp.get_param('send_by_telegram.attendance_late_enabled', 'True') != 'True':
             return
 
         chat_id = (
-            icp.get_param('attendance_telegram_report.late_chat_id')
-            or icp.get_param('attendance_telegram_report.chat_id')
+            icp.get_param('send_by_telegram.attendance_late_chat_id')
+            or icp.get_param('send_by_telegram.attendance_report_chat_id')
         )
         token = icp.get_param('send_by_telegram.bot_token')
         if not chat_id or not token:
@@ -255,10 +255,10 @@ class HrEmployee(models.Model):
     @api.model
     def _cron_send_daily_telegram_attendance_report(self):
         icp = self.env['ir.config_parameter'].sudo()
-        if icp.get_param('attendance_telegram_report.enabled', 'True') != 'True':
+        if icp.get_param('send_by_telegram.attendance_report_enabled', 'True') != 'True':
             return
 
-        chat_id = icp.get_param('attendance_telegram_report.chat_id')
+        chat_id = icp.get_param('send_by_telegram.attendance_report_chat_id')
         token = icp.get_param('send_by_telegram.bot_token')
         if not chat_id or not token:
             _logger.warning(
