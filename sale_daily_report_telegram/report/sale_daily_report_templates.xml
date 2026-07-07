@@ -3,54 +3,152 @@
 
     <template id="report_sale_daily_document">
         <t t-call="web.html_container">
-            <div class="page">
-                <div class="row">
-                    <div class="col-6">
-                        <h2>Daily Sales Report</h2>
-                        <p>
-                            <strong>Company:</strong> <span t-esc="company.name"/><br/>
-                            <strong>Date:</strong> <span t-esc="report_date"/>
-                        </p>
-                    </div>
+            <div class="page gz_report">
+                <style>
+                    .gz_report {
+                        font-family: 'Helvetica Neue', Arial, sans-serif;
+                        color: #1a1a2e;
+                    }
+                    .gz_header {
+                        background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                        background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                        border-radius: 16px;
+                        padding: 24px 28px;
+                        color: #ffffff;
+                        margin-bottom: 20px;
+                    }
+                    .gz_header h1 {
+                        font-size: 26px;
+                        font-weight: 800;
+                        margin: 0 0 4px 0;
+                        letter-spacing: -0.5px;
+                    }
+                    .gz_header .gz_sub {
+                        font-size: 13px;
+                        opacity: 0.9;
+                        margin: 0;
+                    }
+                    .gz_stats {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 10px 0;
+                        margin-bottom: 20px;
+                    }
+                    .gz_stat_card {
+                        border-radius: 14px;
+                        padding: 16px 18px;
+                        width: 50%;
+                    }
+                    .gz_stat_card.orders {
+                        background: #EAFBF1;
+                        border: 2px solid #00D084;
+                    }
+                    .gz_stat_card.revenue {
+                        background: #FFF0F6;
+                        border: 2px solid #FD79A8;
+                    }
+                    .gz_stat_label {
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        font-weight: 700;
+                        color: #6b6b7b;
+                        margin: 0 0 4px 0;
+                    }
+                    .gz_stat_value {
+                        font-size: 24px;
+                        font-weight: 800;
+                        margin: 0;
+                        color: #1a1a2e;
+                    }
+                    .gz_table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 12px;
+                    }
+                    .gz_table thead th {
+                        background: #1a1a2e;
+                        color: #ffffff;
+                        padding: 10px 12px;
+                        text-align: left;
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
+                    .gz_table thead th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+                    .gz_table tbody td {
+                        padding: 10px 12px;
+                        border-bottom: 1px solid #eeeeee;
+                    }
+                    .gz_table tbody tr:nth-child(even) {
+                        background: #FAFAFC;
+                    }
+                    .gz_table td.gz_amount {
+                        text-align: right;
+                        font-weight: 700;
+                        color: #6C5CE7;
+                    }
+                    .gz_empty {
+                        text-align: center;
+                        padding: 30px;
+                        color: #9b9bab;
+                        font-style: italic;
+                    }
+                    .gz_footer {
+                        margin-top: 24px;
+                        text-align: center;
+                        font-size: 10px;
+                        color: #9b9bab;
+                    }
+                </style>
+
+                <div class="gz_header">
+                    <h1>📊 Daily Sales Report</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="report_date"/></p>
                 </div>
-                <table class="table table-sm o_main_table mt-4">
+
+                <table class="gz_stats">
+                    <tr>
+                        <td class="gz_stat_card orders">
+                            <p class="gz_stat_label">🧾 Orders</p>
+                            <p class="gz_stat_value"><span t-esc="len(docs)"/></p>
+                        </td>
+                        <td class="gz_stat_card revenue">
+                            <p class="gz_stat_label">💰 Revenue</p>
+                            <p class="gz_stat_value">
+                                <span t-esc="total_amount" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="gz_table">
                     <thead>
                         <tr>
                             <th>Order</th>
                             <th>Customer</th>
                             <th>Salesperson</th>
-                            <th class="text-end">Total</th>
+                            <th style="text-align:right;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr t-foreach="docs" t-as="order">
-                            <td><span t-esc="order.name"/></td>
+                            <td><strong><span t-esc="order.name"/></strong></td>
                             <td><span t-esc="order.partner_id.name"/></td>
                             <td><span t-esc="order.user_id.name"/></td>
-                            <td class="text-end">
+                            <td class="gz_amount">
                                 <span t-esc="order.amount_total"
                                       t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
                             </td>
                         </tr>
+                        <tr t-if="not docs">
+                            <td colspan="4" class="gz_empty">No orders today 👀</td>
+                        </tr>
                     </tbody>
                 </table>
-                <div class="row mt-4">
-                    <div class="col-6 offset-6">
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Total Orders</strong></td>
-                                <td class="text-end"><span t-esc="len(docs)"/></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total Revenue</strong></td>
-                                <td class="text-end">
-                                    <span t-esc="total_amount"
-                                          t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+
+                <p class="gz_footer">Generated automatically · Sent via Telegram 🚀</p>
             </div>
         </t>
     </template>
