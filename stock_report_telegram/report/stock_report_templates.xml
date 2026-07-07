@@ -4,7 +4,7 @@
     <template id="stock_report_style" name="Stock Report Shared Style">
         <style>
             .gz_report {
-                font-family: 'Khmer OS', 'Noto Sans Khmer', 'Helvetica Neue', Arial, sans-serif;
+                font-family: 'Helvetica Neue', Arial, sans-serif;
                 color: #1a1a2e;
             }
             .gz_header {
@@ -16,16 +16,10 @@
                 margin-bottom: 20px;
             }
             .gz_header h1 {
-                font-size: 24px;
+                font-size: 26px;
                 font-weight: 800;
-                margin: 0 0 2px 0;
+                margin: 0 0 4px 0;
                 letter-spacing: -0.5px;
-            }
-            .gz_header .gz_i18n {
-                font-size: 13px;
-                font-weight: 400;
-                opacity: 0.85;
-                margin: 0 0 10px 0;
             }
             .gz_header .gz_sub {
                 font-size: 13px;
@@ -33,22 +27,14 @@
                 margin: 0;
             }
             .gz_section_title {
-                margin: 24px 0 10px 0;
-            }
-            .gz_section_title:first-of-type { margin-top: 0; }
-            .gz_section_title .gz_en {
                 font-size: 14px;
                 font-weight: 800;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #6C5CE7;
+                margin: 24px 0 10px 0;
             }
-            .gz_section_title .gz_i18n {
-                font-size: 11px;
-                font-weight: 400;
-                color: #9b9bab;
-                margin-left: 6px;
-            }
+            .gz_section_title:first-of-type { margin-top: 0; }
             .gz_table {
                 width: 100%;
                 border-collapse: collapse;
@@ -62,14 +48,6 @@
                 font-size: 11px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-            }
-            .gz_table thead th .gz_i18n {
-                display: block;
-                text-transform: none;
-                font-size: 9px;
-                font-weight: 400;
-                opacity: 0.75;
-                letter-spacing: 0;
             }
             .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
             .gz_table thead th:last-child { border-radius: 0 8px 8px 0; }
@@ -117,23 +95,19 @@
 
                 <div class="gz_header">
                     <h1>Daily Stock Report</h1>
-                    <p class="gz_i18n">របាយការណ៍ស្តុកប្រចាំថ្ងៃ / 每日库存报告</p>
                     <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="report_date"/></p>
                 </div>
 
-                <p class="gz_section_title">
-                    <span class="gz_en">Stock On Hand</span>
-                    <span class="gz_i18n">ស្តុកនៅសល់ / 现有库存</span>
-                </p>
+                <p class="gz_section_title">Stock On Hand</p>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product<span class="gz_i18n">ផលិតផល / 产品</span></th>
+                            <th>Product</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
                                 <th class="gz_amount"><span t-esc="location.name"/></th>
                             </t>
-                            <th class="gz_amount">Total<span class="gz_i18n">សរុប / 总计</span></th>
+                            <th class="gz_amount">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -146,22 +120,19 @@
                             <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
                         </tr>
                         <tr t-if="not stock_rows">
-                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand / គ្មានស្តុក / 无库存</td>
+                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_section_title">
-                    <span class="gz_en">Sold Today</span>
-                    <span class="gz_i18n">លក់ថ្ងៃនេះ / 今日已售</span>
-                </p>
+                <p class="gz_section_title">Sold Today</p>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product<span class="gz_i18n">ផលិតផល / 产品</span></th>
+                            <th>Product</th>
                             <th>SKU</th>
-                            <th class="gz_amount">Qty Sold<span class="gz_i18n">បរិមាណលក់ / 销售数量</span></th>
-                            <th>UoM<span class="gz_i18n">ឯកតា / 单位</span></th>
+                            <th class="gz_amount">Qty Sold</th>
+                            <th>UoM</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -172,7 +143,7 @@
                             <td><span t-esc="row['uom']"/></td>
                         </tr>
                         <tr t-if="not sold_rows">
-                            <td colspan="4" class="gz_empty">No stock sold today / គ្មានការលក់ថ្ងៃនេះ / 今日无销售</td>
+                            <td colspan="4" class="gz_empty">No stock sold today</td>
                         </tr>
                     </tbody>
                 </table>
@@ -189,23 +160,19 @@
 
                 <div class="gz_header">
                     <h1>Monthly Stock Report</h1>
-                    <p class="gz_i18n">របាយការណ៍ស្តុកប្រចាំខែ / 每月库存报告</p>
                     <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="month_label"/></p>
                 </div>
 
-                <p class="gz_section_title">
-                    <span class="gz_en">Stock On Hand</span>
-                    <span class="gz_i18n">ស្តុកនៅសល់ / 现有库存</span>
-                </p>
+                <p class="gz_section_title">Stock On Hand</p>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product<span class="gz_i18n">ផលិតផល / 产品</span></th>
+                            <th>Product</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
                                 <th class="gz_amount"><span t-esc="location.name"/></th>
                             </t>
-                            <th class="gz_amount">Total<span class="gz_i18n">សរុប / 总计</span></th>
+                            <th class="gz_amount">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -218,22 +185,19 @@
                             <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
                         </tr>
                         <tr t-if="not stock_rows">
-                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand / គ្មានស្តុក / 无库存</td>
+                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_section_title">
-                    <span class="gz_en">Sold This Month</span>
-                    <span class="gz_i18n">លក់ក្នុងខែនេះ / 本月已售</span>
-                </p>
+                <p class="gz_section_title">Sold This Month</p>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product<span class="gz_i18n">ផលិតផល / 产品</span></th>
+                            <th>Product</th>
                             <th>SKU</th>
-                            <th class="gz_amount">Qty Sold<span class="gz_i18n">បរិមាណលក់ / 销售数量</span></th>
-                            <th>UoM<span class="gz_i18n">ឯកតា / 单位</span></th>
+                            <th class="gz_amount">Qty Sold</th>
+                            <th>UoM</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -244,7 +208,7 @@
                             <td><span t-esc="row['uom']"/></td>
                         </tr>
                         <tr t-if="not sold_rows">
-                            <td colspan="4" class="gz_empty">No stock sold this month / គ្មានការលក់ខែនេះ / 本月无销售</td>
+                            <td colspan="4" class="gz_empty">No stock sold this month</td>
                         </tr>
                     </tbody>
                 </table>
