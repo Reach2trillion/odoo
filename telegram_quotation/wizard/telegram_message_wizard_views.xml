@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_telegram_message_wizard_form" model="ir.ui.view">
+        <field name="name">telegram.message.wizard.form</field>
+        <field name="model">telegram.message.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send via Telegram">
+                <field name="res_model" invisible="1"/>
+                <field name="res_id" invisible="1"/>
+                <group>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="telegram_group_id" readonly="1"/>
+                    <field name="message" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
