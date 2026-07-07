@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="stock_report_style" name="Stock Report Shared Style">
+        <style>
+            .gz_report {
+                font-family: 'Khmer OS', 'Noto Sans Khmer', 'Helvetica Neue', Arial, sans-serif;
+                color: #1a1a2e;
+            }
+            .gz_header {
+                background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                border-radius: 16px;
+                padding: 24px 28px;
+                color: #ffffff;
+                margin-bottom: 20px;
+            }
+            .gz_header h1 {
+                font-size: 26px;
+                font-weight: 800;
+                margin: 0 0 4px 0;
+                letter-spacing: -0.5px;
+            }
+            .gz_header .gz_sub {
+                font-size: 13px;
+                opacity: 0.9;
+                margin: 0;
+            }
+            .gz_section_title {
+                font-size: 14px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #6C5CE7;
+                margin: 24px 0 10px 0;
+            }
+            .gz_section_title:first-of-type { margin-top: 0; }
+            .gz_table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            .gz_table thead th {
+                background: #1a1a2e;
+                color: #ffffff;
+                padding: 10px 12px;
+                text-align: left;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
+            .gz_table thead th:last-child { border-radius: 0 8px 8px 0; }
+            .gz_table tbody td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #eeeeee;
+            }
+            .gz_table tbody tr:nth-child(even) {
+                background: #FAFAFC;
+            }
+            .gz_table td.gz_amount, .gz_table th.gz_amount {
+                text-align: right;
+            }
+            .gz_table td.gz_amount {
+                font-weight: 700;
+                color: #6C5CE7;
+            }
+            .gz_table td.gz_total {
+                font-weight: 800;
+                color: #1a1a2e;
+            }
+            .gz_empty {
+                text-align: center;
+                padding: 24px;
+                color: #9b9bab;
+                font-style: italic;
+            }
+            .gz_footer {
+                margin-top: 24px;
+                text-align: center;
+                font-size: 10px;
+                color: #9b9bab;
+            }
+        </style>
+    </template>
+
+    <template id="report_stock_daily_document">
+        <t t-call="web.html_container">
+            <div class="page gz_report">
+                <t t-call="stock_report_telegram.stock_report_style"/>
+
+                <div class="gz_header">
+                    <h1>Daily Stock Report</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="report_date"/></p>
+                </div>
+
+                <p class="gz_section_title">Stock On Hand</p>
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <t t-foreach="locations" t-as="location">
+                                <th class="gz_amount"><span t-esc="location.name"/></th>
+                            </t>
+                            <th class="gz_amount">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="stock_rows" t-as="row">
+                            <td><span t-esc="row['name']"/></td>
+                            <t t-foreach="locations" t-as="location">
+                                <td class="gz_amount"><span t-esc="'%.2f' % row.get(location.id, 0.0)"/></td>
+                            </t>
+                            <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
+                        </tr>
+                        <tr t-if="not stock_rows">
+                            <td t-attf-colspan="#{len(locations) + 2}" class="gz_empty">No stock on hand</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_section_title">Sold Today</p>
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="gz_amount">Qty Sold</th>
+                            <th>UoM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="sold_rows" t-as="row">
+                            <td><span t-esc="row['name']"/></td>
+                            <td class="gz_amount"><span t-esc="'%.2f' % row['qty']"/></td>
+                            <td><span t-esc="row['uom']"/></td>
+                        </tr>
+                        <tr t-if="not sold_rows">
+                            <td colspan="3" class="gz_empty">No stock sold today</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_footer">Generated automatically - Sent via Telegram</p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_stock_monthly_document">
+        <t t-call="web.html_container">
+            <div class="page gz_report">
+                <t t-call="stock_report_telegram.stock_report_style"/>
+
+                <div class="gz_header">
+                    <h1>Monthly Stock Report</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="month_label"/></p>
+                </div>
+
+                <p class="gz_section_title">Stock On Hand</p>
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <t t-foreach="locations" t-as="location">
+                                <th class="gz_amount"><span t-esc="location.name"/></th>
+                            </t>
+                            <th class="gz_amount">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="stock_rows" t-as="row">
+                            <td><span t-esc="row['name']"/></td>
+                            <t t-foreach="locations" t-as="location">
+                                <td class="gz_amount"><span t-esc="'%.2f' % row.get(location.id, 0.0)"/></td>
+                            </t>
+                            <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
+                        </tr>
+                        <tr t-if="not stock_rows">
+                            <td t-attf-colspan="#{len(locations) + 2}" class="gz_empty">No stock on hand</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_section_title">Sold This Month</p>
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="gz_amount">Qty Sold</th>
+                            <th>UoM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="sold_rows" t-as="row">
+                            <td><span t-esc="row['name']"/></td>
+                            <td class="gz_amount"><span t-esc="'%.2f' % row['qty']"/></td>
+                            <td><span t-esc="row['uom']"/></td>
+                        </tr>
+                        <tr t-if="not sold_rows">
+                            <td colspan="3" class="gz_empty">No stock sold this month</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_footer">Generated automatically - Sent via Telegram</p>
+            </div>
+        </t>
+    </template>
+
+</odoo>
