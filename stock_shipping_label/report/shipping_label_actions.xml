@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_shipping_label" model="ir.actions.report">
+        <field name="name">Shipping Label</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_shipping_label.report_shipping_label_document</field>
+        <field name="paperformat_id" ref="stock_shipping_label.paperformat_shipping_label"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>
