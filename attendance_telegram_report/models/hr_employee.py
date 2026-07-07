@@ -25,50 +25,67 @@ class HrEmployee(models.Model):
         return bool(calendar.attendance_ids.filtered(lambda a: a.dayofweek == weekday))
 
     @api.model
+    def _get_telegram_report_tz(self):
+        company = self.env.company
+        tz_name = company.resource_calendar_id.tz or self.env.user.tz or 'UTC'
+        return pytz.timezone(tz_name)
+
+    @api.model
     def _get_telegram_attendance_report_data(self, report_date=None):
-        """Compute who worked today (with duration) and who was absent.
+        """Compute who worked today (check-in/check-out times) and who was absent.
 
         Returns:
             tuple: (present_data, absent_employees)
-                present_data (list[dict]): [{'employee': hr.employee, 'hours': float}, ...]
+                present_data (list[dict]): [{
+                    'employee': hr.employee,
+                    'check_in': datetime (UTC),
+                    'check_out': datetime (UTC) or None if still checked in,
+                }, ...]
                 absent_employees (hr.employee recordset)
         """
         company = self.env.company
-        tz_name = company.resource_calendar_id.tz or self.env.user.tz or 'UTC'
-        tz = pytz.timezone(tz_name)
+        tz = self._get_telegram_report_tz()
 
         report_date = report_date or fields.Date.context_today(self)
         day_start_utc = tz.localize(datetime.combine(report_date, time.min)).astimezone(pytz.UTC).replace(tzinfo=None)
         day_end_utc = tz.localize(datetime.combine(report_date, time.max)).astimezone(pytz.UTC).replace(tzinfo=None)
-        now_utc = datetime.utcnow()
 
         employees = self.search([('company_id', '=', company.id)])
         attendances = self.env['hr.attendance'].search([
             ('employee_id', 'in', employees.ids),
             ('check_in', '<=', day_end_utc),
             '|', ('check_out', '=', False), ('check_out', '>=', day_start_utc),
-        ])
+        ], order='check_in asc')
 
-        worked_seconds = {}
+        sessions = {}
         for att in attendances:
-            check_in = max(att.check_in, day_start_utc)
-            check_out = min(att.check_out or now_utc, day_end_utc)
-            if check_out <= check_in:
-                continue
-            worked_seconds[att.employee_id.id] = (
-                worked_seconds.get(att.employee_id.id, 0.0)
-                + (check_out - check_in).total_seconds()
+            session = sessions.setdefault(
+                att.employee_id.id, {'check_in': None, 'check_out': None}
             )
+            check_in = max(att.check_in, day_start_utc)
+            if session['check_in'] is None or check_in < session['check_in']:
+                session['check_in'] = check_in
+
+            if not att.check_out:
+                session['check_out'] = None
+            elif session['check_out'] is not None:
+                check_out = min(att.check_out, day_end_utc)
+                if check_out > session['check_out']:
+                    session['check_out'] = check_out
 
         present_data = sorted(
             (
-                {'employee': self.browse(emp_id), 'hours': seconds / 3600.0}
-                for emp_id, seconds in worked_seconds.items()
+                {
+                    'employee': self.browse(emp_id),
+                    'check_in': session['check_in'],
+                    'check_out': session['check_out'],
+                }
+                for emp_id, session in sessions.items()
             ),
             key=lambda data: data['employee'].name or '',
         )
 
-        present_employee_ids = set(worked_seconds.keys())
+        present_employee_ids = set(sessions.keys())
         candidates = employees.filtered(lambda e: e.id not in present_employee_ids)
         absent_employees = candidates.filtered(
             lambda e: e._is_telegram_report_working_day(report_date)
@@ -76,19 +93,27 @@ class HrEmployee(models.Model):
 
         return present_data, absent_employees
 
-    @staticmethod
-    def _format_telegram_report_hours(hours):
-        total_minutes = int(round(hours * 60))
-        h, m = divmod(total_minutes, 60)
-        return _("%(h)dh%(m)02dm") % {'h': h, 'm': m}
+    def _format_telegram_report_time(self, dt_utc, tz):
+        return pytz.UTC.localize(dt_utc).astimezone(tz).strftime('%H:%M')
 
     @api.model
     def _get_telegram_attendance_report_text(self, report_date=None):
         report_date = report_date or fields.Date.context_today(self)
         present_data, absent_employees = self._get_telegram_attendance_report_data(report_date)
+        tz = self._get_telegram_report_tz()
 
         present_lines = "\n".join(
-            "✅ %s — <b>%s</b>" % (data['employee'].name, self._format_telegram_report_hours(data['hours']))
+            "✅ %(name)s — %(in_label)s: <b>%(check_in)s</b>, %(out_label)s: <b>%(check_out)s</b>"
+            % {
+                'name': data['employee'].name,
+                'in_label': _("Check In"),
+                'check_in': self._format_telegram_report_time(data['check_in'], tz),
+                'out_label': _("Check Out"),
+                'check_out': (
+                    self._format_telegram_report_time(data['check_out'], tz)
+                    if data['check_out'] else _("still working")
+                ),
+            }
             for data in present_data
         ) or _("(none)")
 
