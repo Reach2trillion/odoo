@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_attendance_telegram" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.attendance.telegram.report</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Attendance Telegram Report"
+                     string="Attendance Telegram Report" data-key="attendance_telegram_report">
+                    <h2>Daily Attendance Report</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <field name="attendance_telegram_report_enabled"/>
+                                <label for="attendance_telegram_report_enabled"/>
+                                <div class="text-muted">
+                                    Send a daily Telegram report (who worked, how long, who was absent)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="attendance_telegram_chat_id"/>
+                                <div class="text-muted">
+                                    Telegram chat/group ID that receives the report
+                                    (bot token is configured in Send by Telegram settings)
+                                </div>
+                                <div class="content-group">
+                                    <field name="attendance_telegram_chat_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
