@@ -167,8 +167,8 @@
 
                     <div class="label_footer">
                         <div class="label_thanks">
-                            <div class="thanks_en">Thank You For Your Order!</div>
-                            <div class="thanks_km">សូមអរគុណសម្រាប់ការទិញឥវ៉ាន់របស់អ្នក!</div>
+                            <div class="thanks_en"><span t-esc="thanks_en"/></div>
+                            <div class="thanks_km"><span t-esc="thanks_km"/></div>
                         </div>
                         <div class="label_footer_bar"/>
                     </div>
