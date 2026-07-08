@@ -21,6 +21,9 @@
 
                     <h3>Test 5: Same Khmer phrase, bold + different font-size (rules out inline style interference)</h3>
                     <p style="font-weight: bold; font-size: 18px;">សូមអរគុណសម្រាប់ការទិញឥវ៉ាន់របស់អ្នក!</p>
+
+                    <h3>Test 6: Khmer with font-family: 'Khmer OS Battambang', 'Noto Sans Khmer'</h3>
+                    <p style="font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', sans-serif;">សូមអរគុណសម្រាប់ការទិញឥវ៉ាន់របស់អ្នក!</p>
                 </div>
             </t>
         </t>
