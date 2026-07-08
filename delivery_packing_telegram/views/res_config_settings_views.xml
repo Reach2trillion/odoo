@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_delivery_packing_telegram" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.delivery.packing.telegram</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Delivery Packing Telegram" string="Delivery Packing Telegram" name="delivery_packing_telegram">
+                    <block title="Delivery Packing Notification" name="delivery_packing_telegram_setting_container">
+                        <setting id="delivery_packing_telegram_default_group_id_setting"
+                                 string="Default Telegram Group ID"
+                                 help="Used for delivery operation types that don't have their own Telegram Group ID set (Inventory > Configuration > Operation Types). The bot token itself is configured in the Send by Telegram settings.">
+                            <field name="delivery_packing_telegram_default_group_id"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
