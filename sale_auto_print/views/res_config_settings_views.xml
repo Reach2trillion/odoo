@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.auto.print</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('app_settings_block')][@data-key='sale']//block[last()]" position="after">
+                <block title="Auto-Print" id="sale_auto_print_setting_container">
+                    <setting id="sale_auto_print_enabled_setting"
+                             string="Auto-Print on Confirmation"
+                             help="Automatically open a print-ready page (Quotation PDF and/or Shipping Label) the moment a sale order is confirmed. Best for a USB/local printer attached to this PC.">
+                        <field name="sale_auto_print_enabled"/>
+                        <div class="content-group" invisible="not sale_auto_print_enabled">
+                            <div class="mt16">
+                                <field name="sale_auto_print_quotation" class="oe_inline"/>
+                                <label for="sale_auto_print_quotation" string="Include Sales Order / Quotation PDF"/>
+                            </div>
+                            <div class="mt8">
+                                <field name="sale_auto_print_shipping_label" class="oe_inline"/>
+                                <label for="sale_auto_print_shipping_label" string="Include Shipping Label"/>
+                            </div>
+                            <div class="mt8" invisible="not sale_auto_print_shipping_label">
+                                <label for="sale_auto_print_label_report_id" string="Shipping Label Report"/>
+                                <field name="sale_auto_print_label_report_id" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
