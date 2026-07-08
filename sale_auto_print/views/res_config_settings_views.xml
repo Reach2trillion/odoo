@@ -6,7 +6,7 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('app_settings_block')][@data-key='sale']//block[last()]" position="after">
+            <xpath expr="//app[@name='sale_management']" position="inside">
                 <block title="Auto-Print" id="sale_auto_print_setting_container">
                     <setting id="sale_auto_print_enabled_setting"
                              string="Auto-Print on Confirmation"
