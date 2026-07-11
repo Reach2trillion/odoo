@@ -65,3 +65,24 @@ class SaleWeeklyReport(models.AbstractModel):
             'total_amount_display': _format_amount(total_amount, currency),
             'company': self.env.company,
         }
+
+
+class SaleMonthlyReport(models.AbstractModel):
+    _name = 'report.sale_daily_report_telegram.report_sale_monthly_document'
+    _description = "Monthly Sales Report (PDF)"
+
+    def _get_report_values(self, docids, data=None):
+        docs = self.env['sale.order'].browse(docids)
+        data = data or {}
+        currency = docs[:1].currency_id or self.env.company.currency_id
+        total_amount = sum(docs.mapped('amount_total'))
+
+        return {
+            'doc_ids': docids,
+            'doc_model': 'sale.order',
+            'docs': docs,
+            'order_rows': _build_order_rows(docs, currency),
+            'month_label': data.get('month_label'),
+            'total_amount_display': _format_amount(total_amount, currency),
+            'company': self.env.company,
+        }

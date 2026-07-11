@@ -16,6 +16,11 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='sale_daily_report_telegram.weekly_enabled',
         default=True,
     )
+    sale_daily_report_telegram_monthly_enabled = fields.Boolean(
+        string="Send Monthly Sales Report",
+        config_parameter='sale_daily_report_telegram.monthly_enabled',
+        default=True,
+    )
     sale_daily_report_telegram_chat_id = fields.Char(
         string="Daily Sales Report Telegram Chat ID",
         config_parameter='sale_daily_report_telegram.chat_id',

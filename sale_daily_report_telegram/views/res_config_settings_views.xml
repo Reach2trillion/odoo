@@ -9,7 +9,7 @@
             <xpath expr="//form" position="inside">
                 <app data-string="Daily Sales Report" string="Daily Sales Report"
                      name="sale_daily_report_telegram">
-                    <block title="Daily &amp; Weekly Sales Report" name="sale_daily_report_telegram_setting_container">
+                    <block title="Daily, Weekly &amp; Monthly Sales Report" name="sale_daily_report_telegram_setting_container">
                         <setting id="sale_daily_report_telegram_enabled_setting"
                                  string="Send Daily Sales Report"
                                  help="Send a daily PDF summary of confirmed sales orders via Telegram">
@@ -19,6 +19,11 @@
                                  string="Send Weekly Sales Report"
                                  help="Send a weekly PDF summary (every Monday, covering the previous Mon-Sun week) of confirmed sales orders via Telegram">
                             <field name="sale_daily_report_telegram_weekly_enabled"/>
+                        </setting>
+                        <setting id="sale_daily_report_telegram_monthly_enabled_setting"
+                                 string="Send Monthly Sales Report"
+                                 help="Send a monthly PDF summary (1st of each month, covering the previous month) of confirmed sales orders via Telegram">
+                            <field name="sale_daily_report_telegram_monthly_enabled"/>
                         </setting>
                         <setting id="sale_daily_report_telegram_chat_id_setting"
                                  string="Telegram Chat ID"

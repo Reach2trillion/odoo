@@ -17,4 +17,12 @@
         <field name="binding_model_id" eval="False"/>
     </record>
 
+    <record id="action_report_sale_monthly" model="ir.actions.report">
+        <field name="name">Monthly Sales Report</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sale_daily_report_telegram.report_sale_monthly_document</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
 </odoo>

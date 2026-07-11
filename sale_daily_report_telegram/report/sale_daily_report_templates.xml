@@ -222,4 +222,56 @@
         </t>
     </template>
 
+    <template id="report_sale_monthly_document">
+        <t t-call="web.html_container">
+            <t t-call="sale_daily_report_telegram.external_layout">
+            <div class="page gz_report">
+                <t t-call="sale_daily_report_telegram.sale_daily_report_style"/>
+
+                <div class="gz_header">
+                    <h1>📊 Monthly Sales Report / របាយការណ៍លក់ប្រចាំខែ / 每月销售报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="month_label"/></p>
+                </div>
+
+                <table class="gz_stats">
+                    <tr>
+                        <td class="gz_stat_card orders">
+                            <p class="gz_stat_label">ការបញ្ជាទិញ / 订单数</p>
+                            <p class="gz_stat_value"><span t-esc="len(order_rows)"/></p>
+                        </td>
+                        <td class="gz_stat_card revenue">
+                            <p class="gz_stat_label">ចំណូល / 营业额</p>
+                            <p class="gz_stat_value"><span t-esc="total_amount_display"/></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>លេខបញ្ជាទិញ / 订单号</th>
+                            <th>អតិថិជន / 客户</th>
+                            <th>អ្នកលក់ / 销售员</th>
+                            <th style="text-align:right;">សរុប / 总计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="order_rows" t-as="order">
+                            <td><strong><span t-esc="order['name']"/></strong></td>
+                            <td><span t-esc="order['partner_name']"/></td>
+                            <td><span t-esc="order['salesperson_name']"/></td>
+                            <td class="gz_amount"><span t-esc="order['total_display']"/></td>
+                        </tr>
+                        <tr t-if="not order_rows">
+                            <td colspan="4" class="gz_empty">គ្មានការបញ្ជាទិញខែនេះ / 本月无订单</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
+            </div>
+            </t>
+        </t>
+    </template>
+
 </odoo>
