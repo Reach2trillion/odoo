@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 13:00 UTC = 20:00 Indochina Time (UTC+7) -->
+    <record id="ir_cron_daily_account_report_telegram" model="ir.cron">
+        <field name="name">Send Daily Accounting Report via Telegram</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_daily_account_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="'2024-01-01 13:00:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 13:15 UTC every Monday = 20:15 Indochina Time (UTC+7); reports on the previous Mon-Sun week -->
+    <record id="ir_cron_weekly_account_report_telegram" model="ir.cron">
+        <field name="name">Send Weekly Accounting Report via Telegram</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_weekly_account_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+        <field name="nextcall" eval="'2024-01-08 13:15:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+    <!-- 01:00 UTC on the 1st = 08:00 Indochina Time (UTC+7); reports on the previous month -->
+    <record id="ir_cron_monthly_account_report_telegram" model="ir.cron">
+        <field name="name">Send Monthly Accounting Report via Telegram</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_monthly_account_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="nextcall" eval="'2024-02-01 01:00:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

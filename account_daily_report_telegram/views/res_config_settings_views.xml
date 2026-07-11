@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_account_daily_report" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.account.daily.report.telegram</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Accounting Report" string="Accounting Report"
+                     name="account_daily_report_telegram">
+                    <block title="Daily, Weekly &amp; Monthly Accounting Report" name="account_daily_report_telegram_setting_container">
+                        <setting id="account_daily_report_telegram_enabled_setting"
+                                 string="Send Daily Accounting Report"
+                                 help="Send a daily accounting dashboard PDF (invoices, bills, profit, outstanding) via Telegram">
+                            <field name="account_daily_report_telegram_enabled"/>
+                        </setting>
+                        <setting id="account_daily_report_telegram_weekly_enabled_setting"
+                                 string="Send Weekly Accounting Report"
+                                 help="Send a weekly PDF (every Monday, covering the previous Mon-Sun week) via Telegram">
+                            <field name="account_daily_report_telegram_weekly_enabled"/>
+                        </setting>
+                        <setting id="account_daily_report_telegram_monthly_enabled_setting"
+                                 string="Send Monthly Accounting Report"
+                                 help="Send a monthly PDF (1st of each month, covering the previous month) via Telegram">
+                            <field name="account_daily_report_telegram_monthly_enabled"/>
+                        </setting>
+                        <setting id="account_daily_report_telegram_chat_id_setting"
+                                 string="Telegram Chat ID"
+                                 help="Telegram chat ID(s) that receive the accounting PDF reports, comma-separated for multiple recipients (e.g. one boss's chat, one for another). The bot token itself is configured in the Send by Telegram settings.">
+                            <field name="account_daily_report_telegram_chat_id"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

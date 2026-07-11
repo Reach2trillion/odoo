@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="account_report_style" name="Accounting Report Shared Style">
+        <style>
+            .gz_report {
+                font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', 'Noto Sans SC', 'Microsoft YaHei', 'SimHei', 'Helvetica Neue', Arial, sans-serif;
+                color: #1a1a2e;
+            }
+            .gz_header {
+                background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                border-radius: 20px;
+                padding: 28px 30px;
+                color: #ffffff;
+                margin-bottom: 18px;
+            }
+            .gz_header h1 {
+                font-size: 25px;
+                font-weight: 800;
+                margin: 0 0 6px 0;
+                letter-spacing: -0.3px;
+            }
+            .gz_header .gz_sub {
+                display: inline-block;
+                font-size: 12px;
+                font-weight: 700;
+                background: rgba(255,255,255,0.22);
+                border-radius: 999px;
+                padding: 5px 14px;
+                margin: 0;
+            }
+            .gz_kpi_table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 10px 10px;
+                margin: 0 0 4px 0;
+            }
+            .gz_kpi_card {
+                border: 2px solid #6C5CE7;
+                border-radius: 14px;
+                padding: 14px 16px;
+                text-align: center;
+                background: #FAF9FF;
+                width: 33.33%;
+            }
+            .gz_kpi_card.profit { border-color: #00D084; background: #EAFBF1; }
+            .gz_kpi_card.outstanding { border-color: #FD79A8; background: #FFF0F6; }
+            .gz_kpi_value {
+                font-size: 19px;
+                font-weight: 800;
+                color: #6C5CE7;
+            }
+            .gz_kpi_card.profit .gz_kpi_value { color: #00A468; }
+            .gz_kpi_card.outstanding .gz_kpi_value { color: #E84393; }
+            .gz_kpi_label {
+                font-size: 10px;
+                font-weight: 700;
+                color: #56566b;
+                margin-top: 3px;
+            }
+            .gz_section_title_row {
+                display: flex;
+                align-items: center;
+                margin: 22px 0 10px 0;
+            }
+            .gz_section_bar {
+                display: inline-block;
+                width: 5px;
+                height: 16px;
+                border-radius: 3px;
+                background: linear-gradient(180deg, #6C5CE7, #FD79A8);
+                margin-right: 8px;
+                vertical-align: middle;
+            }
+            .gz_section_title {
+                display: inline-block;
+                font-size: 14px;
+                font-weight: 800;
+                letter-spacing: 0.2px;
+                color: #1a1a2e;
+                vertical-align: middle;
+            }
+            .gz_page_break {
+                page-break-before: always;
+            }
+            .gz_table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            .gz_table thead th {
+                background: #1a1a2e;
+                color: #ffffff;
+                padding: 10px 12px;
+                text-align: left;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+            }
+            .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
+            .gz_table thead th:last-child { border-radius: 0 8px 8px 0; }
+            .gz_table tbody td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #eeeeee;
+            }
+            .gz_table tbody tr:nth-child(even) {
+                background: #FAFAFC;
+            }
+            .gz_table td.gz_amount, .gz_table th.gz_amount {
+                text-align: right;
+            }
+            .gz_table td.gz_amount {
+                font-weight: 700;
+                color: #6C5CE7;
+            }
+            .gz_empty {
+                text-align: center;
+                padding: 24px;
+                color: #9b9bab;
+                font-style: italic;
+            }
+            .gz_divider {
+                height: 3px;
+                border-radius: 3px;
+                background: linear-gradient(90deg, #6C5CE7, #FD79A8);
+                margin: 28px 0 10px 0;
+                opacity: 0.85;
+            }
+            .gz_footer {
+                text-align: center;
+                font-size: 10px;
+                color: #9b9bab;
+            }
+        </style>
+    </template>
+
+    <!-- Minimal external-layout wrapper, cloned from the same structure used by
+         sh_receipt_reports (web.html_container -> external layout -> a
+         div.article.o_report_layout_standard around the content). This exact
+         wrapping chain is what fixed Khmer/Chinese rendering there after every
+         other targeted fix (font-family alone, meta charset, etc.) failed. -->
+    <template id="external_layout_standard">
+        <div class="article o_report_layout_standard">
+            <t t-out="0" />
+        </div>
+    </template>
+
+    <template id="external_layout">
+        <t t-call="account_daily_report_telegram.external_layout_standard">
+            <t t-out="0"/>
+        </t>
+    </template>
+
+    <template id="account_report_kpis">
+        <table class="gz_kpi_table">
+            <tr>
+                <td class="gz_kpi_card">
+                    <div class="gz_kpi_value"><span t-esc="kpis['invoice_count']"/></div>
+                    <div class="gz_kpi_label">វិក័យប័ត្រ / 发票数</div>
+                </td>
+                <td class="gz_kpi_card">
+                    <div class="gz_kpi_value"><span t-esc="kpis['total_invoiced_display']"/></div>
+                    <div class="gz_kpi_label">ចំណូលសរុប / 总收入</div>
+                </td>
+                <td class="gz_kpi_card">
+                    <div class="gz_kpi_value"><span t-esc="kpis['bill_count']"/></div>
+                    <div class="gz_kpi_label">វិក័យប័ត្រទិញ / 账单数</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="gz_kpi_card">
+                    <div class="gz_kpi_value"><span t-esc="kpis['total_expenses_display']"/></div>
+                    <div class="gz_kpi_label">ចំណាយសរុប / 总支出</div>
+                </td>
+                <td class="gz_kpi_card profit">
+                    <div class="gz_kpi_value"><span t-esc="kpis['net_profit_display']"/></div>
+                    <div class="gz_kpi_label">ចំណេញសុទ្ធ / 净利润</div>
+                </td>
+                <td class="gz_kpi_card outstanding">
+                    <div class="gz_kpi_value"><span t-esc="kpis['outstanding_display']"/></div>
+                    <div class="gz_kpi_label">នៅជំពាក់ / 应收未付</div>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <template id="account_report_body">
+        <div class="gz_section_title_row">
+            <span class="gz_section_bar"/>
+            <span class="gz_section_title">វិក័យប័ត្រអតិថិជន / 客户发票</span>
+        </div>
+        <table class="gz_table">
+            <thead>
+                <tr>
+                    <th>លេខវិក័យប័ត្រ / 发票号</th>
+                    <th>អតិថិជន / 客户</th>
+                    <th>ស្ថានភាព / 状态</th>
+                    <th class="gz_amount">សរុប / 总计</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="customer_rows" t-as="row">
+                    <td><strong><span t-esc="row['name']"/></strong></td>
+                    <td><span t-esc="row['partner_name']"/></td>
+                    <td><span t-esc="row['payment_state_display']"/></td>
+                    <td class="gz_amount"><span t-esc="row['total_display']"/></td>
+                </tr>
+                <tr t-if="not customer_rows">
+                    <td colspan="4" class="gz_empty">គ្មានវិក័យប័ត្រ / 无发票</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="gz_section_title_row gz_page_break">
+            <span class="gz_section_bar"/>
+            <span class="gz_section_title">វិក័យប័ត្រអ្នកផ្គត់ផ្គង់ / 供应商账单</span>
+        </div>
+        <table class="gz_table">
+            <thead>
+                <tr>
+                    <th>លេខវិក័យប័ត្រ / 账单号</th>
+                    <th>អ្នកផ្គត់ផ្គង់ / 供应商</th>
+                    <th class="gz_amount">សរុប / 总计</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="vendor_rows" t-as="row">
+                    <td><strong><span t-esc="row['name']"/></strong></td>
+                    <td><span t-esc="row['partner_name']"/></td>
+                    <td class="gz_amount"><span t-esc="row['total_display']"/></td>
+                </tr>
+                <tr t-if="not vendor_rows">
+                    <td colspan="3" class="gz_empty">គ្មានវិក័យប័ត្រទិញ / 无账单</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="gz_divider"/>
+        <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
+    </template>
+
+    <template id="report_account_daily_document">
+        <t t-call="web.html_container">
+            <t t-call="account_daily_report_telegram.external_layout">
+            <div class="page gz_report">
+                <t t-call="account_daily_report_telegram.account_report_style"/>
+
+                <div class="gz_header">
+                    <h1>📒 Daily Accounting Report / របាយការណ៍គណនេយ្យប្រចាំថ្ងៃ / 每日财务报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="period_label"/></p>
+                </div>
+
+                <t t-call="account_daily_report_telegram.account_report_kpis"/>
+                <t t-call="account_daily_report_telegram.account_report_body"/>
+            </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_account_weekly_document">
+        <t t-call="web.html_container">
+            <t t-call="account_daily_report_telegram.external_layout">
+            <div class="page gz_report">
+                <t t-call="account_daily_report_telegram.account_report_style"/>
+
+                <div class="gz_header">
+                    <h1>📒 Weekly Accounting Report / របាយការណ៍គណនេយ្យប្រចាំសប្តាហ៍ / 每周财务报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="period_label"/></p>
+                </div>
+
+                <t t-call="account_daily_report_telegram.account_report_kpis"/>
+                <t t-call="account_daily_report_telegram.account_report_body"/>
+            </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_account_monthly_document">
+        <t t-call="web.html_container">
+            <t t-call="account_daily_report_telegram.external_layout">
+            <div class="page gz_report">
+                <t t-call="account_daily_report_telegram.account_report_style"/>
+
+                <div class="gz_header">
+                    <h1>📒 Monthly Accounting Report / របាយការណ៍គណនេយ្យប្រចាំខែ / 每月财务报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="period_label"/></p>
+                </div>
+
+                <t t-call="account_daily_report_telegram.account_report_kpis"/>
+                <t t-call="account_daily_report_telegram.account_report_body"/>
+            </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>
