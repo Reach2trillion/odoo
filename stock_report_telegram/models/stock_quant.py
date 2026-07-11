@@ -146,20 +146,22 @@ class StockQuant(models.Model):
 
         week_start_utc = tz.localize(datetime.combine(week_start, time.min)).astimezone(pytz.UTC).replace(tzinfo=None)
         week_end_utc = tz.localize(datetime.combine(week_end, time.max)).astimezone(pytz.UTC).replace(tzinfo=None)
+        week_number = week_start.isocalendar()[1]
 
         pdf_content, dummy = self.env['ir.actions.report']._render_qweb_pdf(
             'stock_report_telegram.action_report_stock_weekly',
             [],
             data={
-                'week_label': '%s - %s' % (week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y')),
+                'week_label': 'W%s · %s - %s' % (
+                    week_number, week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y')),
                 'date_from': week_start_utc,
                 'date_to': week_end_utc,
             },
         )
-        filename = _("Weekly_Stock_Report_%s.pdf") % week_start.strftime('%Y%m%d')
+        filename = _("Weekly_Stock_Report_W%s_%s.pdf") % (week_number, week_start.strftime('%Y%m%d'))
         caption = _(
-            "📦 របាយការណ៍ស្តុកប្រចាំសប្តាហ៍ / 每周库存报告\n%s - %s"
-        ) % (week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y'))
+            "📦 របាយការណ៍ស្តុកប្រចាំសប្តាហ៍ / 每周库存报告\nW%s · %s - %s"
+        ) % (week_number, week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y'))
         service = TelegramService(token)
         for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
             service.send_document(

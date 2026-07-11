@@ -2,7 +2,7 @@
 
 {
     'name': "Daily, Weekly & Monthly Stock Report via Telegram",
-    'version': '18.0.4.0.0',
+    'version': '18.0.5.0.0',
     'category': 'Inventory/Inventory',
     'summary': "Send daily, weekly & monthly stock-on-hand PDF reports (Khmer/Chinese, A4, genz design) to the boss via Telegram",
     'description': """

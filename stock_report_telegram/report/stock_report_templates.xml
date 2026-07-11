@@ -123,6 +123,9 @@
                 color: #9b9bab;
                 font-style: italic;
             }
+            .gz_page_break {
+                page-break-before: always;
+            }
             .gz_divider {
                 height: 3px;
                 border-radius: 3px;
@@ -193,7 +196,7 @@
                             <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
-                                <th class="gz_amount"><span t-esc="location.name"/></th>
+                                <th class="gz_amount"><span t-esc="location.warehouse_id.name or location.name"/></th>
                             </t>
                             <th class="gz_amount">សរុប / 总计</th>
                         </tr>
@@ -213,7 +216,7 @@
                     </tbody>
                 </table>
 
-                <div class="gz_section_title_row">
+                <div class="gz_section_title_row gz_page_break">
                     <span class="gz_section_bar"/>
                     <span class="gz_section_title">លក់ថ្ងៃនេះ / 今日销售</span>
                 </div>
@@ -284,7 +287,7 @@
                             <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
-                                <th class="gz_amount"><span t-esc="location.name"/></th>
+                                <th class="gz_amount"><span t-esc="location.warehouse_id.name or location.name"/></th>
                             </t>
                             <th class="gz_amount">សរុប / 总计</th>
                         </tr>
@@ -304,7 +307,7 @@
                     </tbody>
                 </table>
 
-                <div class="gz_section_title_row">
+                <div class="gz_section_title_row gz_page_break">
                     <span class="gz_section_bar"/>
                     <span class="gz_section_title">លក់សប្តាហ៍នេះ / 本周销售</span>
                 </div>
@@ -375,7 +378,7 @@
                             <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
-                                <th class="gz_amount"><span t-esc="location.name"/></th>
+                                <th class="gz_amount"><span t-esc="location.warehouse_id.name or location.name"/></th>
                             </t>
                             <th class="gz_amount">សរុប / 总计</th>
                         </tr>
@@ -395,7 +398,7 @@
                     </tbody>
                 </table>
 
-                <div class="gz_section_title_row">
+                <div class="gz_section_title_row gz_page_break">
                     <span class="gz_section_bar"/>
                     <span class="gz_section_title">លក់ខែនេះ / 本月销售</span>
                 </div>
