@@ -105,7 +105,7 @@ class StockQuant(models.Model):
         )
         filename = _("Daily_Stock_Report_%s.pdf") % report_date.strftime('%Y%m%d')
         caption = _(
-            "📦 Daily Stock Report / របាយការណ៍ស្តុកប្រចាំថ្ងៃ / 每日库存报告\n%s"
+            "📦 របាយការណ៍ស្តុកប្រចាំថ្ងៃ / 每日库存报告\n%s"
         ) % report_date.strftime('%d/%m/%Y')
         service = TelegramService(token)
         for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
@@ -158,7 +158,7 @@ class StockQuant(models.Model):
         )
         filename = _("Weekly_Stock_Report_%s.pdf") % week_start.strftime('%Y%m%d')
         caption = _(
-            "📦 Weekly Stock Report / របាយការណ៍ស្តុកប្រចាំសប្តាហ៍\n%s - %s"
+            "📦 របាយការណ៍ស្តុកប្រចាំសប្តាហ៍ / 每周库存报告\n%s - %s"
         ) % (week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y'))
         service = TelegramService(token)
         for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
@@ -211,7 +211,7 @@ class StockQuant(models.Model):
         )
         filename = _("Monthly_Stock_Report_%s.pdf") % month_start.strftime('%Y%m')
         caption = _(
-            "📦 Monthly Stock Report / របាយការណ៍ស្តុកប្រចាំខែ / 每月库存报告\n%s"
+            "📦 របាយការណ៍ស្តុកប្រចាំខែ / 每月库存报告\n%s"
         ) % month_start.strftime('%B %Y')
         service = TelegramService(token)
         for recipient_chat_id in self._split_telegram_chat_ids(chat_id):

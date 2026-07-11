@@ -31,6 +31,14 @@ def _build_sold_rows(sold):
     ]
 
 
+def _build_kpis(stock_rows, sold_rows):
+    return {
+        'sku_count': len(stock_rows),
+        'total_on_hand': sum(row['total'] for row in stock_rows),
+        'total_sold': sum(row['qty'] for row in sold_rows),
+    }
+
+
 class StockDailyReport(models.AbstractModel):
     _name = 'report.stock_report_telegram.report_stock_daily_document'
     _description = "Daily Stock Report (PDF)"
@@ -42,14 +50,17 @@ class StockDailyReport(models.AbstractModel):
         on_hand = Quant._get_stock_on_hand(locations)
         sold = Quant._get_stock_sold_between(data.get('date_from'), data.get('date_to'), locations)
 
+        stock_rows = _build_stock_rows(on_hand, locations)
+        sold_rows = _build_sold_rows(sold)
         return {
             'doc_ids': docids,
             'doc_model': 'stock.quant',
             'company': self.env.company,
             'report_date': data.get('report_date'),
             'locations': locations,
-            'stock_rows': _build_stock_rows(on_hand, locations),
-            'sold_rows': _build_sold_rows(sold),
+            'stock_rows': stock_rows,
+            'sold_rows': sold_rows,
+            'kpis': _build_kpis(stock_rows, sold_rows),
         }
 
 
@@ -64,14 +75,17 @@ class StockWeeklyReport(models.AbstractModel):
         on_hand = Quant._get_stock_on_hand(locations)
         sold = Quant._get_stock_sold_between(data.get('date_from'), data.get('date_to'), locations)
 
+        stock_rows = _build_stock_rows(on_hand, locations)
+        sold_rows = _build_sold_rows(sold)
         return {
             'doc_ids': docids,
             'doc_model': 'stock.quant',
             'company': self.env.company,
             'week_label': data.get('week_label'),
             'locations': locations,
-            'stock_rows': _build_stock_rows(on_hand, locations),
-            'sold_rows': _build_sold_rows(sold),
+            'stock_rows': stock_rows,
+            'sold_rows': sold_rows,
+            'kpis': _build_kpis(stock_rows, sold_rows),
         }
 
 
@@ -86,12 +100,15 @@ class StockMonthlyReport(models.AbstractModel):
         on_hand = Quant._get_stock_on_hand(locations)
         sold = Quant._get_stock_sold_between(data.get('date_from'), data.get('date_to'), locations)
 
+        stock_rows = _build_stock_rows(on_hand, locations)
+        sold_rows = _build_sold_rows(sold)
         return {
             'doc_ids': docids,
             'doc_model': 'stock.quant',
             'company': self.env.company,
             'month_label': data.get('month_label'),
             'locations': locations,
-            'stock_rows': _build_stock_rows(on_hand, locations),
-            'sold_rows': _build_sold_rows(sold),
+            'stock_rows': stock_rows,
+            'sold_rows': sold_rows,
+            'kpis': _build_kpis(stock_rows, sold_rows),
         }

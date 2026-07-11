@@ -2,9 +2,9 @@
 
 {
     'name': "Daily, Weekly & Monthly Stock Report via Telegram",
-    'version': '18.0.2.0.0',
+    'version': '18.0.3.0.0',
     'category': 'Inventory/Inventory',
-    'summary': "Send daily, weekly & monthly stock-on-hand PDF reports (bilingual English/Khmer) to the boss via Telegram",
+    'summary': "Send daily, weekly & monthly stock-on-hand PDF reports (Khmer/Chinese, A4, genz design) to the boss via Telegram",
     'description': """
 Stock Report via Telegram
 ==========================
@@ -27,9 +27,9 @@ Actions):
 * Current stock on hand per product/location
 * Total quantity sold during the previous month
 
-All three PDFs are bilingual (English / Khmer) and use a Khmer-
-compatible font so labels and headings render correctly for Khmer-
-speaking staff.
+All three PDFs are bilingual (Khmer / Chinese), sized A4, and use a
+gen-z inspired design (purple-pink gradient header, KPI stat cards,
+gradient accent bars) with a Khmer-compatible font.
 
 Requires the "Send by Telegram" module, whose bot token configuration
 is reused to send these reports.

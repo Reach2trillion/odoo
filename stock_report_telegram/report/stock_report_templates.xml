@@ -4,37 +4,81 @@
     <template id="stock_report_style" name="Stock Report Shared Style">
         <style>
             .gz_report {
-                font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', 'Helvetica Neue', Arial, sans-serif;
+                font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', 'Noto Sans SC', 'Microsoft YaHei', 'SimHei', 'Helvetica Neue', Arial, sans-serif;
                 color: #1a1a2e;
             }
             .gz_header {
                 background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
                 background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
-                border-radius: 16px;
-                padding: 24px 28px;
+                border-radius: 20px;
+                padding: 28px 30px;
                 color: #ffffff;
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
             .gz_header h1 {
-                font-size: 26px;
+                font-size: 27px;
                 font-weight: 800;
-                margin: 0 0 4px 0;
-                letter-spacing: -0.5px;
+                margin: 0 0 6px 0;
+                letter-spacing: -0.3px;
             }
             .gz_header .gz_sub {
-                font-size: 13px;
-                opacity: 0.9;
+                display: inline-block;
+                font-size: 12px;
+                font-weight: 700;
+                background: rgba(255,255,255,0.22);
+                border-radius: 999px;
+                padding: 5px 14px;
                 margin: 0;
             }
+            .gz_kpi_table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 10px 0;
+                margin: 0 0 22px 0;
+            }
+            .gz_kpi_card {
+                border: 2px solid #6C5CE7;
+                border-radius: 14px;
+                padding: 14px 16px;
+                text-align: center;
+                background: #FAF9FF;
+            }
+            .gz_kpi_value {
+                font-size: 22px;
+                font-weight: 800;
+                background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                color: #6C5CE7;
+            }
+            .gz_kpi_label {
+                font-size: 10.5px;
+                font-weight: 700;
+                color: #56566b;
+                margin-top: 3px;
+            }
+            .gz_section_title_row {
+                display: flex;
+                align-items: center;
+                margin: 22px 0 10px 0;
+            }
+            .gz_section_bar {
+                display: inline-block;
+                width: 5px;
+                height: 16px;
+                border-radius: 3px;
+                background: linear-gradient(180deg, #6C5CE7, #FD79A8);
+                margin-right: 8px;
+                vertical-align: middle;
+            }
             .gz_section_title {
+                display: inline-block;
                 font-size: 14px;
                 font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: #6C5CE7;
-                margin: 24px 0 10px 0;
+                letter-spacing: 0.2px;
+                color: #1a1a2e;
+                vertical-align: middle;
             }
-            .gz_section_title:first-of-type { margin-top: 0; }
             .gz_table {
                 width: 100%;
                 border-collapse: collapse;
@@ -46,8 +90,8 @@
                 padding: 10px 12px;
                 text-align: left;
                 font-size: 11px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
+                font-weight: 700;
+                letter-spacing: 0.2px;
             }
             .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
             .gz_table thead th:last-child { border-radius: 0 8px 8px 0; }
@@ -79,8 +123,14 @@
                 color: #9b9bab;
                 font-style: italic;
             }
+            .gz_divider {
+                height: 3px;
+                border-radius: 3px;
+                background: linear-gradient(90deg, #6C5CE7, #FD79A8);
+                margin: 28px 0 10px 0;
+                opacity: 0.85;
+            }
             .gz_footer {
-                margin-top: 24px;
                 text-align: center;
                 font-size: 10px;
                 color: #9b9bab;
@@ -94,20 +144,40 @@
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
                 <div class="gz_header">
-                    <h1>Daily Stock Report / របាយការណ៍ស្តុកប្រចាំថ្ងៃ</h1>
-                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="report_date"/></p>
+                    <h1>📦 Daily Stock Report / របាយការណ៍ស្តុកប្រចាំថ្ងៃ / 每日库存报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="report_date"/></p>
                 </div>
 
-                <p class="gz_section_title">Stock On Hand / ស្តុកនៅសល់</p>
+                <table class="gz_kpi_table">
+                    <tr>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="kpis['sku_count']"/></div>
+                            <div class="gz_kpi_label">ចំនួនផលិតផល / 产品种类</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_on_hand']"/></div>
+                            <div class="gz_kpi_label">ស្តុកសរុប / 库存总量</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_sold']"/></div>
+                            <div class="gz_kpi_label">លក់សរុប / 总销售量</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">ស្តុកនៅសល់ / 现有库存</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
                                 <th class="gz_amount"><span t-esc="location.name"/></th>
                             </t>
-                            <th class="gz_amount">Total / សរុប</th>
+                            <th class="gz_amount">សរុប / 总计</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -120,19 +190,22 @@
                             <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
                         </tr>
                         <tr t-if="not stock_rows">
-                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand / គ្មានស្តុកនៅសល់</td>
+                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">គ្មានស្តុកនៅសល់ / 无库存</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_section_title">Sold Today / លក់ថ្ងៃនេះ</p>
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">លក់ថ្ងៃនេះ / 今日销售</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
-                            <th class="gz_amount">Qty Sold / ចំនួនលក់</th>
-                            <th>UoM / ឯកតា</th>
+                            <th class="gz_amount">ចំនួនលក់ / 销售数量</th>
+                            <th>ឯកតា / 单位</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,12 +216,13 @@
                             <td><span t-esc="row['uom']"/></td>
                         </tr>
                         <tr t-if="not sold_rows">
-                            <td colspan="4" class="gz_empty">No stock sold today / គ្មានការលក់ថ្ងៃនេះ</td>
+                            <td colspan="4" class="gz_empty">គ្មានការលក់ថ្ងៃនេះ / 今日无销售</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_footer">Generated automatically - Sent via Telegram / បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram</p>
+                <div class="gz_divider"/>
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
         </t>
     </template>
@@ -159,20 +233,40 @@
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
                 <div class="gz_header">
-                    <h1>Weekly Stock Report / របាយការណ៍ស្តុកប្រចាំសប្តាហ៍</h1>
-                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="week_label"/></p>
+                    <h1>📦 Weekly Stock Report / របាយការណ៍ស្តុកប្រចាំសប្តាហ៍ / 每周库存报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="week_label"/></p>
                 </div>
 
-                <p class="gz_section_title">Stock On Hand / ស្តុកនៅសល់</p>
+                <table class="gz_kpi_table">
+                    <tr>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="kpis['sku_count']"/></div>
+                            <div class="gz_kpi_label">ចំនួនផលិតផល / 产品种类</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_on_hand']"/></div>
+                            <div class="gz_kpi_label">ស្តុកសរុប / 库存总量</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_sold']"/></div>
+                            <div class="gz_kpi_label">លក់សរុប / 总销售量</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">ស្តុកនៅសល់ / 现有库存</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
                                 <th class="gz_amount"><span t-esc="location.name"/></th>
                             </t>
-                            <th class="gz_amount">Total / សរុប</th>
+                            <th class="gz_amount">សរុប / 总计</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -185,19 +279,22 @@
                             <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
                         </tr>
                         <tr t-if="not stock_rows">
-                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand / គ្មានស្តុកនៅសល់</td>
+                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">គ្មានស្តុកនៅសល់ / 无库存</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_section_title">Sold This Week / លក់សប្តាហ៍នេះ</p>
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">លក់សប្តាហ៍នេះ / 本周销售</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
-                            <th class="gz_amount">Qty Sold / ចំនួនលក់</th>
-                            <th>UoM / ឯកតា</th>
+                            <th class="gz_amount">ចំនួនលក់ / 销售数量</th>
+                            <th>ឯកតា / 单位</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,12 +305,13 @@
                             <td><span t-esc="row['uom']"/></td>
                         </tr>
                         <tr t-if="not sold_rows">
-                            <td colspan="4" class="gz_empty">No stock sold this week / គ្មានការលក់សប្តាហ៍នេះ</td>
+                            <td colspan="4" class="gz_empty">គ្មានការលក់សប្តាហ៍នេះ / 本周无销售</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_footer">Generated automatically - Sent via Telegram / បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram</p>
+                <div class="gz_divider"/>
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
         </t>
     </template>
@@ -224,20 +322,40 @@
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
                 <div class="gz_header">
-                    <h1>Monthly Stock Report / របាយការណ៍ស្តុកប្រចាំខែ</h1>
-                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="month_label"/></p>
+                    <h1>📦 Monthly Stock Report / របាយការណ៍ស្តុកប្រចាំខែ / 每月库存报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> · <span t-esc="month_label"/></p>
                 </div>
 
-                <p class="gz_section_title">Stock On Hand / ស្តុកនៅសល់</p>
+                <table class="gz_kpi_table">
+                    <tr>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="kpis['sku_count']"/></div>
+                            <div class="gz_kpi_label">ចំនួនផលិតផល / 产品种类</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_on_hand']"/></div>
+                            <div class="gz_kpi_label">ស្តុកសរុប / 库存总量</div>
+                        </td>
+                        <td class="gz_kpi_card">
+                            <div class="gz_kpi_value"><span t-esc="'%.2f' % kpis['total_sold']"/></div>
+                            <div class="gz_kpi_label">លក់សរុប / 总销售量</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">ស្តុកនៅសល់ / 现有库存</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
                             <t t-foreach="locations" t-as="location">
                                 <th class="gz_amount"><span t-esc="location.name"/></th>
                             </t>
-                            <th class="gz_amount">Total / សរុប</th>
+                            <th class="gz_amount">សរុប / 总计</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -250,19 +368,22 @@
                             <td class="gz_amount gz_total"><span t-esc="'%.2f' % row['total']"/></td>
                         </tr>
                         <tr t-if="not stock_rows">
-                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">No stock on hand / គ្មានស្តុកនៅសល់</td>
+                            <td t-attf-colspan="#{len(locations) + 3}" class="gz_empty">គ្មានស្តុកនៅសល់ / 无库存</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_section_title">Sold This Month / លក់ខែនេះ</p>
+                <div class="gz_section_title_row">
+                    <span class="gz_section_bar"/>
+                    <span class="gz_section_title">លក់ខែនេះ / 本月销售</span>
+                </div>
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Product / ផលិតផល</th>
+                            <th>ផលិតផល / 产品</th>
                             <th>SKU</th>
-                            <th class="gz_amount">Qty Sold / ចំនួនលក់</th>
-                            <th>UoM / ឯកតា</th>
+                            <th class="gz_amount">ចំនួនលក់ / 销售数量</th>
+                            <th>ឯកតា / 单位</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -273,12 +394,13 @@
                             <td><span t-esc="row['uom']"/></td>
                         </tr>
                         <tr t-if="not sold_rows">
-                            <td colspan="4" class="gz_empty">No stock sold this month / គ្មានការលក់ខែនេះ</td>
+                            <td colspan="4" class="gz_empty">គ្មានការលក់ខែនេះ / 本月无销售</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_footer">Generated automatically - Sent via Telegram / បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram</p>
+                <div class="gz_divider"/>
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
         </t>
     </template>
