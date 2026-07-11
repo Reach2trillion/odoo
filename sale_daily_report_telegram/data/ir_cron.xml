@@ -14,4 +14,17 @@
         <field name="active">True</field>
     </record>
 
+    <!-- 12:15 UTC every Monday = 19:15 Indochina Time (UTC+7); reports on the previous Mon-Sun week -->
+    <record id="ir_cron_weekly_sales_report_telegram" model="ir.cron">
+        <field name="name">Send Weekly Sales Report via Telegram</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_weekly_sales_report_telegram()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+        <field name="nextcall" eval="'2024-01-08 12:15:00'"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="active">True</field>
+    </record>
+
 </odoo>

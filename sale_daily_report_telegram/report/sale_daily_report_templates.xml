@@ -1,121 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <template id="sale_daily_report_style" name="Sale Daily Report Shared Style">
+        <style>
+            .gz_report {
+                font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', 'Noto Sans SC', 'Microsoft YaHei', 'SimHei', 'Helvetica Neue', Arial, sans-serif;
+                color: #1a1a2e;
+            }
+            .gz_header {
+                background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
+                border-radius: 16px;
+                padding: 24px 28px;
+                color: #ffffff;
+                margin-bottom: 20px;
+            }
+            .gz_header h1 {
+                font-size: 24px;
+                font-weight: 800;
+                margin: 0 0 4px 0;
+                letter-spacing: -0.3px;
+            }
+            .gz_header .gz_sub {
+                font-size: 13px;
+                opacity: 0.9;
+                margin: 0;
+            }
+            .gz_stats {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 10px 0;
+                margin-bottom: 20px;
+            }
+            .gz_stat_card {
+                border-radius: 14px;
+                padding: 16px 18px;
+                width: 50%;
+            }
+            .gz_stat_card.orders {
+                background: #EAFBF1;
+                border: 2px solid #00D084;
+            }
+            .gz_stat_card.revenue {
+                background: #FFF0F6;
+                border: 2px solid #FD79A8;
+            }
+            .gz_stat_label {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+                color: #6b6b7b;
+                margin: 0 0 4px 0;
+            }
+            .gz_stat_value {
+                font-size: 24px;
+                font-weight: 800;
+                margin: 0;
+                color: #1a1a2e;
+            }
+            .gz_table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            .gz_table thead th {
+                background: #1a1a2e;
+                color: #ffffff;
+                padding: 10px 12px;
+                text-align: left;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+            }
+            .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
+            .gz_table thead th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+            .gz_table tbody td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #eeeeee;
+            }
+            .gz_table tbody tr:nth-child(even) {
+                background: #FAFAFC;
+            }
+            .gz_table td.gz_amount {
+                text-align: right;
+                font-weight: 700;
+                color: #6C5CE7;
+            }
+            .gz_empty {
+                text-align: center;
+                padding: 30px;
+                color: #9b9bab;
+                font-style: italic;
+            }
+            .gz_footer {
+                margin-top: 24px;
+                text-align: center;
+                font-size: 10px;
+                color: #9b9bab;
+            }
+        </style>
+    </template>
+
+    <!-- Minimal external-layout wrapper, cloned from the same structure used by
+         sh_receipt_reports (web.html_container -> external layout -> a
+         div.article.o_report_layout_standard around the content). This exact
+         wrapping chain is what fixed Khmer/Chinese rendering there after every
+         other targeted fix (font-family alone, meta charset, etc.) failed. -->
+    <template id="external_layout_standard">
+        <div class="article o_report_layout_standard">
+            <t t-out="0" />
+        </div>
+    </template>
+
+    <template id="external_layout">
+        <t t-call="sale_daily_report_telegram.external_layout_standard">
+            <t t-out="0"/>
+        </t>
+    </template>
+
     <template id="report_sale_daily_document">
         <t t-call="web.html_container">
+            <t t-call="sale_daily_report_telegram.external_layout">
             <div class="page gz_report">
-                <style>
-                    .gz_report {
-                        font-family: 'Khmer OS', 'Noto Sans Khmer', 'Helvetica Neue', Arial, sans-serif;
-                        color: #1a1a2e;
-                    }
-                    .gz_header {
-                        background: -webkit-linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
-                        background: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
-                        border-radius: 16px;
-                        padding: 24px 28px;
-                        color: #ffffff;
-                        margin-bottom: 20px;
-                    }
-                    .gz_header h1 {
-                        font-size: 26px;
-                        font-weight: 800;
-                        margin: 0 0 4px 0;
-                        letter-spacing: -0.5px;
-                    }
-                    .gz_header .gz_sub {
-                        font-size: 13px;
-                        opacity: 0.9;
-                        margin: 0;
-                    }
-                    .gz_stats {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 10px 0;
-                        margin-bottom: 20px;
-                    }
-                    .gz_stat_card {
-                        border-radius: 14px;
-                        padding: 16px 18px;
-                        width: 50%;
-                    }
-                    .gz_stat_card.orders {
-                        background: #EAFBF1;
-                        border: 2px solid #00D084;
-                    }
-                    .gz_stat_card.revenue {
-                        background: #FFF0F6;
-                        border: 2px solid #FD79A8;
-                    }
-                    .gz_stat_label {
-                        font-size: 11px;
-                        text-transform: uppercase;
-                        letter-spacing: 1px;
-                        font-weight: 700;
-                        color: #6b6b7b;
-                        margin: 0 0 4px 0;
-                    }
-                    .gz_stat_value {
-                        font-size: 24px;
-                        font-weight: 800;
-                        margin: 0;
-                        color: #1a1a2e;
-                    }
-                    .gz_table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        font-size: 12px;
-                    }
-                    .gz_table thead th {
-                        background: #1a1a2e;
-                        color: #ffffff;
-                        padding: 10px 12px;
-                        text-align: left;
-                        font-size: 11px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                    }
-                    .gz_table thead th:first-child { border-radius: 8px 0 0 8px; }
-                    .gz_table thead th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
-                    .gz_table tbody td {
-                        padding: 10px 12px;
-                        border-bottom: 1px solid #eeeeee;
-                    }
-                    .gz_table tbody tr:nth-child(even) {
-                        background: #FAFAFC;
-                    }
-                    .gz_table td.gz_amount {
-                        text-align: right;
-                        font-weight: 700;
-                        color: #6C5CE7;
-                    }
-                    .gz_empty {
-                        text-align: center;
-                        padding: 30px;
-                        color: #9b9bab;
-                        font-style: italic;
-                    }
-                    .gz_footer {
-                        margin-top: 24px;
-                        text-align: center;
-                        font-size: 10px;
-                        color: #9b9bab;
-                    }
-                </style>
+                <t t-call="sale_daily_report_telegram.sale_daily_report_style"/>
 
                 <div class="gz_header">
-                    <h1>Daily Sales Report</h1>
+                    <h1>📊 Daily Sales Report / របាយការណ៍លក់ប្រចាំថ្ងៃ / 每日销售报告</h1>
                     <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="report_date"/></p>
                 </div>
 
                 <table class="gz_stats">
                     <tr>
                         <td class="gz_stat_card orders">
-                            <p class="gz_stat_label">Orders</p>
+                            <p class="gz_stat_label">ការបញ្ជាទិញ / 订单数</p>
                             <p class="gz_stat_value"><span t-esc="len(order_rows)"/></p>
                         </td>
                         <td class="gz_stat_card revenue">
-                            <p class="gz_stat_label">Revenue</p>
+                            <p class="gz_stat_label">ចំណូល / 营业额</p>
                             <p class="gz_stat_value"><span t-esc="total_amount_display"/></p>
                         </td>
                     </tr>
@@ -124,10 +145,10 @@
                 <table class="gz_table">
                     <thead>
                         <tr>
-                            <th>Order</th>
-                            <th>Customer</th>
-                            <th>Salesperson</th>
-                            <th style="text-align:right;">Total</th>
+                            <th>លេខបញ្ជាទិញ / 订单号</th>
+                            <th>អតិថិជន / 客户</th>
+                            <th>អ្នកលក់ / 销售员</th>
+                            <th style="text-align:right;">សរុប / 总计</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,13 +159,66 @@
                             <td class="gz_amount"><span t-esc="order['total_display']"/></td>
                         </tr>
                         <tr t-if="not order_rows">
-                            <td colspan="4" class="gz_empty">No orders today</td>
+                            <td colspan="4" class="gz_empty">គ្មានការបញ្ជាទិញថ្ងៃនេះ / 今日无订单</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="gz_footer">Generated automatically - Sent via Telegram</p>
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_sale_weekly_document">
+        <t t-call="web.html_container">
+            <t t-call="sale_daily_report_telegram.external_layout">
+            <div class="page gz_report">
+                <t t-call="sale_daily_report_telegram.sale_daily_report_style"/>
+
+                <div class="gz_header">
+                    <h1>📊 Weekly Sales Report / របាយការណ៍លក់ប្រចាំសប្តាហ៍ / 每周销售报告</h1>
+                    <p class="gz_sub"><span t-esc="company.name"/> - <span t-esc="week_label"/></p>
+                </div>
+
+                <table class="gz_stats">
+                    <tr>
+                        <td class="gz_stat_card orders">
+                            <p class="gz_stat_label">ការបញ្ជាទិញ / 订单数</p>
+                            <p class="gz_stat_value"><span t-esc="len(order_rows)"/></p>
+                        </td>
+                        <td class="gz_stat_card revenue">
+                            <p class="gz_stat_label">ចំណូល / 营业额</p>
+                            <p class="gz_stat_value"><span t-esc="total_amount_display"/></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="gz_table">
+                    <thead>
+                        <tr>
+                            <th>លេខបញ្ជាទិញ / 订单号</th>
+                            <th>អតិថិជន / 客户</th>
+                            <th>អ្នកលក់ / 销售员</th>
+                            <th style="text-align:right;">សរុប / 总计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="order_rows" t-as="order">
+                            <td><strong><span t-esc="order['name']"/></strong></td>
+                            <td><span t-esc="order['partner_name']"/></td>
+                            <td><span t-esc="order['salesperson_name']"/></td>
+                            <td class="gz_amount"><span t-esc="order['total_display']"/></td>
+                        </tr>
+                        <tr t-if="not order_rows">
+                            <td colspan="4" class="gz_empty">គ្មានការបញ្ជាទិញសប្តាហ៍នេះ / 本周无订单</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
+            </div>
+            </t>
         </t>
     </template>
 

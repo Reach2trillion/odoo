@@ -9,4 +9,12 @@
         <field name="binding_model_id" eval="False"/>
     </record>
 
+    <record id="action_report_sale_weekly" model="ir.actions.report">
+        <field name="name">Weekly Sales Report</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sale_daily_report_telegram.report_sale_weekly_document</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
 </odoo>
