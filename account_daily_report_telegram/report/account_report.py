@@ -4,7 +4,7 @@ from odoo import models
 
 
 class AccountDailyReport(models.AbstractModel):
-    _name = 'report.account_daily_report_telegram.report_account_daily_document'
+    _name = 'report.account_daily_report_telegram.report_acc_daily_doc'
     _description = "Daily Accounting Report (PDF)"
 
     def _get_report_values(self, docids, data=None):
@@ -12,7 +12,7 @@ class AccountDailyReport(models.AbstractModel):
 
 
 class AccountWeeklyReport(models.AbstractModel):
-    _name = 'report.account_daily_report_telegram.report_account_weekly_document'
+    _name = 'report.account_daily_report_telegram.report_acc_weekly_doc'
     _description = "Weekly Accounting Report (PDF)"
 
     def _get_report_values(self, docids, data=None):
@@ -20,7 +20,7 @@ class AccountWeeklyReport(models.AbstractModel):
 
 
 class AccountMonthlyReport(models.AbstractModel):
-    _name = 'report.account_daily_report_telegram.report_account_monthly_document'
+    _name = 'report.account_daily_report_telegram.report_acc_monthly_doc'
     _description = "Monthly Accounting Report (PDF)"
 
     def _get_report_values(self, docids, data=None):
