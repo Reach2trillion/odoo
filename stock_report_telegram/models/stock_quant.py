@@ -117,6 +117,59 @@ class StockQuant(models.Model):
             )
 
     @api.model
+    def _cron_send_weekly_stock_report_telegram(self):
+        icp = self.env['ir.config_parameter'].sudo()
+        if icp.get_param('stock_report_telegram.weekly_enabled', 'True') != 'True':
+            return
+
+        chat_id = icp.get_param('stock_report_telegram.chat_id')
+        token = icp.get_param('send_by_telegram.bot_token')
+        if not chat_id or not token:
+            _logger.warning(
+                "Weekly stock Telegram report is not fully configured "
+                "(missing bot token or chat id); skipping."
+            )
+            return
+
+        locations = self._get_stock_report_locations()
+        if not locations:
+            _logger.warning(
+                "Weekly stock Telegram report has no locations configured; skipping."
+            )
+            return
+
+        tz = self._get_stock_report_tz()
+        today = fields.Date.context_today(self)
+        this_monday = today - timedelta(days=today.weekday())
+        week_start = this_monday - timedelta(days=7)
+        week_end = this_monday - timedelta(days=1)
+
+        week_start_utc = tz.localize(datetime.combine(week_start, time.min)).astimezone(pytz.UTC).replace(tzinfo=None)
+        week_end_utc = tz.localize(datetime.combine(week_end, time.max)).astimezone(pytz.UTC).replace(tzinfo=None)
+
+        pdf_content, dummy = self.env['ir.actions.report']._render_qweb_pdf(
+            'stock_report_telegram.action_report_stock_weekly',
+            [],
+            data={
+                'week_label': '%s - %s' % (week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y')),
+                'date_from': week_start_utc,
+                'date_to': week_end_utc,
+            },
+        )
+        filename = _("Weekly_Stock_Report_%s.pdf") % week_start.strftime('%Y%m%d')
+        caption = _(
+            "📦 Weekly Stock Report / របាយការណ៍ស្តុកប្រចាំសប្តាហ៍\n%s - %s"
+        ) % (week_start.strftime('%d/%m/%Y'), week_end.strftime('%d/%m/%Y'))
+        service = TelegramService(token)
+        for recipient_chat_id in self._split_telegram_chat_ids(chat_id):
+            service.send_document(
+                chat_id=recipient_chat_id,
+                document_content=pdf_content,
+                filename=filename,
+                caption=caption,
+            )
+
+    @api.model
     def _cron_send_monthly_stock_report_telegram(self):
         icp = self.env['ir.config_parameter'].sudo()
         if icp.get_param('stock_report_telegram.monthly_enabled', 'True') != 'True':

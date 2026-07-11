@@ -8,11 +8,16 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app data-string="Stock Report" string="Stock Report" name="stock_report_telegram">
-                    <block title="Daily &amp; Monthly Stock Report" name="stock_report_telegram_setting_container">
+                    <block title="Daily, Weekly &amp; Monthly Stock Report" name="stock_report_telegram_setting_container">
                         <setting id="stock_report_telegram_enabled_setting"
                                  string="Send Daily Stock Report"
                                  help="Send a daily PDF of stock on hand and stock sold today via Telegram">
                             <field name="stock_report_telegram_enabled"/>
+                        </setting>
+                        <setting id="stock_report_telegram_weekly_enabled_setting"
+                                 string="Send Weekly Stock Report"
+                                 help="Send a weekly PDF (every Monday, covering the previous Mon-Sun week) of stock on hand and stock sold via Telegram">
+                            <field name="stock_report_telegram_weekly_enabled"/>
                         </setting>
                         <setting id="stock_report_telegram_monthly_enabled_setting"
                                  string="Send Monthly Stock Report"

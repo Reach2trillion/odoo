@@ -9,6 +9,14 @@
         <field name="binding_model_id" eval="False"/>
     </record>
 
+    <record id="action_report_stock_weekly" model="ir.actions.report">
+        <field name="name">Weekly Stock Report</field>
+        <field name="model">stock.quant</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_report_telegram.report_stock_weekly_document</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
     <record id="action_report_stock_monthly" model="ir.actions.report">
         <field name="name">Monthly Stock Report</field>
         <field name="model">stock.quant</field>

@@ -11,6 +11,11 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='stock_report_telegram.enabled',
         default=True,
     )
+    stock_report_telegram_weekly_enabled = fields.Boolean(
+        string="Send Weekly Stock Report",
+        config_parameter='stock_report_telegram.weekly_enabled',
+        default=True,
+    )
     stock_report_telegram_monthly_enabled = fields.Boolean(
         string="Send Monthly Stock Report",
         config_parameter='stock_report_telegram.monthly_enabled',

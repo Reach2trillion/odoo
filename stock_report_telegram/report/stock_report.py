@@ -53,6 +53,28 @@ class StockDailyReport(models.AbstractModel):
         }
 
 
+class StockWeeklyReport(models.AbstractModel):
+    _name = 'report.stock_report_telegram.report_stock_weekly_document'
+    _description = "Weekly Stock Report (PDF)"
+
+    def _get_report_values(self, docids, data=None):
+        data = data or {}
+        Quant = self.env['stock.quant']
+        locations = Quant._get_stock_report_locations()
+        on_hand = Quant._get_stock_on_hand(locations)
+        sold = Quant._get_stock_sold_between(data.get('date_from'), data.get('date_to'), locations)
+
+        return {
+            'doc_ids': docids,
+            'doc_model': 'stock.quant',
+            'company': self.env.company,
+            'week_label': data.get('week_label'),
+            'locations': locations,
+            'stock_rows': _build_stock_rows(on_hand, locations),
+            'sold_rows': _build_sold_rows(sold),
+        }
+
+
 class StockMonthlyReport(models.AbstractModel):
     _name = 'report.stock_report_telegram.report_stock_monthly_document'
     _description = "Monthly Stock Report (PDF)"
