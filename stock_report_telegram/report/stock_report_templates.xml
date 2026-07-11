@@ -138,8 +138,26 @@
         </style>
     </template>
 
+    <!-- Minimal external-layout wrapper, cloned from the same structure used by
+         sh_receipt_reports (web.html_container -> external layout -> a
+         div.article.o_report_layout_standard around the content). This exact
+         wrapping chain is what fixed Khmer/Chinese rendering there after every
+         other targeted fix (font-family alone, meta charset, etc.) failed. -->
+    <template id="external_layout_standard">
+        <div class="article o_report_layout_standard">
+            <t t-out="0" />
+        </div>
+    </template>
+
+    <template id="external_layout">
+        <t t-call="stock_report_telegram.external_layout_standard">
+            <t t-out="0"/>
+        </t>
+    </template>
+
     <template id="report_stock_daily_document">
         <t t-call="web.html_container">
+            <t t-call="stock_report_telegram.external_layout">
             <div class="page gz_report">
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
@@ -224,11 +242,13 @@
                 <div class="gz_divider"/>
                 <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
+            </t>
         </t>
     </template>
 
     <template id="report_stock_weekly_document">
         <t t-call="web.html_container">
+            <t t-call="stock_report_telegram.external_layout">
             <div class="page gz_report">
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
@@ -313,11 +333,13 @@
                 <div class="gz_divider"/>
                 <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
+            </t>
         </t>
     </template>
 
     <template id="report_stock_monthly_document">
         <t t-call="web.html_container">
+            <t t-call="stock_report_telegram.external_layout">
             <div class="page gz_report">
                 <t t-call="stock_report_telegram.stock_report_style"/>
 
@@ -402,6 +424,7 @@
                 <div class="gz_divider"/>
                 <p class="gz_footer">បង្កើតដោយស្វ័យប្រវត្តិ - ផ្ញើតាម Telegram / 自动生成 - 通过Telegram发送</p>
             </div>
+            </t>
         </t>
     </template>
 
