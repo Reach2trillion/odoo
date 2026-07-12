@@ -182,6 +182,20 @@
                     <div class="gz_kpi_label">នៅជំពាក់ / 应收未付</div>
                 </td>
             </tr>
+            <tr>
+                <td class="gz_kpi_card profit">
+                    <div class="gz_kpi_value"><span t-esc="kpis['payment_count']"/></div>
+                    <div class="gz_kpi_label">ចំនួនការបង់ប្រាក់ / 收款笔数</div>
+                </td>
+                <td class="gz_kpi_card profit">
+                    <div class="gz_kpi_value"><span t-esc="kpis['total_paid_display']"/></div>
+                    <div class="gz_kpi_label">បានទទួលប្រាក់សរុប / 已收款总额</div>
+                </td>
+                <td class="gz_kpi_card outstanding">
+                    <div class="gz_kpi_value"><span t-esc="kpis['unpaid_customer_count']"/></div>
+                    <div class="gz_kpi_label">អតិថិជនជំពាក់ / 未付款客户数</div>
+                </td>
+            </tr>
         </table>
     </template>
 
@@ -208,6 +222,56 @@
                 </tr>
                 <tr t-if="not customer_rows">
                     <td colspan="4" class="gz_empty">គ្មានវិក័យប័ត្រ / 无发票</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="gz_section_title_row gz_page_break">
+            <span class="gz_section_bar"/>
+            <span class="gz_section_title">អ្នកបានបង់ប្រាក់ / 已付款客户</span>
+        </div>
+        <table class="gz_table">
+            <thead>
+                <tr>
+                    <th>លេខបង់ប្រាក់ / 收款单号</th>
+                    <th>កាលបរិច្ឆេទ / 日期</th>
+                    <th>អតិថិជន / 客户</th>
+                    <th class="gz_amount">ចំនួនប្រាក់ / 金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="payment_rows" t-as="row">
+                    <td><strong><span t-esc="row['name']"/></strong></td>
+                    <td><span t-esc="row['date']"/></td>
+                    <td><span t-esc="row['partner_name']"/></td>
+                    <td class="gz_amount"><span t-esc="row['amount_display']"/></td>
+                </tr>
+                <tr t-if="not payment_rows">
+                    <td colspan="4" class="gz_empty">គ្មានការបង់ប្រាក់ / 无收款</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="gz_section_title_row">
+            <span class="gz_section_bar"/>
+            <span class="gz_section_title">អតិថិជនមិនទាន់បង់ប្រាក់ / 未付款客户</span>
+        </div>
+        <table class="gz_table">
+            <thead>
+                <tr>
+                    <th>អតិថិជន / 客户</th>
+                    <th class="gz_amount">ចំនួនវិក័យប័ត្រ / 发票数</th>
+                    <th class="gz_amount">នៅជំពាក់ / 未付金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="unpaid_rows" t-as="row">
+                    <td><strong><span t-esc="row['partner_name']"/></strong></td>
+                    <td class="gz_amount"><span t-esc="row['invoice_count']"/></td>
+                    <td class="gz_amount"><span t-esc="row['amount_display']"/></td>
+                </tr>
+                <tr t-if="not unpaid_rows">
+                    <td colspan="3" class="gz_empty">គ្មានអតិថិជនជំពាក់ / 无未付款客户</td>
                 </tr>
             </tbody>
         </table>

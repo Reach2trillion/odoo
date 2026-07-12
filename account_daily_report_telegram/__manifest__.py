@@ -2,7 +2,7 @@
 
 {
     'name': "Daily, Weekly & Monthly Accounting Report via Telegram",
-    'version': '18.0.1.0.0',
+    'version': '18.0.2.0.0',
     'category': 'Accounting/Accounting',
     'summary': "Send a genz-style accounting dashboard PDF (Khmer/Chinese) to the boss via Telegram",
     'description': """
@@ -20,12 +20,16 @@ sent automatically via Telegram:
 Each report shows:
 
 * Invoices issued (count + total invoiced)
+* Payments received in the period (count + total paid in)
 * Vendor bills received (count + total expenses)
 * Net profit (invoiced - expenses) for the period
 * Outstanding receivable (total unpaid/partial customer invoices, as
-  of now)
+  of now) and the number of customers who still owe
 * A table of customer invoices issued in the period (with payment
   status), on its own page
+* A table of the payments received in the period (who paid), plus a
+  table of customers who still owe money (biggest debt first), on
+  their own page
 * A table of vendor bills received in the period, on its own page
 
 Requires the "Send by Telegram" module, whose bot token configuration

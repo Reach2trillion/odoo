@@ -62,15 +62,52 @@ class AccountMove(models.Model):
         ], order='invoice_date asc, name asc')
 
     @api.model
-    def _get_outstanding_receivable(self):
+    def _get_unpaid_customer_invoices(self):
         company = self.env.company
-        unpaid = self.search([
+        return self.search([
             ('company_id', '=', company.id),
             ('state', '=', 'posted'),
             ('move_type', 'in', list(CUSTOMER_TYPES)),
             ('payment_state', 'in', ('not_paid', 'partial')),
         ])
-        return sum(unpaid.mapped('amount_residual'))
+
+    @api.model
+    def _get_outstanding_receivable(self):
+        return sum(self._get_unpaid_customer_invoices().mapped('amount_residual'))
+
+    @api.model
+    def _get_unpaid_customer_rows(self, currency):
+        """One row per customer that still owes money, biggest debt first."""
+        per_partner = {}
+        for move in self._get_unpaid_customer_invoices():
+            entry = per_partner.setdefault(move.partner_id, {'count': 0, 'amount': 0.0})
+            entry['count'] += 1
+            entry['amount'] += move.amount_residual
+        rows = [
+            {
+                'partner_name': partner.name or '',
+                'invoice_count': entry['count'],
+                'amount_display': _format_amount(entry['amount'], currency),
+                'amount': entry['amount'],
+            }
+            for partner, entry in per_partner.items()
+        ]
+        rows.sort(key=lambda r: r['amount'], reverse=True)
+        return rows
+
+    @api.model
+    def _get_period_customer_payments(self, date_from, date_to):
+        """Inbound customer payments registered in the period.
+        States cover both Odoo 18 ('in_process'/'paid') and the legacy
+        'posted' value so the domain works across minor versions."""
+        return self.env['account.payment'].search([
+            ('company_id', '=', self.env.company.id),
+            ('payment_type', '=', 'inbound'),
+            ('partner_type', '=', 'customer'),
+            ('state', 'in', ('posted', 'in_process', 'paid')),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+        ], order='date asc, name asc')
 
     @api.model
     def _get_account_report_values(self, data):
@@ -81,11 +118,24 @@ class AccountMove(models.Model):
         currency = self.env.company.currency_id
         customer_moves = self.browse(data.get('customer_move_ids', []))
         vendor_moves = self.browse(data.get('vendor_move_ids', []))
+        payments = self.env['account.payment'].browse(data.get('payment_ids', []))
 
         total_invoiced = sum(customer_moves.mapped('amount_total'))
         total_expenses = sum(vendor_moves.mapped('amount_total'))
         net_profit = total_invoiced - total_expenses
         outstanding = self._get_outstanding_receivable()
+        total_paid = sum(payments.mapped('amount'))
+        unpaid_rows = self._get_unpaid_customer_rows(currency)
+
+        payment_rows = [
+            {
+                'name': payment.name or '',
+                'date': payment.date.strftime('%d/%m/%Y') if payment.date else '',
+                'partner_name': payment.partner_id.name or '',
+                'amount_display': _format_amount(payment.amount, payment.currency_id or currency),
+            }
+            for payment in payments
+        ]
 
         return {
             'doc_ids': [],
@@ -94,6 +144,8 @@ class AccountMove(models.Model):
             'period_label': data.get('period_label'),
             'customer_rows': _build_move_rows(customer_moves, currency, with_payment_state=True),
             'vendor_rows': _build_move_rows(vendor_moves, currency, with_payment_state=False),
+            'payment_rows': payment_rows,
+            'unpaid_rows': unpaid_rows,
             'kpis': {
                 'invoice_count': len(customer_moves),
                 'bill_count': len(vendor_moves),
@@ -101,6 +153,9 @@ class AccountMove(models.Model):
                 'total_expenses_display': _format_amount(total_expenses, currency),
                 'net_profit_display': _format_amount(net_profit, currency),
                 'outstanding_display': _format_amount(outstanding, currency),
+                'payment_count': len(payments),
+                'total_paid_display': _format_amount(total_paid, currency),
+                'unpaid_customer_count': len(unpaid_rows),
             },
         }
 
@@ -124,11 +179,14 @@ class AccountMove(models.Model):
 
         customer_moves = self._get_account_report_moves(date_from, date_to, CUSTOMER_TYPES)
         vendor_moves = self._get_account_report_moves(date_from, date_to, VENDOR_TYPES)
+        payments = self._get_period_customer_payments(date_from, date_to)
 
         total_invoiced = sum(customer_moves.mapped('amount_total'))
         total_expenses = sum(vendor_moves.mapped('amount_total'))
         net_profit = total_invoiced - total_expenses
         outstanding = self._get_outstanding_receivable()
+        total_paid = sum(payments.mapped('amount'))
+        unpaid_customer_count = len(self._get_unpaid_customer_invoices().mapped('partner_id'))
         currency = self.env.company.currency_id
 
         pdf_content, dummy = self.env['ir.actions.report']._render_qweb_pdf(
@@ -138,21 +196,26 @@ class AccountMove(models.Model):
                 'period_label': period_label,
                 'customer_move_ids': customer_moves.ids,
                 'vendor_move_ids': vendor_moves.ids,
+                'payment_ids': payments.ids,
             },
         )
         caption = _(
             "%(title)s\n\n"
             "🧾 Invoices: <b>%(inv_count)s</b> · %(invoiced)s %(cur)s\n"
+            "✅ Paid In: <b>%(pay_count)s</b> · %(paid)s %(cur)s\n"
             "📤 Bills: <b>%(bill_count)s</b> · %(expenses)s %(cur)s\n"
             "💰 Net: <b>%(profit)s %(cur)s</b>\n"
-            "⏳ Outstanding: <b>%(outstanding)s %(cur)s</b>"
+            "⏳ Unpaid: <b>%(unpaid_customers)s customers</b> · %(outstanding)s %(cur)s"
         ) % {
             'title': caption_title,
             'inv_count': len(customer_moves),
             'invoiced': "{:,.2f}".format(total_invoiced),
+            'pay_count': len(payments),
+            'paid': "{:,.2f}".format(total_paid),
             'bill_count': len(vendor_moves),
             'expenses': "{:,.2f}".format(total_expenses),
             'profit': "{:,.2f}".format(net_profit),
+            'unpaid_customers': unpaid_customer_count,
             'outstanding': "{:,.2f}".format(outstanding),
             'cur': currency.symbol,
         }
