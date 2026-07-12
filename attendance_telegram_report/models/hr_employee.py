@@ -60,17 +60,19 @@ class HrEmployee(models.Model):
         sessions = {}
         for att in attendances:
             session = sessions.setdefault(
-                att.employee_id.id, {'check_in': None, 'check_out': None}
+                att.employee_id.id,
+                {'check_in': None, 'check_out': None, 'still_working': False},
             )
             check_in = max(att.check_in, day_start_utc)
             if session['check_in'] is None or check_in < session['check_in']:
                 session['check_in'] = check_in
 
             if not att.check_out:
-                session['check_out'] = None
-            elif session['check_out'] is not None:
+                # An open attendance means the employee is currently checked in.
+                session['still_working'] = True
+            else:
                 check_out = min(att.check_out, day_end_utc)
-                if check_out > session['check_out']:
+                if session['check_out'] is None or check_out > session['check_out']:
                     session['check_out'] = check_out
 
         present_data = sorted(
@@ -78,7 +80,7 @@ class HrEmployee(models.Model):
                 {
                     'employee': self.browse(emp_id),
                     'check_in': session['check_in'],
-                    'check_out': session['check_out'],
+                    'check_out': None if session['still_working'] else session['check_out'],
                 }
                 for emp_id, session in sessions.items()
             ),
