@@ -1,0 +1,17 @@
+services:
+  facebook-auto-reply:
+    build: .
+    container_name: facebook-auto-reply
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Edit replies.json on the host to change the Khmer answers,
+      # no rebuild needed (restart the container to be safe).
+      - ./replies.json:/app/replies.json:ro
+      - audio-cache:/data/audio
+    restart: unless-stopped
+
+volumes:
+  audio-cache:
