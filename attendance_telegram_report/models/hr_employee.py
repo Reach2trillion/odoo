@@ -108,25 +108,25 @@ class HrEmployee(models.Model):
             "✅ %(name)s — %(in_label)s: <b>%(check_in)s</b>, %(out_label)s: <b>%(check_out)s</b>"
             % {
                 'name': data['employee'].name,
-                'in_label': _("Check In"),
+                'in_label': "ម៉ោងចូល",
                 'check_in': self._format_telegram_report_time(data['check_in'], tz),
-                'out_label': _("Check Out"),
+                'out_label': "ម៉ោងចេញ",
                 'check_out': (
                     self._format_telegram_report_time(data['check_out'], tz)
-                    if data['check_out'] else _("still working")
+                    if data['check_out'] else "កំពុងធ្វើការ"
                 ),
             }
             for data in present_data
-        ) or _("(none)")
+        ) or "(គ្មាន)"
 
         absent_lines = "\n".join(
             "❌ %s" % emp.name for emp in absent_employees
-        ) or _("(none)")
+        ) or "(គ្មាន)"
 
-        return _(
-            "📋 <b>Daily Attendance Report — %(date)s</b>\n\n"
-            "🟢 <b>Worked today (%(present_count)s)</b>\n%(present_lines)s\n\n"
-            "🔴 <b>Absent today (%(absent_count)s)</b>\n%(absent_lines)s"
+        return (
+            "📋 <b>របាយការណ៍វត្តមានប្រចាំថ្ងៃ — %(date)s</b>\n\n"
+            "🟢 <b>បានធ្វើការថ្ងៃនេះ (%(present_count)s)</b>\n%(present_lines)s\n\n"
+            "🔴 <b>អវត្តមានថ្ងៃនេះ (%(absent_count)s)</b>\n%(absent_lines)s"
         ) % {
             'date': report_date.strftime('%d/%m/%Y'),
             'present_count': len(present_data),
@@ -217,15 +217,15 @@ class HrEmployee(models.Model):
             % {
                 'name': data['employee'].name,
                 'status': (
-                    _("checked in at %s") % self._format_telegram_report_time(data['check_in'], tz)
-                    if data['check_in'] else _("not checked in yet")
+                    "បានចូលនៅម៉ោង %s" % self._format_telegram_report_time(data['check_in'], tz)
+                    if data['check_in'] else "មិនទាន់ចូលទេ"
                 ),
             }
             for data in late_employees
         )
 
-        return _(
-            "🚨 <b>Late Attendance Alert — %(date)s</b>\n\n%(lines)s"
+        return (
+            "🚨 <b>ការជូនដំណឹងមកយឺត — %(date)s</b>\n\n%(lines)s"
         ) % {
             'date': report_date.strftime('%d/%m/%Y'),
             'lines': lines,
