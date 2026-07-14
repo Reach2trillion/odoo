@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="hr_attendance_kiosk_checkin.public_kiosk_manual_selection" t-inherit="hr_attendance.public_kiosk_manual_selection" t-inherit-mode="extension">
+    <xpath expr="//p[@t-esc='employee.job_id']" position="after">
+        <span t-if="employee.attendance_state === 'checked_in'" class="badge rounded-pill text-bg-success mt-1">
+            Checked in<t t-if="employee.last_check_in"> since <t t-esc="formatCheckInTime(employee.last_check_in)"/></t>
+        </span>
+        <span t-else="" class="badge rounded-pill text-bg-light text-muted mt-1">
+            Checked out
+        </span>
+    </xpath>
+</t>
+
+</templates>

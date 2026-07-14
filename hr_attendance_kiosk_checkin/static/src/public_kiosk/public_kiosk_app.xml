@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="hr_attendance_kiosk_checkin.public_kiosk_app" t-inherit="hr_attendance.public_kiosk_app" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('o_hr_kiosk_mode_main')]" position="after">
+        <div t-if="state.checkedInEmployees.length" class="o_hr_kiosk_checked_in align-self-center w-100 px-3 mb-3" style="max-width: 40rem;">
+            <h5 class="text-center mb-3">
+                <i class="fa fa-check-circle text-success me-2" role="img" aria-label="Checked in" title="Checked in"/>
+                Currently checked in (<t t-esc="state.checkedInEmployees.length"/>)
+            </h5>
+            <div class="d-flex flex-wrap justify-content-center gap-2 overflow-auto" style="max-height: 30vh;">
+                <div t-foreach="state.checkedInEmployees" t-as="emp" t-key="emp.id"
+                     class="d-flex align-items-center gap-2 bg-white border rounded-pill ps-1 pe-3 py-1 shadow-sm">
+                    <img class="rounded-circle" width="32" height="32" t-att-src="emp.avatar" alt="Employee Avatar"/>
+                    <span class="fw-bold" t-esc="emp.name"/>
+                    <span class="small text-muted">
+                        since <t t-esc="formatCheckInTime(emp.check_in)"/>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </xpath>
+</t>
+
+</templates>
