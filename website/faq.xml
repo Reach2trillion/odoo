@@ -6,11 +6,11 @@
         <div class="container text-center">
           <div class="abj-eyebrow mb-3">Help centre</div>
           <h1>Delivery, returns &amp; FAQ</h1>
-          <p class="lead mx-auto mt-3" style="max-width:38rem;">Everything you need to know about ordering from ABJ Skincare.</p>
+          <p class="lead mx-auto mt-3" style="max-width:38rem;">Everything you need to know about ordering from ABJ AIBAOJI.</p>
         </div>
       </section>
 
-      <section class="pt64 pb64" style="background:#FDFBF6;">
+      <section class="pt64 pb64" style="background:#F4FAFE;">
         <div class="container" style="max-width:860px;">
 
           <h2 class="h2">Delivery</h2>
@@ -39,11 +39,11 @@
             </div>
             <div class="accordion-item">
               <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">Are your products suitable for sensitive skin?</button></h3>
-              <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Our formulas are fragrance-free, alcohol-free and non-comedogenic. As with any active skincare, patch-test on your inner arm for 24 hours before first use.</div></div>
+              <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Our formulas are mild and non-irritating, designed to protect the skin barrier. As with any skincare, patch-test on your inner arm for 24 hours before first use.</div></div>
             </div>
             <div class="accordion-item">
               <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">Are ABJ products cruelty-free?</button></h3>
-              <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Always. We never test on animals, and our formulas are vegan.</div></div>
+              <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Always. We never test on animals.</div></div>
             </div>
           </div>
 
@@ -52,11 +52,11 @@
           <div class="accordion mb-4" id="faqUse">
             <div class="accordion-item">
               <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">What order should I apply my routine in?</button></h3>
-              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Thinnest to thickest: Gentle Rice Cleanser &#8594; Botanical Toner Mist &#8594; serum of your choice &#8594; Silk Cloud Moisturizer &#8594; Daily Shield SPF 50+ (mornings).</div></div>
+              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Thinnest to thickest: Gently Clean Skin Cleanser &#8594; Elastic Rejuvenating Essence &#8594; Night Moisturizing Repair Night Cream (evenings) &#8594; Brighten Sunscreen SPF 50+ (mornings). Add the Nicotinamide Brightening Face Mask 2&#8211;3 times a week.</div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">Can I use vitamin C and niacinamide together?</button></h3>
-              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Yes &#8212; modern formulas work well together. We suggest vitamin C in the morning and niacinamide at night if you're just starting out.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">Can I use the essence and the niacinamide masks together?</button></h3>
+              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Yes &#8212; they're designed to work together. Use the Elastic Rejuvenating Essence daily and the Nicotinamide Brightening Face Mask 2&#8211;3 evenings a week, applying the essence after you remove the mask.</div></div>
             </div>
           </div>
 
@@ -74,7 +74,7 @@
           {"@type": "Question", "name": "How long does delivery take?", "acceptedAnswer": {"@type": "Answer", "text": "Phnom Penh and Ta Khmau: same or next day. Provinces: 2-4 working days via VET or J&T Express."}},
           {"@type": "Question", "name": "How much does shipping cost?", "acceptedAnswer": {"@type": "Answer", "text": "Flat $1.50 in Phnom Penh, $2.50 to provinces, free on orders over $35."}},
           {"@type": "Question", "name": "What is your return policy?", "acceptedAnswer": {"@type": "Answer", "text": "Unopened products can be returned within 14 days for a full refund. Damaged items are replaced free within 48 hours of delivery."}},
-          {"@type": "Question", "name": "Are ABJ products cruelty-free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, all ABJ Skincare products are vegan and never tested on animals."}}
+          {"@type": "Question", "name": "Are ABJ products cruelty-free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, ABJ AIBAOJI products are never tested on animals."}}
         ]
       }</script>
 

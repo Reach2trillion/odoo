@@ -1,0 +1,26 @@
+{
+  "brand": "ABJ / AIBAOJI",
+  "logo": "boxed 'ABJ' serif caps over 'AIBAOJI', then series line",
+  "palette": {
+    "skin_blue_top": "#3FA7E0",
+    "skin_blue_deep": "#2E86C8",
+    "white": "#FFFFFF",
+    "logo_blue": "#1E7FC0",
+    "green": "#8E9A46",
+    "pink": "#E5327E",
+    "gold_collar": "#C9A24B"
+  },
+  "products": [
+    {"slug": "blush-coverage-bb-cream", "name": "Blush Coverage BB Cream", "series": "skin", "form": "tube", "color": "blue", "size": "60 g", "title_top": "Blush Coverage", "sub": "CLEAR SUNSCREEN\nREPAIR BB CREAM", "desc_top": "Natural skin care to conceal blemishes", "badge": "FAKE NATURAL LOOK", "foot": "Long-lasting makeup", "price": 14, "cat": "makeup"},
+    {"slug": "brighten-sunscreen-spf50", "name": "Brighten Sunscreen SPF 50+", "series": "skin", "form": "tube", "color": "blue", "size": "70 g", "title_top": "Brighten Sunscreen", "sub": "BEAUTY SKIN\nREPAIR SUNSCREEN", "spf": true, "badge": "PREVENT PHOTOAGING", "foot": "Skin reveal clarity", "price": 16, "cat": "suncare"},
+    {"slug": "nicotinamide-brightening-face-mask", "name": "Nicotinamide Brightening Face Mask", "series": "skin", "form": "box", "color": "blue", "size": "30 ml x 5", "title_top": "Multiple Skin-Care Concentrates", "sub": "NICOTINAMIDE BRIGHTENING\nFACE MASK", "desc_top": "Contains niacinamide, a gold-level whitening ingredient", "emblem": "REDUCE ACNE MARKS SPOT", "price": 12, "cat": "masks"},
+    {"slug": "elastic-rejuvenating-essence", "name": "Elastic Rejuvenating Essence", "series": "skin", "form": "dropper", "color": "blue", "size": "30 ml", "title_top": "", "sub": "ELASTIC REJUVENATING\nESSENCE", "emblem": "SMOOTH BEAUTIFUL SKIN", "price": 22, "cat": "treatments"},
+    {"slug": "night-moisturizing-repair-night-cream", "name": "Night Moisturizing Repair Night Cream", "series": "skin", "form": "jar", "color": "blue", "size": "50 g", "sub": "NIGHT MOISTURIZING REPAIR\nNIGHT CREAM", "price": 24, "cat": "moisturizers"},
+    {"slug": "soothing-underarm-care-cream", "name": "Soothing Underarm Care Cream", "series": "skin", "form": "jar", "color": "blue", "size": "50 g", "sub": "SOOTHING UNDERARM\nCARE CREAM", "price": 15, "cat": "bodycare"},
+    {"slug": "gently-clean-skin-cleanser", "name": "Gently Clean Skin Cleanser", "series": "skin", "form": "tube", "color": "blue", "size": "150 g", "title_top": "Gently Clean Skin", "sub": "AIBAOJI SOFT\nCLEAR SKIN CLEANSER", "desc_top": "wash away dirt without taking away water", "emblem": "SOOTHING GENTLE SKIN CARE", "price": 11, "cat": "cleansers"},
+    {"slug": "mild-non-irritating-makeup-remover", "name": "Mild Non-irritating Makeup Remover", "series": "skin", "form": "flipbottle", "color": "blue", "size": "320 ml", "title_top": "Mild Non-irritating", "sub": "GENTLE CLEANSING\nMAKEUP REMOVER", "desc_top": "Avoid damaging the skin barrier", "emblem": "EASY MAKEUP REMOVAL", "price": 13, "cat": "cleansers"},
+    {"slug": "nourishing-soft-fragrance-shampoo", "name": "Nourishing Soft Fragrance Shampoo", "series": "wash", "form": "pump", "color": "blue", "size": "500 ml", "title_top": "Clean Hair Strands", "sub": "NOURISHING SOFT\nFRAGRANCE SHAMPOO", "desc_top": "Smooth and shiny, with a pleasant fragrance", "emblem": "MOISTURIZE SMOOTH THE HAIR", "price": 18, "cat": "haircare"},
+    {"slug": "white-truffle-hair-conditioner", "name": "White Truffle Creamy Hair Conditioner", "series": "wash", "form": "pump", "color": "green", "size": "500 ml", "title_top": "Improve Divide", "sub": "WHITE TRUFFLE CREAMY\nHAIR CONDITIONER", "desc_top": "Deeply moisturizes hair strands, improves split ends tangles", "emblem": "SMOOTH KNOTTING HAIR", "price": 18, "cat": "haircare"},
+    {"slug": "soft-fragrant-skin-shower-gel", "name": "Soft Fragrant Skin Shower Gel", "series": "wash", "form": "pump", "color": "pink", "size": "500 ml", "title_top": "Soft Fragrant Skin", "sub": "NOURISHING SOFT\nSKIN FRAGRANCE SHOWER GEL", "desc_top": "Reveal the smooth texture of the skin", "emblem": "SMOOTH SKIN TEXTURE", "price": 16, "cat": "bodycare"}
+  ]
+}

@@ -4,27 +4,27 @@
 
       <!-- HERO -->
       <section class="abj-hero">
-        <div class="abj-hero-blob" style="width:520px;height:520px;background:rgba(169,191,172,.35);right:-160px;bottom:-220px;"></div>
-        <div class="abj-hero-blob" style="width:420px;height:420px;background:rgba(217,190,147,.35);right:22%;top:-180px;"></div>
+        <div class="abj-hero-blob" style="width:520px;height:520px;background:rgba(143,208,240,.35);right:-160px;bottom:-220px;"></div>
+        <div class="abj-hero-blob" style="width:420px;height:420px;background:rgba(55,169,224,.22);right:22%;top:-180px;"></div>
         <div class="abj-hero-ring" style="width:480px;height:480px;right:6%;top:-140px;"></div>
         <div class="container">
           <div class="row align-items-center">
             <div class="col-lg-6 py-4">
-              <div class="abj-eyebrow mb-3">Botanical skincare &#183; Cambodia</div>
+              <div class="abj-eyebrow mb-3">ABJ &#183; AIBAOJI &#183; Skin Care Series</div>
               <h1>Let your skin<br/>breathe.</h1>
-              <p class="lead mt-3 mb-4">Small-batch botanical skincare made for tropical skin &#8212; clinically dosed actives, weightless textures and nothing your skin doesn't need.</p>
+              <p class="lead mt-3 mb-4">The complete AIBAOJI ritual &#8212; gentle cleansers, brightening essences and nourishing hair &amp; body care. Soft formulas, soothing care, smooth beautiful skin.</p>
               <div class="d-flex flex-wrap gap-2">
                 <a href="/shop" class="btn btn-primary">Shop bestsellers</a>
                 <a href="/about-us" class="btn btn-outline-primary">Our story</a>
               </div>
-              <p class="abj-soft small mt-4 mb-0"><i class="fa fa-star" style="color:#B98B4E"></i><i class="fa fa-star" style="color:#B98B4E"></i><i class="fa fa-star" style="color:#B98B4E"></i><i class="fa fa-star" style="color:#B98B4E"></i><i class="fa fa-star" style="color:#B98B4E"></i>
+              <p class="abj-soft small mt-4 mb-0"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
                 Loved by 2,000+ customers across Cambodia</p>
             </div>
             <div class="col-lg-6">
               <div class="abj-hero-figure">
-                <div class="abj-hero-card c1"><img src="/web/image/product.template/25/image_1024" alt="ABJ Vitamin C Glow Serum in amber glass dropper bottle" loading="eager"/></div>
-                <div class="abj-hero-card c2"><img src="/web/image/product.template/30/image_512" alt="ABJ Silk Cloud ceramide moisturizer jar" loading="lazy"/></div>
-                <div class="abj-hero-card c3"><img src="/web/image/product.template/32/image_512" alt="ABJ Daily Shield SPF 50+ mineral sunscreen tube" loading="lazy"/></div>
+                <div class="abj-hero-card c1"><img src="/web/image/product.template/34/image_1024" alt="ABJ AIBAOJI Elastic Rejuvenating Essence dropper bottle" loading="eager"/></div>
+                <div class="abj-hero-card c2"><img src="/web/image/product.template/44/image_512" alt="ABJ AIBAOJI Soft Fragrant Skin Shower Gel pump bottle" loading="lazy"/></div>
+                <div class="abj-hero-card c3"><img src="/web/image/product.template/41/image_512" alt="ABJ AIBAOJI Blush Coverage BB Cream tube" loading="lazy"/></div>
               </div>
             </div>
           </div>
@@ -36,15 +36,15 @@
         <div class="container">
           <div class="row">
             <div class="col-6 col-md-3"><div class="item"><i class="fa fa-truck"></i><span>Free delivery over $35</span></div></div>
-            <div class="col-6 col-md-3"><div class="item"><i class="fa fa-leaf"></i><span>Botanical &amp; cruelty-free</span></div></div>
-            <div class="col-6 col-md-3"><div class="item"><i class="fa fa-sun-o"></i><span>Made for tropical skin</span></div></div>
+            <div class="col-6 col-md-3"><div class="item"><i class="fa fa-heart-o"></i><span>Gentle, non-irritating care</span></div></div>
+            <div class="col-6 col-md-3"><div class="item"><i class="fa fa-tint"></i><span>Skin &amp; wash care series</span></div></div>
             <div class="col-6 col-md-3"><div class="item"><i class="fa fa-lock"></i><span>Secure checkout</span></div></div>
           </div>
         </div>
       </section>
 
       <!-- CATEGORIES -->
-      <section class="pt64 pb48" style="background:#FDFBF6;">
+      <section class="pt64 pb48" style="background:#F4FAFE;">
         <div class="container">
           <div class="text-center mb-5">
             <div class="abj-eyebrow mb-2">Shop by ritual</div>
@@ -53,33 +53,33 @@
           </div>
           <div class="row g-4">
             <div class="col-6 col-lg-2 offset-lg-1">
-              <a class="abj-card" href="/shop/category/cleansers-toners-1">
-                <img src="/web/image/product.public.category/1/image_512" alt="Cleansers and toners category" loading="lazy"/>
-                <div class="body text-center"><div class="name">Cleansers &amp; Toners</div></div>
+              <a class="abj-card" href="/shop/category/cleansers-removers-1">
+                <img src="/web/image/product.public.category/1/image_512" alt="Cleansers and makeup removers category" loading="lazy"/>
+                <div class="body text-center"><div class="name">Cleansers &amp; Removers</div></div>
               </a>
             </div>
             <div class="col-6 col-lg-2">
-              <a class="abj-card" href="/shop/category/serums-treatments-2">
-                <img src="/web/image/product.public.category/2/image_512" alt="Face serums and treatments category" loading="lazy"/>
-                <div class="body text-center"><div class="name">Serums</div></div>
+              <a class="abj-card" href="/shop/category/serums-masks-2">
+                <img src="/web/image/product.public.category/2/image_512" alt="Face essences and masks category" loading="lazy"/>
+                <div class="body text-center"><div class="name">Serums &amp; Masks</div></div>
               </a>
             </div>
             <div class="col-6 col-lg-2">
-              <a class="abj-card" href="/shop/category/moisturizers-3">
-                <img src="/web/image/product.public.category/3/image_512" alt="Moisturizers and eye care category" loading="lazy"/>
-                <div class="body text-center"><div class="name">Moisturizers</div></div>
+              <a class="abj-card" href="/shop/category/moisturizers-creams-3">
+                <img src="/web/image/product.public.category/3/image_512" alt="Moisturizers and care creams category" loading="lazy"/>
+                <div class="body text-center"><div class="name">Moisturizers &amp; Creams</div></div>
               </a>
             </div>
             <div class="col-6 col-lg-2">
-              <a class="abj-card" href="/shop/category/sun-care-4">
-                <img src="/web/image/product.public.category/4/image_512" alt="Sun care and SPF category" loading="lazy"/>
-                <div class="body text-center"><div class="name">Sun Care</div></div>
+              <a class="abj-card" href="/shop/category/sun-care-makeup-4">
+                <img src="/web/image/product.public.category/4/image_512" alt="Sunscreen and BB cream category" loading="lazy"/>
+                <div class="body text-center"><div class="name">Sun Care &amp; Makeup</div></div>
               </a>
             </div>
             <div class="col-6 col-lg-2">
-              <a class="abj-card" href="/shop/category/body-care-5">
-                <img src="/web/image/product.public.category/5/image_512" alt="Body care category" loading="lazy"/>
-                <div class="body text-center"><div class="name">Body Care</div></div>
+              <a class="abj-card" href="/shop/category/hair-body-care-5">
+                <img src="/web/image/product.public.category/5/image_512" alt="Shampoo, conditioner and shower gel category" loading="lazy"/>
+                <div class="body text-center"><div class="name">Hair &amp; Body Care</div></div>
               </a>
             </div>
           </div>
@@ -87,7 +87,7 @@
       </section>
 
       <!-- BESTSELLERS -->
-      <section class="pt48 pb64" style="background:#FDFBF6;">
+      <section class="pt48 pb64" style="background:#F4FAFE;">
         <div class="container">
           <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-4">
             <div>
@@ -98,42 +98,42 @@
           </div>
           <div class="row g-4">
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/vitamin-c-glow-serum-25">
-                <img src="/web/image/product.template/25/image_512" alt="Vitamin C Glow Serum — 10% brightening serum" loading="lazy"/>
+              <a class="abj-card" href="/shop/elastic-rejuvenating-essence-34">
+                <img src="/web/image/product.template/34/image_512" alt="Elastic Rejuvenating Essence — smooth beautiful skin serum" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Serum &#183; 30 ml</div>
-                  <div class="name">Vitamin C Glow Serum</div>
-                  <div class="price mt-1">$ 32.00</div>
+                  <div class="tag">Essence &#183; 30 ml</div>
+                  <div class="name">Elastic Rejuvenating Essence</div>
+                  <div class="price mt-1"><del class="abj-soft me-2" style="font-weight:400;">$ 28.00</del>$ 22.00</div>
                 </div>
               </a>
             </div>
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/silk-cloud-moisturizer-30">
-                <img src="/web/image/product.template/30/image_512" alt="Silk Cloud Moisturizer — ceramide barrier cream" loading="lazy"/>
+              <a class="abj-card" href="/shop/brighten-sunscreen-spf-50-40">
+                <img src="/web/image/product.template/40/image_512" alt="Brighten Sunscreen SPF 50+ repair sunscreen" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Moisturizer &#183; 50 ml</div>
-                  <div class="name">Silk Cloud Moisturizer</div>
-                  <div class="price mt-1">$ 30.00</div>
+                  <div class="tag">Sun care &#183; 70 g</div>
+                  <div class="name">Brighten Sunscreen SPF 50+</div>
+                  <div class="price mt-1">$ 16.00</div>
                 </div>
               </a>
             </div>
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/daily-shield-spf-50-32">
-                <img src="/web/image/product.template/32/image_512" alt="Daily Shield SPF 50+ mineral sunscreen" loading="lazy"/>
+              <a class="abj-card" href="/shop/nourishing-soft-fragrance-shampoo-42">
+                <img src="/web/image/product.template/42/image_512" alt="Nourishing Soft Fragrance Shampoo pump bottle" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Sun care &#183; 50 ml</div>
-                  <div class="name">Daily Shield SPF 50+</div>
-                  <div class="price mt-1">$ 22.00</div>
-                </div>
-              </a>
-            </div>
-            <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/gentle-rice-cleanser-26">
-                <img src="/web/image/product.template/26/image_512" alt="Gentle Rice Cleanser — soft foaming face wash" loading="lazy"/>
-                <div class="body">
-                  <div class="tag">Cleanser &#183; 150 ml</div>
-                  <div class="name">Gentle Rice Cleanser</div>
+                  <div class="tag">Hair care &#183; 500 ml</div>
+                  <div class="name">Nourishing Soft Fragrance Shampoo</div>
                   <div class="price mt-1">$ 18.00</div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6 col-lg-3">
+              <a class="abj-card" href="/shop/nicotinamide-brightening-face-mask-35">
+                <img src="/web/image/product.template/35/image_512" alt="Nicotinamide Brightening Face Mask box of five" loading="lazy"/>
+                <div class="body">
+                  <div class="tag">Mask &#183; 30 ml &#215; 5</div>
+                  <div class="name">Nicotinamide Brightening Face Mask</div>
+                  <div class="price mt-1">$ 12.00</div>
                 </div>
               </a>
             </div>
@@ -147,15 +147,15 @@
           <div class="row align-items-center g-5">
             <div class="col-lg-6">
               <div class="abj-story-img">
-                <img src="/web/image/product.template/33/image_1024" alt="ABJ Jasmine Body Silk lotion with botanical styling" loading="lazy"/>
+                <img src="/web/image/product.template/43/image_1024" alt="ABJ AIBAOJI White Truffle Creamy Hair Conditioner" loading="lazy"/>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="abj-eyebrow mb-2">Our story</div>
-              <h2 class="h1">Rooted in Cambodian botanicals</h2>
+              <h2 class="h1">One brand, two rituals</h2>
               <hr class="abj-rule my-3"/>
-              <p>ABJ Skincare was born in Ta Khmau from a simple frustration: skincare made for other climates doesn't work in ours. Heavy creams melt, harsh actives sting, and fragrance hides what formulas lack.</p>
-              <p>So we build every product around three rules: <strong>clinically dosed actives</strong>, <strong>weightless tropical-proof textures</strong>, and <strong>botanicals grown close to home</strong> &#8212; lotus, jasmine, rice and green tea.</p>
+              <p>ABJ AIBAOJI makes everyday self-care simple. Our <strong>Skin Care Series</strong> covers your face from the first cleanse to overnight repair &#8212; gentle cleanser, makeup remover, brightening masks, rejuvenating essence, night cream, sunscreen and BB cream.</p>
+              <p>The <strong>Wash Care Series</strong> takes care of the rest: nourishing shampoo, white truffle conditioner and a softly fragrant shower gel &#8212; so hair and skin stay smooth, moisturized and delicately scented.</p>
               <a href="/about-us" class="btn btn-primary mt-2">Read our story</a>
             </div>
           </div>
@@ -163,33 +163,33 @@
       </section>
 
       <!-- VALUES -->
-      <section class="pt64 pb64" style="background:#FDFBF6;">
+      <section class="pt64 pb64" style="background:#F4FAFE;">
         <div class="container">
           <div class="text-center mb-5">
-            <div class="abj-eyebrow mb-2">The ABJ standard</div>
-            <h2 class="h1 mb-3">Skincare you can trust</h2>
+            <div class="abj-eyebrow mb-2">The AIBAOJI standard</div>
+            <h2 class="h1 mb-3">Care you can trust</h2>
             <hr class="abj-rule mx-auto"/>
           </div>
           <div class="row g-4">
             <div class="col-md-4">
               <div class="abj-value">
-                <div class="ico"><i class="fa fa-flask"></i></div>
-                <h3 class="h4">Clinically dosed</h3>
-                <p class="abj-soft mb-0">Actives at the percentages studies actually use &#8212; 10% vitamin C, 10% niacinamide, SPF 50+ &#8212; never fairy-dusted.</p>
+                <div class="ico"><i class="fa fa-heart-o"></i></div>
+                <h3 class="h4">Gentle by design</h3>
+                <p class="abj-soft mb-0">Mild, non-irritating formulas that clean and care without stripping moisture or damaging the skin barrier.</p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-value">
-                <div class="ico"><i class="fa fa-leaf"></i></div>
-                <h3 class="h4">Botanical &amp; kind</h3>
-                <p class="abj-soft mb-0">Lotus, jasmine, rice and green tea from Southeast Asian growers. Vegan formulas, never tested on animals.</p>
+                <div class="ico"><i class="fa fa-flask"></i></div>
+                <h3 class="h4">Proven ingredients</h3>
+                <p class="abj-soft mb-0">Niacinamide brightening, SPF 50+ protection and deep-moisture conditioners &#8212; ingredients that do what they promise.</p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-value">
                 <div class="ico"><i class="fa fa-tint"></i></div>
-                <h3 class="h4">Tropical-proof</h3>
-                <p class="abj-soft mb-0">Feather-light textures that hold up to 35&#176; heat and humidity &#8212; no grease, no pilling, no white cast.</p>
+                <h3 class="h4">Head-to-toe ritual</h3>
+                <p class="abj-soft mb-0">One matched system for face, hair and body, so every step of your routine works softly together.</p>
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@
       </section>
 
       <!-- TESTIMONIALS -->
-      <section class="pt48 pb64" style="background:var(--abj-cream);">
+      <section class="pt48 pb64" style="background:var(--abj-ice);">
         <div class="container">
           <div class="text-center mb-5">
             <div class="abj-eyebrow mb-2">Real results</div>
@@ -208,21 +208,21 @@
             <div class="col-md-4">
               <div class="abj-quote">
                 <div class="stars mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p>&#8220;The Vitamin C serum faded my dark spots in a month. It's the first one that doesn't sting or smell like metal.&#8221;</p>
+                <p>&#8220;The niacinamide masks brightened my acne marks within a month. My skin feels calm every time I use one.&#8221;</p>
                 <div class="who">Sreyneang &#183; Phnom Penh</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-quote">
                 <div class="stars mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p>&#8220;Finally an SPF 50 with zero white cast that survives my motorbike commute. I re-ordered three.&#8221;</p>
+                <p>&#8220;Finally an SPF 50+ that brightens instead of leaving a white cast. It survives my motorbike commute.&#8221;</p>
                 <div class="who">Dara &#183; Siem Reap</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-quote">
                 <div class="stars mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                <p>&#8220;Silk Cloud calmed my flaky, over-exfoliated skin in days. Light as air but my face stays hydrated till evening.&#8221;</p>
+                <p>&#8220;The white truffle conditioner untangled my dry ends in a week &#8212; and the shampoo smells amazing all day.&#8221;</p>
                 <div class="who">Malis &#183; Ta Khmau</div>
               </div>
             </div>
@@ -231,11 +231,11 @@
       </section>
 
       <!-- CTA BAND -->
-      <section class="pt32 pb64" style="background:var(--abj-cream);">
+      <section class="pt32 pb64" style="background:var(--abj-ice);">
         <div class="container">
           <div class="abj-band p-5 text-center">
-            <h2 class="h1 mb-2">Your skin, but calmer.</h2>
-            <p class="mb-4" style="opacity:.85">Start with the ritual loved by thousands &#8212; cleanse, glow, protect.</p>
+            <h2 class="h1 mb-2">Smooth, beautiful skin.</h2>
+            <p class="mb-4" style="opacity:.85">Start the AIBAOJI ritual &#8212; cleanse, brighten, protect, nourish.</p>
             <a href="/shop" class="btn btn-primary btn-lg">Shop the collection</a>
           </div>
         </div>
@@ -246,7 +246,8 @@
         "@graph": [
           {
             "@type": "Organization",
-            "name": "ABJ Skincare",
+            "name": "ABJ AIBAOJI Skincare",
+            "alternateName": "AIBAOJI",
             "url": "https://odoo2.yifu.io",
             "logo": "https://odoo2.yifu.io/web/image/website/1/favicon",
             "email": "abj@yifu.io",
@@ -255,7 +256,7 @@
           },
           {
             "@type": "WebSite",
-            "name": "ABJ Skincare",
+            "name": "ABJ AIBAOJI Skincare",
             "url": "https://odoo2.yifu.io"
           }
         ]
