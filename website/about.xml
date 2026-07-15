@@ -1,0 +1,76 @@
+<t name="About Us">
+  <t t-call="website.layout">
+    <div id="wrap" class="oe_structure oe_empty">
+
+      <section class="abj-hero" style="padding:4.5rem 0 3.5rem;">
+        <div class="container text-center">
+          <div class="abj-eyebrow mb-3">Our story</div>
+          <h1>Skincare that speaks<br/>our climate's language</h1>
+          <p class="lead mx-auto mt-3" style="max-width:40rem;">ABJ Skincare is a small-batch botanical skincare house from Ta Khmau, Cambodia &#8212; built for real skin in real tropical weather.</p>
+        </div>
+      </section>
+
+      <section class="pt64 pb48" style="background:#FDFBF6;">
+        <div class="container">
+          <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+              <div class="abj-story-img">
+                <img src="/web/image/product.template/27/image_1024" alt="ABJ Botanical Toner Mist with sage glass bottle" loading="lazy"/>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <h2 class="h1">Why we started</h2>
+              <hr class="abj-rule my-3"/>
+              <p>Most skincare on our shelves was designed for cooler, drier places. In 35&#176; heat and monsoon humidity, heavy creams suffocate, strong fragrance irritates, and "12-step" routines simply don't survive the day.</p>
+              <p>In 2023 we began blending small batches around one idea: <strong>your skin already knows what to do &#8212; good skincare just clears the way.</strong> Today our ritual is loved by more than 2,000 customers across Cambodia.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt48 pb64" style="background:#FDFBF6;">
+        <div class="container">
+          <div class="text-center mb-5">
+            <div class="abj-eyebrow mb-2">What we believe</div>
+            <h2 class="h1 mb-3">Three promises, every jar</h2>
+            <hr class="abj-rule mx-auto"/>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="abj-value">
+                <div class="ico"><i class="fa fa-flask"></i></div>
+                <h3 class="h4">Honest formulas</h3>
+                <p class="abj-soft mb-0">Full active percentages on every label. If an ingredient is there, it's there at a level that does something.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="abj-value">
+                <div class="ico"><i class="fa fa-leaf"></i></div>
+                <h3 class="h4">Local botanicals</h3>
+                <p class="abj-soft mb-0">Lotus, jasmine, rice and green tea sourced from Southeast Asian growers we know by name.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="abj-value">
+                <div class="ico"><i class="fa fa-heart-o"></i></div>
+                <h3 class="h4">Kind by default</h3>
+                <p class="abj-soft mb-0">Vegan, cruelty-free, fragrance-free where it counts &#8212; and reef-friendly sun care as standard.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt32 pb64" style="background:var(--abj-cream);">
+        <div class="container">
+          <div class="abj-band p-5 text-center">
+            <h2 class="h1 mb-2">Meet the ritual</h2>
+            <p class="mb-4" style="opacity:.85">Cleanse &#183; treat &#183; moisturize &#183; protect &#8212; four steps, zero fuss.</p>
+            <a href="/shop" class="btn btn-primary btn-lg">Shop all products</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </t>
+</t>
