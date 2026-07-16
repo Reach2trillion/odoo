@@ -22,9 +22,9 @@
             </div>
             <div class="col-lg-6">
               <div class="abj-hero-figure">
-                <div class="abj-hero-card c1"><img src="/web/image/product.template/34/image_1024" alt="ABJ AIBAOJI Elastic Rejuvenating Essence dropper bottle" loading="eager"/></div>
-                <div class="abj-hero-card c2"><img src="/web/image/product.template/44/image_512" alt="ABJ AIBAOJI Soft Fragrant Skin Shower Gel pump bottle" loading="lazy"/></div>
-                <div class="abj-hero-card c3"><img src="/web/image/product.template/41/image_512" alt="ABJ AIBAOJI Blush Coverage BB Cream tube" loading="lazy"/></div>
+                <div class="abj-hero-card c1"><img src="/web/image/product.template/9/image_1024" alt="ABJ AIBAOJI Serum dropper bottle" loading="eager"/></div>
+                <div class="abj-hero-card c2"><img src="/web/image/product.template/10/image_512" alt="ABJ AIBAOJI Shower Gel pump bottle" loading="lazy"/></div>
+                <div class="abj-hero-card c3"><img src="/web/image/product.template/2/image_512" alt="ABJ AIBAOJI BB Cream tube" loading="lazy"/></div>
               </div>
             </div>
           </div>
@@ -98,42 +98,42 @@
           </div>
           <div class="row g-4">
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/elastic-rejuvenating-essence-34">
-                <img src="/web/image/product.template/34/image_512" alt="Elastic Rejuvenating Essence — smooth beautiful skin serum" loading="lazy"/>
+              <a class="abj-card" href="/shop/sku-005-abj-serum-9">
+                <img src="/web/image/product.template/9/image_512" alt="ABJ Serum — smooth rejuvenating essence" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Essence &#183; 30 ml</div>
-                  <div class="name">Elastic Rejuvenating Essence</div>
-                  <div class="price mt-1"><del class="abj-soft me-2" style="font-weight:400;">$ 28.00</del>$ 22.00</div>
+                  <div class="tag">Brightening essence</div>
+                  <div class="name">Serum</div>
+                  <div class="price mt-1">$ 6.00</div>
                 </div>
               </a>
             </div>
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/brighten-sunscreen-spf-50-40">
-                <img src="/web/image/product.template/40/image_512" alt="Brighten Sunscreen SPF 50+ repair sunscreen" loading="lazy"/>
+              <a class="abj-card" href="/shop/sku-003-abj-sunscreen-11">
+                <img src="/web/image/product.template/11/image_512" alt="ABJ Sunscreen — daily sun protection" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Sun care &#183; 70 g</div>
-                  <div class="name">Brighten Sunscreen SPF 50+</div>
-                  <div class="price mt-1">$ 16.00</div>
+                  <div class="tag">Sun care</div>
+                  <div class="name">Sunscreen</div>
+                  <div class="price mt-1">$ 6.00</div>
                 </div>
               </a>
             </div>
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/nourishing-soft-fragrance-shampoo-42">
-                <img src="/web/image/product.template/42/image_512" alt="Nourishing Soft Fragrance Shampoo pump bottle" loading="lazy"/>
+              <a class="abj-card" href="/shop/sku-002-abj-foam-3">
+                <img src="/web/image/product.template/3/image_512" alt="ABJ Foam — gentle facial cleanser" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Hair care &#183; 500 ml</div>
-                  <div class="name">Nourishing Soft Fragrance Shampoo</div>
-                  <div class="price mt-1">$ 18.00</div>
+                  <div class="tag">Foaming cleanser</div>
+                  <div class="name">Facial Foam</div>
+                  <div class="price mt-1">$ 5.00</div>
                 </div>
               </a>
             </div>
             <div class="col-6 col-lg-3">
-              <a class="abj-card" href="/shop/nicotinamide-brightening-face-mask-35">
-                <img src="/web/image/product.template/35/image_512" alt="Nicotinamide Brightening Face Mask box of five" loading="lazy"/>
+              <a class="abj-card" href="/shop/sku-006-abj-mask-6">
+                <img src="/web/image/product.template/6/image_512" alt="ABJ Mask — brightening face mask" loading="lazy"/>
                 <div class="body">
-                  <div class="tag">Mask &#183; 30 ml &#215; 5</div>
-                  <div class="name">Nicotinamide Brightening Face Mask</div>
-                  <div class="price mt-1">$ 12.00</div>
+                  <div class="tag">Face mask</div>
+                  <div class="name">Face Mask</div>
+                  <div class="price mt-1">$ 5.00</div>
                 </div>
               </a>
             </div>
@@ -147,7 +147,7 @@
           <div class="row align-items-center g-5">
             <div class="col-lg-6">
               <div class="abj-story-img">
-                <img src="/web/image/product.template/43/image_1024" alt="ABJ AIBAOJI White Truffle Creamy Hair Conditioner" loading="lazy"/>
+                <img src="/web/image/product.template/4/image_1024" alt="ABJ AIBAOJI Hair Conditioner" loading="lazy"/>
               </div>
             </div>
             <div class="col-lg-6">

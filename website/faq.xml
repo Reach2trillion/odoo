@@ -52,11 +52,11 @@
           <div class="accordion mb-4" id="faqUse">
             <div class="accordion-item">
               <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">What order should I apply my routine in?</button></h3>
-              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Thinnest to thickest: Gently Clean Skin Cleanser &#8594; Elastic Rejuvenating Essence &#8594; Night Moisturizing Repair Night Cream (evenings) &#8594; Brighten Sunscreen SPF 50+ (mornings). Add the Nicotinamide Brightening Face Mask 2&#8211;3 times a week.</div></div>
+              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Thinnest to thickest: Facial Foam &#8594; Serum &#8594; Night Cream (evenings) &#8594; Sunscreen (mornings). Add the Face Mask 2&#8211;3 times a week.</div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">Can I use the essence and the niacinamide masks together?</button></h3>
-              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Yes &#8212; they're designed to work together. Use the Elastic Rejuvenating Essence daily and the Nicotinamide Brightening Face Mask 2&#8211;3 evenings a week, applying the essence after you remove the mask.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">Can I use the serum and the face masks together?</button></h3>
+              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Yes &#8212; they're designed to work together. Use the Serum daily and the Face Mask 2&#8211;3 evenings a week, applying the serum after you remove the mask.</div></div>
             </div>
           </div>
 
