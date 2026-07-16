@@ -34,10 +34,8 @@
   font-weight: 600; font-size: 1.7rem; color: var(--abj-blue-deep) !important;
   display: inline-flex; align-items: center; gap: .5rem;
 }
-#wrapwrap header .navbar-brand::before {
-  content: ""; display: inline-block; width: 1.2rem; height: 1.2rem; border-radius: 5px;
-  background: linear-gradient(150deg, var(--abj-blue-bright), var(--abj-blue-deep));
-}
+/* Uploaded logo image: keep it crisp and nicely sized in the header */
+#wrapwrap header .navbar-brand img { max-height: 44px; width: auto; }
 #wrapwrap header .nav-link { font-weight: 500; letter-spacing: .08em; text-transform: uppercase; font-size: .82rem; color: var(--abj-ink); }
 #wrapwrap header .nav-link:hover { color: var(--abj-blue); }
 
