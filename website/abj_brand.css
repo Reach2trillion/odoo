@@ -25,7 +25,10 @@
 #wrapwrap h1 { letter-spacing: .01em; }
 
 /* ---------- header ---------- */
-#wrapwrap header .navbar { background: #F3FAFE !important; border-bottom: 1px solid #D7E9F6; }
+#wrapwrap header .navbar {
+  background: rgba(243,250,254,.88) !important; border-bottom: 1px solid #D7E9F6;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
 #wrapwrap header .navbar-brand {
   font-family: 'Cormorant Garamond', serif !important;
   font-weight: 600; font-size: 1.7rem; color: var(--abj-blue-deep) !important;
@@ -42,8 +45,13 @@
 #wrapwrap .btn-primary {
   background: var(--abj-blue); border-color: var(--abj-blue);
   border-radius: 999px; padding: .65rem 1.6rem; font-weight: 500; letter-spacing: .06em;
+  box-shadow: 0 8px 20px rgba(30,143,209,.22);
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
-#wrapwrap .btn-primary:hover, #wrapwrap .btn-primary:focus { background: var(--abj-blue-deep); border-color: var(--abj-blue-deep); }
+#wrapwrap .btn-primary:hover, #wrapwrap .btn-primary:focus {
+  background: var(--abj-blue-deep); border-color: var(--abj-blue-deep);
+  transform: translateY(-1px); box-shadow: 0 10px 24px rgba(18,90,138,.28);
+}
 #wrapwrap .btn-secondary, #wrapwrap .btn-outline-primary {
   border-radius: 999px; border-color: var(--abj-blue); color: var(--abj-blue); background: transparent;
   padding: .65rem 1.6rem; font-weight: 500; letter-spacing: .06em;
@@ -90,7 +98,10 @@
   transition: transform .25s ease, box-shadow .25s ease; height: 100%; display: block; color: inherit;
 }
 .abj-card:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(20,80,130,.14); color: inherit; }
-.abj-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #fff; }
+.abj-card { position: relative; }
+.abj-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #fff; transition: transform .5s ease; }
+.abj-card:hover img { transform: scale(1.04); }
+.abj-card .price del { color: #9BB3C2; font-weight: 400; }
 .abj-card .body { padding: 1rem 1.1rem 1.2rem; }
 .abj-card .name { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.25rem; color: var(--abj-blue-deep); line-height: 1.15; }
 .abj-card .price { color: var(--abj-blue); font-weight: 600; letter-spacing: .04em; }
@@ -123,8 +134,34 @@
 #wrapwrap footer a:hover { color: var(--abj-sky); }
 
 /* ---------- shop tweaks ---------- */
-#wrapwrap .oe_product_cart { border-radius: 16px; overflow: hidden; }
+#wrapwrap .oe_product_cart {
+  border-radius: 16px; overflow: hidden; border: 1px solid #D7E9F6;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+#wrapwrap .oe_product_cart:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(20,80,130,.12); }
 #wrapwrap .product_price .oe_currency_value { color: var(--abj-blue); }
+#wrapwrap .product_price del .oe_currency_value, #wrapwrap del .oe_currency_value { color: #9BB3C2; }
+#wrapwrap #product_detail .product_price { font-size: 1.35rem; }
+#wrapwrap #product_detail #o-carousel-product img { border-radius: 18px; }
+
+/* ---------- motion & finishing ---------- */
+::selection { background: rgba(55,169,224,.25); }
+@media (prefers-reduced-motion: no-preference) {
+  .abj-hero-card { animation: abj-float 7s ease-in-out infinite; }
+  .abj-hero-card.c2 { animation-delay: 1.4s; }
+  .abj-hero-card.c3 { animation-delay: 2.8s; }
+  @keyframes abj-float {
+    0%, 100% { margin-top: 0; }
+    50% { margin-top: -10px; }
+  }
+}
+.abj-usp { box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+.abj-band { position: relative; overflow: hidden; }
+.abj-band::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(90% 120% at 85% -20%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 55%);
+}
+.abj-band > * { position: relative; }
 
 @media (max-width: 767px) {
   .abj-hero { padding: 3.5rem 0 3rem; }
