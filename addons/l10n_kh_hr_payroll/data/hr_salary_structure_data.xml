@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================= Salary Structure ====================== -->
+        <record id="hr_payroll_structure_kh_monthly" model="hr.payroll.structure">
+            <field name="name">Cambodia: Monthly Salary (បៀវត្សប្រចាំខែ)</field>
+            <field name="code">KHMONTHLY</field>
+            <field name="country_id" ref="base.kh"/>
+            <field name="type_id" ref="structure_type_kh_employee"/>
+            <field name="payslip_name">Payslip (បង្កាន់ដៃប្រាក់បៀវត្ស)</field>
+            <field name="report_id" ref="action_report_payslip_kh"/>
+            <field name="rule_ids" eval="[(5, 0, 0)]"/>
+            <field name="input_line_type_ids"
+                   eval="[(6, 0, [ref('input_type_overtime'), ref('input_type_bonus'), ref('input_type_commission'), ref('input_type_seniority'), ref('input_type_nontax'), ref('input_type_fringe'), ref('input_type_advance'), ref('input_type_deduction')])]"/>
+        </record>
+
+        <!-- Make the Cambodia structure the default of its structure type. -->
+        <record id="structure_type_kh_employee" model="hr.payroll.structure.type">
+            <field name="default_struct_id" ref="hr_payroll_structure_kh_monthly"/>
+        </record>
+
+        <!-- ========================== Earnings =========================== -->
+        <record id="rule_kh_basic" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">BASIC</field>
+            <field name="name">ប្រាក់បៀវត្សគោល · Basic Salary</field>
+            <field name="sequence">1</field>
+            <field name="category_id" ref="hr_payroll.BASIC"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = payslip.paid_amount</field>
+        </record>
+
+        <record id="rule_kh_housing" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">HOUSING</field>
+            <field name="name">ប្រាក់ឧបត្ថម្ភលំនៅឋាន · Housing Allowance</field>
+            <field name="sequence">20</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_housing_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_housing_allowance</field>
+        </record>
+
+        <record id="rule_kh_transport" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">TRANSPORT</field>
+            <field name="name">ប្រាក់ឧបត្ថម្ភធ្វើដំណើរ · Transportation Allowance</field>
+            <field name="sequence">21</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_transport_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_transport_allowance</field>
+        </record>
+
+        <record id="rule_kh_meal" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">MEAL</field>
+            <field name="name">ប្រាក់ឧបត្ថម្ភអាហារ · Meal Allowance</field>
+            <field name="sequence">22</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_meal_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_meal_allowance</field>
+        </record>
+
+        <record id="rule_kh_phone" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">PHONE</field>
+            <field name="name">ប្រាក់ឧបត្ថម្ភទូរស័ព្ទ · Phone Allowance</field>
+            <field name="sequence">23</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_phone_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_phone_allowance</field>
+        </record>
+
+        <record id="rule_kh_other_allowance" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">OTHALW</field>
+            <field name="name">ប្រាក់ឧបត្ថម្ភផ្សេងៗ · Other Allowance</field>
+            <field name="sequence">24</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_other_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_other_allowance</field>
+        </record>
+
+        <record id="rule_kh_overtime" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">OT</field>
+            <field name="name">ប្រាក់ថែមម៉ោង · Overtime</field>
+            <field name="sequence">30</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.OT)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.OT.amount</field>
+        </record>
+
+        <record id="rule_kh_bonus" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">BONUS</field>
+            <field name="name">ប្រាក់រង្វាន់ · Bonus</field>
+            <field name="sequence">31</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.BONUS)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.BONUS.amount</field>
+        </record>
+
+        <record id="rule_kh_commission" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">COMMISSION</field>
+            <field name="name">កម្រៃជើងសារ · Commission</field>
+            <field name="sequence">32</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.COMMISSION)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.COMMISSION.amount</field>
+        </record>
+
+        <!-- ======================= Taxable Gross ========================= -->
+        <record id="rule_kh_gross" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">GROSS</field>
+            <field name="name">បៀវត្សដុលជាប់ពន្ធ · Taxable Gross</field>
+            <field name="sequence">100</field>
+            <field name="category_id" ref="hr_payroll.GROSS"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC + categories.ALW</field>
+        </record>
+
+        <!-- ==================== Employee Deductions ====================== -->
+        <record id="rule_kh_nssf_pension_ee" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NSSFPEE</field>
+            <field name="name">ភាគទានសោធន ប.ស.ស. និយោជិត 2% · NSSF Pension (Employee 2%)</field>
+            <field name="sequence">110</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
+gross_khr = categories.GROSS * rate
+wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
+wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
+base_khr = min(max(gross_khr, wage_min), wage_max)
+pension_khr = base_khr * payslip.rule_parameter('l10n_kh_nssf_pension_rate_employee')
+result = -pension_khr / rate</field>
+            <field name="note">Employee share of the NSSF pension scheme (phase 1: 2%), computed on the monthly contributory wage clamped to the KHR 400,000 - 1,200,000 band.</field>
+        </record>
+
+        <record id="rule_kh_tos" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">TOS</field>
+            <field name="name">ពន្ធលើប្រាក់បៀវត្ស · Tax on Salary</field>
+            <field name="sequence">120</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
+gross_khr = categories.GROSS * rate
+nssf_ee_khr = -(categories.DED) * rate
+if employee.l10n_kh_tax_resident == 'non_resident':
+    tax_khr = gross_khr * payslip.rule_parameter('l10n_kh_tos_nonresident_rate')
+else:
+    dependents = employee.l10n_kh_tax_dependents or 0
+    taxable_khr = gross_khr - nssf_ee_khr - dependents * payslip.rule_parameter('l10n_kh_tos_dependent_deduction')
+    tax_khr = 0.0
+    for bracket in payslip.rule_parameter('l10n_kh_tos_brackets'):
+        low = bracket[0]
+        high = bracket[1]
+        bracket_rate = bracket[2]
+        if taxable_khr > low:
+            upper = taxable_khr if not high else min(taxable_khr, high)
+            tax_khr += (upper - low) * bracket_rate
+result = -(max(tax_khr, 0.0)) / rate</field>
+            <field name="note">Progressive monthly Tax on Salary computed in KHR (converted with the company ToS exchange rate). Residents: progressive brackets after deducting the employee NSSF pension contribution and KHR 150,000 per dependent. Non-residents: flat 20% on the gross.</field>
+        </record>
+
+        <!-- ================== Non-Taxable Earnings ======================= -->
+        <record id="rule_kh_nontax_allowance" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NONTAXALW</field>
+            <field name="name">អត្ថប្រយោជន៍មិនជាប់ពន្ធ · Non-Taxable Allowance</field>
+            <field name="sequence">130</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(contract.l10n_kh_nontaxable_allowance)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.l10n_kh_nontaxable_allowance</field>
+            <field name="note">Paid after tax: not part of the taxable gross.</field>
+        </record>
+
+        <record id="rule_kh_seniority" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">SENIORITY</field>
+            <field name="name">ប្រាក់អតីតភាពការងារ · Seniority Payment</field>
+            <field name="sequence">131</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.SENIORITY)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.SENIORITY.amount</field>
+            <field name="note">Bi-annual seniority indemnity for unlimited duration contracts; exempted from Tax on Salary within the legal limits, therefore added after tax.</field>
+        </record>
+
+        <record id="rule_kh_nontax_input" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NONTAX</field>
+            <field name="name">ចំណូលមិនជាប់ពន្ធផ្សេងៗ · Other Non-Taxable Income</field>
+            <field name="sequence">132</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.NONTAX)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.NONTAX.amount</field>
+        </record>
+
+        <!-- ====================== Other Deductions ======================= -->
+        <record id="rule_kh_advance" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">ADVANCE</field>
+            <field name="name">កាត់ប្រាក់បុរេប្រទាន · Salary Advance Recovery</field>
+            <field name="sequence">140</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.ADVANCE)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -inputs.ADVANCE.amount</field>
+        </record>
+
+        <record id="rule_kh_other_deduction" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">OTHDED</field>
+            <field name="name">ការកាត់កងផ្សេងៗ · Other Deduction</field>
+            <field name="sequence">141</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.DEDUCTION)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -inputs.DEDUCTION.amount</field>
+        </record>
+
+        <!-- ============================ Net ============================== -->
+        <record id="rule_kh_net" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NET</field>
+            <field name="name">ប្រាក់បៀវត្សសុទ្ធ · Net Salary</field>
+            <field name="sequence">200</field>
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC + categories.ALW + categories.DED</field>
+        </record>
+
+        <!-- ================= Employer Contributions ====================== -->
+        <record id="rule_kh_nssf_orc_er" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NSSFORC</field>
+            <field name="name">ហានិភ័យការងារ ប.ស.ស. និយោជក 0.8% · NSSF Occupational Risk (Employer 0.8%)</field>
+            <field name="sequence">300</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
+gross_khr = categories.GROSS * rate
+wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
+wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
+base_khr = min(max(gross_khr, wage_min), wage_max)
+result = base_khr * payslip.rule_parameter('l10n_kh_nssf_orc_rate_employer') / rate</field>
+        </record>
+
+        <record id="rule_kh_nssf_health_er" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NSSFH</field>
+            <field name="name">ធានារ៉ាប់រងសុខភាព ប.ស.ស. និយោជក 2.6% · NSSF Health Care (Employer 2.6%)</field>
+            <field name="sequence">301</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
+gross_khr = categories.GROSS * rate
+wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
+wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
+base_khr = min(max(gross_khr, wage_min), wage_max)
+result = base_khr * payslip.rule_parameter('l10n_kh_nssf_health_rate_employer') / rate</field>
+        </record>
+
+        <record id="rule_kh_nssf_pension_er" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">NSSFPER</field>
+            <field name="name">ភាគទានសោធន ប.ស.ស. និយោជក 2% · NSSF Pension (Employer 2%)</field>
+            <field name="sequence">302</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
+gross_khr = categories.GROSS * rate
+wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
+wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
+base_khr = min(max(gross_khr, wage_min), wage_max)
+result = base_khr * payslip.rule_parameter('l10n_kh_nssf_pension_rate_employer') / rate</field>
+        </record>
+
+        <record id="rule_kh_fbt" model="hr.salary.rule">
+            <field name="struct_id" ref="hr_payroll_structure_kh_monthly"/>
+            <field name="code">FBT</field>
+            <field name="name">ពន្ធលើអត្ថប្រយោជន៍បន្ថែម · Fringe Benefit Tax (Employer 20%)</field>
+            <field name="sequence">310</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = bool(inputs.FRINGE)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.FRINGE.amount * payslip.rule_parameter('l10n_kh_fbt_rate')</field>
+            <field name="note">20% tax borne by the employer on the total value of fringe benefits provided (entered as the FRINGE other input).</field>
+        </record>
+
+    </data>
+</odoo>

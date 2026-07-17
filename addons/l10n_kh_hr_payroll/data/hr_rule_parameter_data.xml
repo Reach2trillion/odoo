@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ===================== Tax on Salary (ToS) ===================== -->
+        <!-- Monthly progressive brackets for residents, in KHR.
+             Format: list of [lower_bound, upper_bound, rate]; an upper bound
+             of 0 means "no upper limit". Brackets in force since 1 Jan 2023
+             (Sub-Decree No. 196). -->
+        <record id="rule_parameter_tos_brackets" model="hr.rule.parameter">
+            <field name="name">Cambodia: ToS Monthly Brackets (KHR)</field>
+            <field name="code">l10n_kh_tos_brackets</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_tos_brackets_2023" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_tos_brackets"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="parameter_value">[[0, 1500000, 0.0], [1500000, 2000000, 0.05], [2000000, 8500000, 0.10], [8500000, 12500000, 0.15], [12500000, 0, 0.20]]</field>
+        </record>
+
+        <!-- Monthly deduction from the taxable base per dependent (KHR). -->
+        <record id="rule_parameter_tos_dependent" model="hr.rule.parameter">
+            <field name="name">Cambodia: ToS Deduction per Dependent (KHR)</field>
+            <field name="code">l10n_kh_tos_dependent_deduction</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_tos_dependent_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_tos_dependent"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">150000</field>
+        </record>
+
+        <!-- Flat ToS rate for non-resident taxpayers. -->
+        <record id="rule_parameter_tos_nonresident" model="hr.rule.parameter">
+            <field name="name">Cambodia: ToS Non-Resident Flat Rate</field>
+            <field name="code">l10n_kh_tos_nonresident_rate</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_tos_nonresident_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_tos_nonresident"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">0.20</field>
+        </record>
+
+        <!-- Fringe benefit tax rate (borne by the employer). -->
+        <record id="rule_parameter_fbt_rate" model="hr.rule.parameter">
+            <field name="name">Cambodia: Fringe Benefit Tax Rate</field>
+            <field name="code">l10n_kh_fbt_rate</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_fbt_rate_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_fbt_rate"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">0.20</field>
+        </record>
+
+        <!-- ========================== NSSF =============================== -->
+        <!-- Contributory wage band in KHR: contributions are computed on the
+             monthly wage clamped between these two bounds. -->
+        <record id="rule_parameter_nssf_wage_min" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Minimum Contributory Wage (KHR)</field>
+            <field name="code">l10n_kh_nssf_wage_min</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_wage_min_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_wage_min"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">400000</field>
+        </record>
+
+        <record id="rule_parameter_nssf_wage_max" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Maximum Contributory Wage (KHR)</field>
+            <field name="code">l10n_kh_nssf_wage_max</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_wage_max_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_wage_max"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">1200000</field>
+        </record>
+
+        <!-- Pension scheme (mandatory since October 2022, phase 1: 2% + 2%). -->
+        <record id="rule_parameter_nssf_pension_ee" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Pension Rate (Employee)</field>
+            <field name="code">l10n_kh_nssf_pension_rate_employee</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_pension_ee_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_pension_ee"/>
+            <field name="date_from">2022-10-01</field>
+            <field name="parameter_value">0.02</field>
+        </record>
+
+        <record id="rule_parameter_nssf_pension_er" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Pension Rate (Employer)</field>
+            <field name="code">l10n_kh_nssf_pension_rate_employer</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_pension_er_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_pension_er"/>
+            <field name="date_from">2022-10-01</field>
+            <field name="parameter_value">0.02</field>
+        </record>
+
+        <!-- Health care insurance, fully borne by the employer. -->
+        <record id="rule_parameter_nssf_health_er" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Health Care Rate (Employer)</field>
+            <field name="code">l10n_kh_nssf_health_rate_employer</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_health_er_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_health_er"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">0.026</field>
+        </record>
+
+        <!-- Occupational risk contribution, borne by the employer. -->
+        <record id="rule_parameter_nssf_orc_er" model="hr.rule.parameter">
+            <field name="name">Cambodia: NSSF Occupational Risk Rate (Employer)</field>
+            <field name="code">l10n_kh_nssf_orc_rate_employer</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+        <record id="rule_parameter_nssf_orc_er_2022" model="hr.rule.parameter.value">
+            <field name="rule_parameter_id" ref="rule_parameter_nssf_orc_er"/>
+            <field name="date_from">2022-01-01</field>
+            <field name="parameter_value">0.008</field>
+        </record>
+
+    </data>
+</odoo>

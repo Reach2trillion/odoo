@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_contract_kh">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page o_kh_report">
+
+                        <div class="o_kh_title o_kh_text">កិច្ចសន្យាការងារ</div>
+                        <div class="o_kh_subtitle">EMPLOYMENT CONTRACT</div>
+
+                        <p class="o_kh_text" style="text-align: center;" t-if="o.name">
+                            លេខកិច្ចសន្យា / Contract No.: <strong><span t-field="o.name"/></strong>
+                        </p>
+
+                        <!-- ======================= Parties ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <p>កិច្ចសន្យាការងារនេះ ត្រូវបានធ្វើឡើងរវាងភាគីទាំងពីរដូចខាងក្រោម៖</p>
+                            <p class="o_kh_en">This employment contract is made by and between the following two parties:</p>
+                        </div>
+
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ភាគី ក — និយោជក / Party A — The Employer</h3>
+                            <table class="o_kh_table o_kh_noborder">
+                                <tr>
+                                    <td style="width: 30%;">ឈ្មោះក្រុមហ៊ុន / Company</td>
+                                    <td><strong><span t-field="o.company_id.name"/></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>អាសយដ្ឋាន / Address</td>
+                                    <td>
+                                        <span t-field="o.company_id.partner_id"
+                                              t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.company_id.vat">
+                                    <td>លេខអត្តសញ្ញាណកម្មសារពើពន្ធ / Tax ID (VAT)</td>
+                                    <td><span t-field="o.company_id.vat"/></td>
+                                </tr>
+                                <tr t-if="o.hr_responsible_id">
+                                    <td>តំណាងដោយ / Represented by</td>
+                                    <td><span t-field="o.hr_responsible_id.name"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ភាគី ខ — និយោជិត / Party B — The Employee</h3>
+                            <table class="o_kh_table o_kh_noborder">
+                                <tr>
+                                    <td style="width: 30%;">គោត្តនាម-នាម / Full Name</td>
+                                    <td>
+                                        <strong><span t-field="o.employee_id.name"/></strong>
+                                        <t t-if="o.employee_id.l10n_kh_khmer_name">
+                                            (<span t-field="o.employee_id.l10n_kh_khmer_name"/>)
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.employee_id.gender">
+                                    <td>ភេទ / Sex</td>
+                                    <td><span t-field="o.employee_id.gender"/></td>
+                                </tr>
+                                <tr t-if="o.employee_id.birthday">
+                                    <td>ថ្ងៃខែឆ្នាំកំណើត / Date of Birth</td>
+                                    <td><span t-field="o.employee_id.birthday" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                                </tr>
+                                <tr t-if="o.employee_id.country_id">
+                                    <td>សញ្ជាតិ / Nationality</td>
+                                    <td><span t-field="o.employee_id.country_id.name"/></td>
+                                </tr>
+                                <tr t-if="o.employee_id.identification_id">
+                                    <td>អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន / ID Card or Passport No.</td>
+                                    <td><span t-field="o.employee_id.identification_id"/></td>
+                                </tr>
+                                <tr t-if="o.employee_id.l10n_kh_nssf_id">
+                                    <td>លេខ ប.ស.ស. / NSSF ID</td>
+                                    <td><span t-field="o.employee_id.l10n_kh_nssf_id"/></td>
+                                </tr>
+                                <tr t-if="o.employee_id.private_street or o.employee_id.private_city">
+                                    <td>អាសយដ្ឋាន / Address</td>
+                                    <td>
+                                        <span t-if="o.employee_id.private_street" t-field="o.employee_id.private_street"/>
+                                        <t t-if="o.employee_id.private_street2"> <span t-field="o.employee_id.private_street2"/></t>
+                                        <t t-if="o.employee_id.private_city">, <span t-field="o.employee_id.private_city"/></t>
+                                        <t t-if="o.employee_id.private_country_id">, <span t-field="o.employee_id.private_country_id.name"/></t>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.employee_id.mobile_phone or o.employee_id.work_phone">
+                                    <td>ទូរស័ព្ទ / Phone</td>
+                                    <td><t t-out="o.employee_id.mobile_phone or o.employee_id.work_phone"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="o_kh_article o_kh_text">
+                            <p>ភាគីទាំងពីរបានព្រមព្រៀងគ្នាចុះកិច្ចសន្យាការងារ តាមលក្ខខណ្ឌដូចមានចែងខាងក្រោម៖</p>
+                            <p class="o_kh_en">Both parties have mutually agreed to enter into this employment contract under the following terms and conditions:</p>
+                        </div>
+
+                        <!-- ======================= Article 1 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ១៖ មុខតំណែង និងភារកិច្ច</h3>
+                            <p>
+                                ភាគី ក យល់ព្រមជួលភាគី ខ ឱ្យបម្រើការងារក្នុងមុខតំណែងជា
+                                <strong><t t-out="(o.job_id and o.job_id.name) or o.employee_id.job_title or '................'"/></strong>
+                                <t t-if="o.department_id"> ក្នុងនាយកដ្ឋាន <strong><span t-field="o.department_id.name"/></strong></t>។
+                                ភាគី ខ ត្រូវបំពេញភារកិច្ចដែលភាគី ក ប្រគល់ជូន ដោយយកចិត្តទុកដាក់ ស្មោះត្រង់ និងប្រកបដោយវិជ្ជាជីវៈ។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 1 — Position and Duties: Party A agrees to employ Party B in the position of
+                                <t t-out="(o.job_id and o.job_id.name) or o.employee_id.job_title or '................'"/><t t-if="o.department_id">, in the <t t-out="o.department_id.name"/> department</t>.
+                                Party B shall perform the duties assigned by Party A with care, honesty and professionalism.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 2 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ២៖ ទីកន្លែងធ្វើការ</h3>
+                            <p>
+                                ភាគី ខ ត្រូវបម្រើការងារនៅ
+                                <t t-if="o.l10n_kh_workplace"><strong><span t-field="o.l10n_kh_workplace"/></strong></t>
+                                <t t-else="">
+                                    <strong>
+                                        <span t-field="o.company_id.partner_id"
+                                              t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                                    </strong>
+                                </t>
+                                ឬទីកន្លែងផ្សេងទៀតតាមការចាត់ចែងសមស្របរបស់ភាគី ក។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 2 — Workplace: Party B shall work at the workplace stated above, or at any
+                                other location reasonably assigned by Party A.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 3 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៣៖ ថិរវេលានៃកិច្ចសន្យា និងរយៈពេលសាកល្បង</h3>
+                            <t t-if="o.l10n_kh_contract_duration == 'fdc'">
+                                <p>
+                                    កិច្ចសន្យានេះ ជាកិច្ចសន្យាការងារមានថិរវេលាកំណត់ (FDC) ចាប់ពីថ្ងៃទី
+                                    <strong><span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/></strong>
+                                    <t t-if="o.date_end">
+                                        ដល់ថ្ងៃទី <strong><span t-field="o.date_end" t-options='{"format": "dd/MM/yyyy"}'/></strong>
+                                    </t>។
+                                    កិច្ចសន្យានេះអាចបន្តជាថ្មីបានតាមការព្រមព្រៀងរបស់ភាគីទាំងពីរ ដោយអនុលោមតាមច្បាប់ស្តីពីការងារ។
+                                </p>
+                                <p class="o_kh_en">
+                                    Article 3 — Duration and Probation: This contract is a Fixed Duration Contract (FDC),
+                                    from <span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    <t t-if="o.date_end">to <span t-field="o.date_end" t-options='{"format": "dd/MM/yyyy"}'/></t>.
+                                    It may be renewed by mutual agreement of both parties in accordance with the Labor Law.
+                                </p>
+                            </t>
+                            <t t-else="">
+                                <p>
+                                    កិច្ចសន្យានេះ ជាកិច្ចសន្យាការងារមានថិរវេលាមិនកំណត់ (UDC) ចាប់ផ្តើមពីថ្ងៃទី
+                                    <strong><span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/></strong> តទៅ។
+                                </p>
+                                <p class="o_kh_en">
+                                    Article 3 — Duration and Probation: This contract is an Unlimited Duration Contract (UDC),
+                                    starting from <span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/>.
+                                </p>
+                            </t>
+                            <t t-if="o.trial_date_end">
+                                <p>
+                                    រយៈពេលសាកល្បង គិតចាប់ពីថ្ងៃចូលបម្រើការងារ រហូតដល់ថ្ងៃទី
+                                    <strong><span t-field="o.trial_date_end" t-options='{"format": "dd/MM/yyyy"}'/></strong>។
+                                    ក្នុងអំឡុងរយៈពេលសាកល្បង ភាគីនីមួយៗអាចបញ្ចប់កិច្ចសន្យាដោយអនុលោមតាមច្បាប់ស្តីពីការងារ។
+                                </p>
+                                <p class="o_kh_en">
+                                    The probation period runs from the starting date until
+                                    <span t-field="o.trial_date_end" t-options='{"format": "dd/MM/yyyy"}'/>. During probation,
+                                    either party may terminate this contract in accordance with the Labor Law.
+                                </p>
+                            </t>
+                        </div>
+
+                        <!-- ======================= Article 4 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៤៖ ម៉ោងធ្វើការ</h3>
+                            <p>
+                                ម៉ោងធ្វើការធម្មតារបស់ភាគី ខ គឺ
+                                <strong><t t-out="'%g' % (o.hours_per_week or 48)"/> ម៉ោងក្នុងមួយសប្តាហ៍</strong>
+                                ដោយមិនលើសពី ៨ ម៉ោងក្នុងមួយថ្ងៃ និង ៤៨ ម៉ោងក្នុងមួយសប្តាហ៍ ស្របតាមច្បាប់ស្តីពីការងារ។
+                                ការងារថែមម៉ោងត្រូវទូទាត់តាមអត្រាដែលច្បាប់កំណត់។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 4 — Working Hours: The normal working time of Party B is
+                                <t t-out="'%g' % (o.hours_per_week or 48)"/> hours per week, not exceeding 8 hours per day
+                                and 48 hours per week as provided by the Labor Law. Overtime work shall be paid at the
+                                rates prescribed by law.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 5 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៥៖ ប្រាក់បៀវត្ស និងអត្ថប្រយោជន៍</h3>
+                            <p>
+                                ភាគី ក យល់ព្រមបើកប្រាក់បៀវត្សគោលចំនួន
+                                <strong><span t-field="o.wage" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></strong>
+                                (<t t-out="o.currency_id.amount_to_text(o.wage)"/>)
+                                ក្នុងមួយខែ ជូនភាគី ខ ជារៀងរាល់ខែ។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 5 — Remuneration and Benefits: Party A agrees to pay Party B a basic monthly
+                                salary of <span t-field="o.wage" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                (<t t-out="o.currency_id.amount_to_text(o.wage)"/>), payable every month.
+                            </p>
+                            <t t-set="kh_allowances" t-value="[('ប្រាក់ឧបត្ថម្ភលំនៅឋាន / Housing allowance', o.l10n_kh_housing_allowance), ('ប្រាក់ឧបត្ថម្ភធ្វើដំណើរ / Transportation allowance', o.l10n_kh_transport_allowance), ('ប្រាក់ឧបត្ថម្ភអាហារ / Meal allowance', o.l10n_kh_meal_allowance), ('ប្រាក់ឧបត្ថម្ភទូរស័ព្ទ / Phone allowance', o.l10n_kh_phone_allowance), ('ប្រាក់ឧបត្ថម្ភផ្សេងៗ / Other allowance', o.l10n_kh_other_allowance), ('អត្ថប្រយោជន៍មិនជាប់ពន្ធ / Non-taxable allowance', o.l10n_kh_nontaxable_allowance)]"/>
+                            <t t-set="kh_has_allowance" t-value="any(kh_alw[1] for kh_alw in kh_allowances)"/>
+                            <t t-if="kh_has_allowance">
+                                <p>ក្រៅពីប្រាក់បៀវត្សគោល ភាគី ខ ទទួលបានប្រាក់ឧបត្ថម្ភប្រចាំខែដូចខាងក្រោម៖</p>
+                                <p class="o_kh_en">In addition to the basic salary, Party B is entitled to the following monthly allowances:</p>
+                                <table class="o_kh_table" style="width: 80%;">
+                                    <t t-foreach="kh_allowances" t-as="kh_alw">
+                                        <tr t-if="kh_alw[1]">
+                                            <td class="o_kh_text" style="width: 70%;"><t t-out="kh_alw[0]"/></td>
+                                            <td class="o_kh_amount">
+                                                <span t-out="kh_alw[1]" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </t>
+                        </div>
+
+                        <!-- ======================= Article 6 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៦៖ ការឈប់សម្រាក</h3>
+                            <p>
+                                ភាគី ខ មានសិទ្ធិទទួលបានការឈប់សម្រាកប្រចាំឆ្នាំដោយមានប្រាក់ឈ្នួល ក្នុងអត្រាមួយថ្ងៃកន្លះ
+                                ក្នុងមួយខែនៃការបម្រើការងារជាប់គ្នា (១៨ ថ្ងៃក្នុងមួយឆ្នាំ) ព្រមទាំងថ្ងៃឈប់សម្រាកបុណ្យ
+                                ដែលមានប្រាក់ឈ្នួល តាមប្រកាសរបស់ក្រសួងទទួលបន្ទុកវិស័យការងារ និងការឈប់សម្រាកពិសេស
+                                ផ្សេងទៀត ដូចមានចែងក្នុងច្បាប់ស្តីពីការងារ។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 6 — Leave: Party B is entitled to paid annual leave of one and a half working days
+                                per month of continuous service (18 days per year), to paid public holidays as announced
+                                by the Ministry in charge of Labor, and to other special leave as provided by the Labor Law.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 7 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៧៖ ប.ស.ស. ពន្ធលើប្រាក់បៀវត្ស និងការកាត់ទុក</h3>
+                            <p>
+                                ភាគី ក ត្រូវចុះបញ្ជីភាគី ខ ក្នុងបេឡាជាតិសន្តិសុខសង្គម (ប.ស.ស.) និងបង់ភាគទាន
+                                (ហានិភ័យការងារ ថែទាំសុខភាព និងសោធន) តាមអត្រាដែលច្បាប់កំណត់។
+                                ភាគី ក ត្រូវកាត់ទុកពន្ធលើប្រាក់បៀវត្ស និងភាគទាន ប.ស.ស. ផ្នែករបស់និយោជិត (បើមាន)
+                                ពីប្រាក់បៀវត្សរបស់ភាគី ខ ដើម្បីបង់ជូនអាជ្ញាធរមានសមត្ថកិច្ច ស្របតាមច្បាប់ជាធរមាន។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 7 — NSSF, Tax on Salary and Withholding: Party A shall register Party B with the
+                                National Social Security Fund (NSSF) and pay the contributions (occupational risk, health
+                                care and pension) at the rates prescribed by law. Party A shall withhold the Tax on Salary
+                                and the employee's share of NSSF contributions (if any) from Party B's salary and remit
+                                them to the competent authorities in accordance with the applicable laws.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 8 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៨៖ កាតព្វកិច្ច និងការរក្សាការសម្ងាត់</h3>
+                            <p>
+                                ភាគី ខ ត្រូវគោរពបទបញ្ជាផ្ទៃក្នុង គោលការណ៍ និងការណែនាំរបស់ភាគី ក
+                                ត្រូវថែរក្សាទ្រព្យសម្បត្តិរបស់ក្រុមហ៊ុន និងមិនត្រូវបញ្ចេញព័ត៌មានសម្ងាត់អាជីវកម្ម
+                                របស់ភាគី ក ទៅឱ្យតតិយជនឡើយ ទាំងក្នុងអំឡុងពេល និងក្រោយពេលបញ្ចប់កិច្ចសន្យាការងារនេះ។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 8 — Obligations and Confidentiality: Party B shall comply with the internal
+                                regulations, policies and instructions of Party A, shall take care of the company's
+                                property, and shall not disclose Party A's confidential business information to any
+                                third party, both during and after the termination of this contract.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 9 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ៩៖ ការបញ្ចប់កិច្ចសន្យា</h3>
+                            <p>
+                                ការបញ្ចប់កិច្ចសន្យាការងារនេះ ត្រូវអនុវត្តតាមបញ្ញត្តិនៃច្បាប់ស្តីពីការងារ
+                                នៃព្រះរាជាណាចក្រកម្ពុជា ជាពិសេសបញ្ញត្តិស្តីពីការជូនដំណឹងជាមុន
+                                ប្រាក់បំណាច់អតីតភាពការងារ ឬប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យា និងសំណងផ្សេងៗ (បើមាន)។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 9 — Termination: The termination of this contract shall comply with the
+                                provisions of the Labor Law of the Kingdom of Cambodia, in particular those on prior
+                                notice, seniority or severance payments, and other indemnities (if any).
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 10 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ១០៖ ច្បាប់អនុវត្ត និងការដោះស្រាយវិវាទ</h3>
+                            <p>
+                                ចំណុចទាំងឡាយណាដែលមិនបានចែងក្នុងកិច្ចសន្យានេះ ត្រូវអនុវត្តតាមច្បាប់ស្តីពីការងារ
+                                និងបទប្បញ្ញត្តិជាធរមាននៃព្រះរាជាណាចក្រកម្ពុជា។ វិវាទទាំងឡាយដែលកើតចេញពីកិច្ចសន្យានេះ
+                                ត្រូវដោះស្រាយជាមុនដោយការចរចាសះជាគ្នា។ ក្នុងករណីមិនអាចដោះស្រាយបាន
+                                វិវាទត្រូវបញ្ជូនទៅអធិការកិច្ចការងារ ឬតុលាការមានសមត្ថកិច្ច។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 10 — Governing Law and Dispute Resolution: Any matter not provided for in this
+                                contract shall be governed by the Labor Law and the regulations in force of the Kingdom
+                                of Cambodia. Any dispute arising from this contract shall first be settled amicably
+                                through negotiation; failing that, it shall be referred to the Labor Inspectorate or the
+                                competent court.
+                            </p>
+                        </div>
+
+                        <!-- ======================= Article 11 ======================= -->
+                        <div class="o_kh_article o_kh_text">
+                            <h3>ប្រការ ១១៖ អវសានប្បញ្ញត្តិ</h3>
+                            <p>
+                                កិច្ចសន្យានេះធ្វើឡើងជាពីរច្បាប់ដើម ជាភាសាខ្មែរ និងភាសាអង់គ្លេស ដោយភាគីនីមួយៗរក្សាទុកមួយច្បាប់។
+                                ក្នុងករណីអត្ថបទទាំងពីរមានន័យខុសគ្នា អត្ថបទជាភាសាខ្មែរត្រូវយកជាគោល។
+                                ភាគីទាំងពីរបានអាន និងយល់ច្បាស់នូវខ្លឹមសារនៃកិច្ចសន្យានេះ ហើយព្រមចុះហត្ថលេខា
+                                ឬផ្តិតស្នាមមេដៃដោយស្ម័គ្រចិត្ត។
+                            </p>
+                            <p class="o_kh_en">
+                                Article 11 — Final Provisions: This contract is made in two original copies, in Khmer and
+                                in English, each party keeping one copy. In case of any discrepancy between the two
+                                versions, the Khmer text shall prevail. Both parties have read and fully understood the
+                                content of this contract and sign or affix their thumbprint voluntarily.
+                            </p>
+                        </div>
+
+                        <p class="o_kh_text" style="margin-top: 20px;">
+                            ធ្វើនៅ <t t-out="o.company_id.city or '................'"/>, ថ្ងៃទី
+                            <strong><span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/></strong> ·
+                            <span class="o_kh_en">Done at <t t-out="o.company_id.city or '................'"/>, on
+                            <span t-field="o.date_start" t-options='{"format": "dd/MM/yyyy"}'/></span>
+                        </p>
+
+                        <!-- ======================= Signatures ======================= -->
+                        <table class="o_kh_sign_table">
+                            <tr class="o_kh_text">
+                                <td><strong>ភាគី ក — និយោជក<br/>Party A — The Employer</strong></td>
+                                <td><strong>ភាគី ខ — និយោជិត<br/>Party B — The Employee</strong></td>
+                            </tr>
+                            <tr><td class="o_kh_sign_space"/><td class="o_kh_sign_space"/></tr>
+                            <tr class="o_kh_muted">
+                                <td>ហត្ថលេខា និងឈ្មោះ / Signature &amp; Name</td>
+                                <td>ស្នាមមេដៃ ឬហត្ថលេខា និងឈ្មោះ / Thumbprint or Signature &amp; Name</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="input_type_overtime" model="hr.payslip.input.type">
+            <field name="name">Overtime (ប្រាក់ថែមម៉ោង)</field>
+            <field name="code">OT</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_bonus" model="hr.payslip.input.type">
+            <field name="name">Bonus (ប្រាក់រង្វាន់)</field>
+            <field name="code">BONUS</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_commission" model="hr.payslip.input.type">
+            <field name="name">Commission (កម្រៃជើងសារ)</field>
+            <field name="code">COMMISSION</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_seniority" model="hr.payslip.input.type">
+            <field name="name">Seniority Payment (ប្រាក់អតីតភាពការងារ)</field>
+            <field name="code">SENIORITY</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_nontax" model="hr.payslip.input.type">
+            <field name="name">Other Non-Taxable Income (ចំណូលមិនជាប់ពន្ធផ្សេងៗ)</field>
+            <field name="code">NONTAX</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_fringe" model="hr.payslip.input.type">
+            <field name="name">Fringe Benefits Value (តម្លៃអត្ថប្រយោជន៍បន្ថែម)</field>
+            <field name="code">FRINGE</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_advance" model="hr.payslip.input.type">
+            <field name="name">Salary Advance Recovery (កាត់ប្រាក់បុរេប្រទាន)</field>
+            <field name="code">ADVANCE</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+        <record id="input_type_deduction" model="hr.payslip.input.type">
+            <field name="name">Other Deduction (ការកាត់កងផ្សេងៗ)</field>
+            <field name="code">DEDUCTION</field>
+            <field name="country_id" ref="base.kh"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,131 @@
+/* Khmer font support for PDF reports (wkhtmltopdf).
+   Noto Sans Khmer is shipped with the module (SIL Open Font License,
+   see static/fonts/OFL.txt); system Khmer fonts are used as fallback. */
+
+@font-face {
+    font-family: 'Noto Sans Khmer';
+    src: url('/l10n_kh_hr_payroll/static/fonts/NotoSansKhmer-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Noto Sans Khmer';
+    src: url('/l10n_kh_hr_payroll/static/fonts/NotoSansKhmer-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+.o_kh_report {
+    font-family: 'Noto Sans Khmer', 'Khmer OS', 'Khmer OS System', 'Khmer OS Content',
+        'Battambang', 'Hanuman', 'DejaVu Sans', sans-serif;
+    color: #111111;
+}
+
+.o_kh_report table,
+.o_kh_report th,
+.o_kh_report td,
+.o_kh_report h1,
+.o_kh_report h2,
+.o_kh_report h3,
+.o_kh_report p,
+.o_kh_report span,
+.o_kh_report div {
+    font-family: inherit;
+}
+
+/* Khmer script needs a taller line box: stacked subscript consonants and
+   upper vowel signs get clipped with the default bootstrap line-height. */
+.o_kh_report .o_kh_text,
+.o_kh_report th,
+.o_kh_report td {
+    line-height: 1.9;
+}
+
+.o_kh_report .o_kh_title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 2px;
+}
+
+.o_kh_report .o_kh_subtitle {
+    font-size: 13px;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.o_kh_report .o_kh_section {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    padding: 3px 6px;
+}
+
+.o_kh_report table.o_kh_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.o_kh_report table.o_kh_table th,
+.o_kh_report table.o_kh_table td {
+    border: 1px solid #999999;
+    padding: 3px 6px;
+    vertical-align: top;
+}
+
+.o_kh_report .o_kh_noborder td,
+.o_kh_report .o_kh_noborder th {
+    border: none;
+    padding: 2px 4px;
+}
+
+.o_kh_report .o_kh_amount {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.o_kh_report .o_kh_net_row td {
+    font-weight: bold;
+    background-color: #eef3f8;
+    font-size: 14px;
+}
+
+.o_kh_report .o_kh_muted {
+    color: #666666;
+    font-size: 10px;
+}
+
+.o_kh_report .o_kh_article {
+    margin-bottom: 10px;
+    text-align: justify;
+}
+
+.o_kh_report .o_kh_article h3 {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.o_kh_report .o_kh_en {
+    color: #444444;
+    font-style: italic;
+    font-size: 10.5px;
+}
+
+.o_kh_report .o_kh_sign_table {
+    width: 100%;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.o_kh_report .o_kh_sign_table td {
+    width: 50%;
+    padding-top: 8px;
+}
+
+.o_kh_report .o_kh_sign_space {
+    height: 70px;
+}

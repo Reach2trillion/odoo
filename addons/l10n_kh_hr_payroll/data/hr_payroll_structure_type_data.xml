@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="structure_type_kh_employee" model="hr.payroll.structure.type">
+            <field name="name">Cambodia: Employee (បុគ្គលិក)</field>
+            <field name="country_id" ref="base.kh"/>
+            <field name="wage_type">monthly</field>
+        </record>
+
+    </data>
+</odoo>

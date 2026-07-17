@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_payslip_kh">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page o_kh_report">
+
+                        <div class="o_kh_title o_kh_text">បង្កាន់ដៃប្រាក់បៀវត្ស</div>
+                        <div class="o_kh_subtitle">PAYSLIP</div>
+
+                        <!-- ==================== Header info ==================== -->
+                        <table class="o_kh_table o_kh_noborder" style="margin-bottom: 14px;">
+                            <tr>
+                                <td style="width: 18%;" class="o_kh_text"><strong>និយោជិត</strong><br/><span class="o_kh_muted">Employee</span></td>
+                                <td style="width: 32%;" class="o_kh_text">
+                                    <strong><span t-field="o.employee_id.name"/></strong>
+                                    <t t-if="o.employee_id.l10n_kh_khmer_name">
+                                        <br/><span t-field="o.employee_id.l10n_kh_khmer_name"/>
+                                    </t>
+                                </td>
+                                <td style="width: 18%;" class="o_kh_text"><strong>រយៈពេល</strong><br/><span class="o_kh_muted">Pay Period</span></td>
+                                <td style="width: 32%;" class="o_kh_text">
+                                    <span t-field="o.date_from" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    &#8211;
+                                    <span t-field="o.date_to" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="o_kh_text"><strong>មុខតំណែង</strong><br/><span class="o_kh_muted">Position</span></td>
+                                <td class="o_kh_text">
+                                    <t t-if="o.contract_id and o.contract_id.job_id">
+                                        <span t-field="o.contract_id.job_id.name"/>
+                                    </t>
+                                    <t t-elif="o.employee_id.job_title">
+                                        <span t-field="o.employee_id.job_title"/>
+                                    </t>
+                                </td>
+                                <td class="o_kh_text"><strong>លេខបង្កាន់ដៃ</strong><br/><span class="o_kh_muted">Reference</span></td>
+                                <td class="o_kh_text"><span t-field="o.number"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_kh_text"><strong>នាយកដ្ឋាន</strong><br/><span class="o_kh_muted">Department</span></td>
+                                <td class="o_kh_text">
+                                    <t t-if="o.employee_id.department_id">
+                                        <span t-field="o.employee_id.department_id.name"/>
+                                    </t>
+                                </td>
+                                <td class="o_kh_text"><strong>លេខ ប.ស.ស.</strong><br/><span class="o_kh_muted">NSSF ID</span></td>
+                                <td class="o_kh_text"><span t-field="o.employee_id.l10n_kh_nssf_id"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_kh_text"><strong>អត្តសញ្ញាណប័ណ្ណ</strong><br/><span class="o_kh_muted">National ID</span></td>
+                                <td class="o_kh_text"><span t-field="o.employee_id.identification_id"/></td>
+                                <td class="o_kh_text"><strong>គណនីធនាគារ</strong><br/><span class="o_kh_muted">Bank Account</span></td>
+                                <td class="o_kh_text">
+                                    <t t-if="o.employee_id.bank_account_id">
+                                        <span t-field="o.employee_id.bank_account_id.acc_number"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ==================== Worked days ==================== -->
+                        <t t-if="o.worked_days_line_ids">
+                            <div class="o_kh_section o_kh_text">ថ្ងៃធ្វើការ · Worked Days</div>
+                            <table class="o_kh_table">
+                                <tr>
+                                    <th class="o_kh_text" style="text-align: left;">ប្រភេទ · Description</th>
+                                    <th class="o_kh_amount o_kh_text">ចំនួនថ្ងៃ · Days</th>
+                                    <th class="o_kh_amount o_kh_text">ចំនួនម៉ោង · Hours</th>
+                                </tr>
+                                <tr t-foreach="o.worked_days_line_ids" t-as="wd">
+                                    <td class="o_kh_text"><span t-field="wd.name"/></td>
+                                    <td class="o_kh_amount"><span t-out="'%.2f' % wd.number_of_days"/></td>
+                                    <td class="o_kh_amount"><span t-out="'%.2f' % wd.number_of_hours"/></td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <t t-set="earn_lines" t-value="o.line_ids.filtered(lambda l: l.category_id.code in ('BASIC', 'ALW') and l.total)"/>
+                        <t t-set="ded_lines" t-value="o.line_ids.filtered(lambda l: l.category_id.code == 'DED' and l.total)"/>
+                        <t t-set="comp_lines" t-value="o.line_ids.filtered(lambda l: l.category_id.code == 'COMP' and l.total)"/>
+                        <t t-set="gross_line" t-value="o.line_ids.filtered(lambda l: l.code == 'GROSS')[:1]"/>
+                        <t t-set="net_line" t-value="o.line_ids.filtered(lambda l: l.code == 'NET')[:1]"/>
+                        <t t-set="ded_total" t-value="sum(ded_lines.mapped('total'))"/>
+
+                        <!-- ==================== Earnings ==================== -->
+                        <div class="o_kh_section o_kh_text">ចំណូល · Earnings</div>
+                        <table class="o_kh_table">
+                            <tr t-foreach="earn_lines" t-as="line">
+                                <td class="o_kh_text" style="width: 70%;"><span t-field="line.name"/></td>
+                                <td class="o_kh_amount">
+                                    <span t-out="line.total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ==================== Deductions ==================== -->
+                        <t t-if="ded_lines">
+                            <div class="o_kh_section o_kh_text">ការកាត់កង · Deductions</div>
+                            <table class="o_kh_table">
+                                <tr t-foreach="ded_lines" t-as="line">
+                                    <td class="o_kh_text" style="width: 70%;"><span t-field="line.name"/></td>
+                                    <td class="o_kh_amount">
+                                        <span t-out="-line.total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <!-- ==================== Summary ==================== -->
+                        <div class="o_kh_section o_kh_text">សេចក្តីសង្ខេប · Summary</div>
+                        <table class="o_kh_table">
+                            <tr t-if="gross_line">
+                                <td class="o_kh_text" style="width: 70%;">បៀវត្សដុលជាប់ពន្ធ · Taxable Gross</td>
+                                <td class="o_kh_amount">
+                                    <span t-out="gross_line.total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="o_kh_text">ការកាត់កងសរុប · Total Deductions</td>
+                                <td class="o_kh_amount">
+                                    <span t-out="-ded_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                            <tr class="o_kh_net_row" t-if="net_line">
+                                <td class="o_kh_text">ប្រាក់បៀវត្សសុទ្ធ · NET SALARY</td>
+                                <td class="o_kh_amount">
+                                    <span t-out="net_line.total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- =============== Employer contributions =============== -->
+                        <t t-if="comp_lines">
+                            <div class="o_kh_section o_kh_text">ភាគទាននិយោជក (មិនកាត់ពីបៀវត្ស) · Employer Contributions (not deducted from salary)</div>
+                            <table class="o_kh_table">
+                                <tr t-foreach="comp_lines" t-as="line">
+                                    <td class="o_kh_text" style="width: 70%;"><span t-field="line.name"/></td>
+                                    <td class="o_kh_amount">
+                                        <span t-out="line.total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <p class="o_kh_muted o_kh_text">
+                            អត្រាប្តូរប្រាក់សម្រាប់គណនាពន្ធ និង ប.ស.ស. ៖ 1 <t t-out="o.currency_id.name"/> =
+                            <t t-out="'{:,.0f}'.format(o.company_id.l10n_kh_tos_exchange_rate or 1.0)"/> រៀល ·
+                            Exchange rate used for Tax on Salary and NSSF:
+                            1 <t t-out="o.currency_id.name"/> = <t t-out="'{:,.0f}'.format(o.company_id.l10n_kh_tos_exchange_rate or 1.0)"/> KHR.
+                        </p>
+
+                        <!-- ==================== Signatures ==================== -->
+                        <table class="o_kh_sign_table">
+                            <tr class="o_kh_text">
+                                <td><strong>និយោជក / Employer</strong></td>
+                                <td><strong>និយោជិត / Employee</strong></td>
+                            </tr>
+                            <tr><td class="o_kh_sign_space"/><td class="o_kh_sign_space"/></tr>
+                            <tr class="o_kh_muted">
+                                <td>ហត្ថលេខា និងឈ្មោះ / Signature &amp; Name</td>
+                                <td>ហត្ថលេខា និងឈ្មោះ / Signature &amp; Name</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
