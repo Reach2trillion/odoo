@@ -9,13 +9,6 @@
     font-style: normal;
 }
 
-@font-face {
-    font-family: 'Noto Sans Khmer';
-    src: url('/l10n_kh_hr_payroll/static/fonts/NotoSansKhmer-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
 .o_kh_report {
     font-family: 'Noto Sans Khmer', 'Khmer OS', 'Khmer OS System', 'Khmer OS Content',
         'Battambang', 'Hanuman', 'DejaVu Sans', sans-serif;
