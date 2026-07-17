@@ -2,197 +2,328 @@
   <t t-call="website.layout">
     <div id="wrap" class="oe_structure oe_empty">
 
-      <!-- 1. HERO -->
-      <section class="abj-hero-main">
-        <div class="abj-huge-wrap px-2">
-          <h1 class="hero-heading abj-huge" data-fade="1" style="--fd:.15s;--fy:40px;">ABJ Skincare</h1>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400..700');
+#wrapwrap{background:#fff !important}
+#wrapwrap > header{display:none !important}
+#wrapwrap > footer{display:none !important}
+#wrapwrap > main{background:#fff}
+#pr-root{position:relative;user-select:none;-webkit-user-select:none;background:#fff;height:500vh;font-family:'Inter Tight','Inter',sans-serif;font-weight:500;color:#fff}
+@keyframes prIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes prFade{from{opacity:0}to{opacity:1}}
+#pr-cursor{position:fixed;left:0;top:0;z-index:50;pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:exclusion;display:none}
+@media (min-width:1024px) and (pointer:fine){#pr-root{cursor:none}#pr-cursor{display:block}}
+#pr-logo{position:fixed;top:16px;left:16px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;margin:0;color:#fff;font-weight:600;font-size:58px;line-height:.82;letter-spacing:-.05em;text-transform:uppercase;opacity:0;animation:prIn .6s cubic-bezier(.25,.1,.25,1) 0s forwards}
+#pr-logo sup{font-size:.22em;font-weight:500;border:2px solid #fff;border-radius:50%;padding:.18em .3em;vertical-align:2.2em;letter-spacing:0}
+@media (min-width:640px){#pr-logo{font-size:118px;top:24px;left:24px}}
+@media (min-width:1024px){#pr-logo{font-size:156px;top:32px;left:32px}}
+#pr-caption{position:fixed;left:16px;top:118px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;color:#fff;font-size:12px;line-height:140%;letter-spacing:-.04em;width:calc(100vw - 32px);margin:0;opacity:0;animation:prIn .6s cubic-bezier(.25,.1,.25,1) .3s forwards}
+@media (min-width:640px){#pr-caption{top:180px;left:24px;width:calc(50vw - 48px)}}
+@media (min-width:1024px){#pr-caption{top:244px;left:32px;width:692px}}
+#pr-nav{position:fixed;top:16px;right:16px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;height:30px;display:flex;justify-content:flex-end;align-items:center;opacity:0;animation:prIn .6s cubic-bezier(.25,.1,.25,1) .15s forwards}
+#pr-nav a{pointer-events:auto;color:#fff;text-decoration:none;font-size:13px;letter-spacing:-.02em;text-transform:uppercase;font-weight:500}
+#pr-nav .pr-about{display:none}
+.pr-links{display:flex;align-items:center;gap:20px}
+.pr-links svg{width:24px;height:24px;display:block}
+@media (min-width:1024px){#pr-nav{top:32px;right:32px;width:330px;justify-content:space-between}#pr-nav .pr-about{display:block;font-size:15px}#pr-nav a{font-size:15px}.pr-links{gap:50px}.pr-links svg{width:30px;height:30px}}
+#pr-video{position:fixed;left:0;top:220px;width:100vw;height:calc(100vh - 220px);z-index:0;overflow:hidden;opacity:0;transition:opacity .3s ease;pointer-events:none}
+@media (min-width:1024px){#pr-video{top:0;width:100%;height:100%}}
+#pr-video video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover}
+#pr-panel{position:fixed;left:0;top:0;right:0;bottom:0;background:#000;z-index:10;transform:translateY(100vh);pointer-events:none;overflow:hidden}
+#pr-wrap{width:100%;padding-top:min(400px,40vh)}
+.pr-grid{display:grid;grid-template-columns:repeat(2,1fr)}
+@media (min-width:640px){.pr-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:1024px){.pr-grid{grid-template-columns:repeat(4,1fr)}}
+.bp-cell{aspect-ratio:2/3}
+.bp-card{will-change:transform;transform:scale(0);width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12%}
+.bp-card img{max-width:100%;max-height:100%;object-fit:contain}
+@media (prefers-reduced-motion:reduce){.bp-card{will-change:auto}}
+#pr-overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:#fff;opacity:0;z-index:12;pointer-events:none}
+#pr-info{position:fixed;left:0;right:0;bottom:48px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;display:flex;flex-direction:column;align-items:center;color:#fff;opacity:0;animation:prFade .6s ease .45s forwards}
+@media (min-width:1024px){#pr-info{left:auto;right:32px;bottom:80px;width:330px}}
+.pr-top{display:flex;flex-direction:column;align-items:flex-start;width:252px;margin-bottom:12px}
+@media (min-width:1024px){.pr-top{width:100%;margin-bottom:32px}}
+.pr-circle{position:relative;width:20px;height:20px;margin-bottom:10px}
+@media (min-width:1024px){.pr-circle{width:30px;height:30px}}
+.pr-circle svg{position:absolute;left:0;top:0;width:100%;height:100%}
+#circle-symbol{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:-.04em;text-transform:uppercase}
+@media (min-width:1024px){#circle-symbol{font-size:15px}}
+.pr-label{font-size:20px;line-height:100%;letter-spacing:-.04em;text-transform:uppercase;margin:0}
+@media (min-width:1024px){.pr-label{font-size:30px}}
+.pr-price{font-size:60px;line-height:100%;letter-spacing:-.04em;text-align:center;margin:0}
+@media (min-width:1024px){.pr-price{font-size:80px}}
+#pr-buy{position:fixed;left:16px;right:16px;bottom:60px;height:100px;z-index:20;mix-blend-mode:exclusion;background:#fff;border-radius:1335px;display:flex;align-items:center;justify-content:center;transform:scale(0);transform-origin:right bottom;pointer-events:none;text-decoration:none}
+@media (min-width:1024px){#pr-buy{left:auto;right:32px;bottom:32px;width:330px;height:174px}}
+#pr-buy span{mix-blend-mode:exclusion;color:#fff;font-size:72px;letter-spacing:-.04em;line-height:1}
+@media (min-width:1024px){#pr-buy span{font-size:110px}}
+#pr-footer{position:fixed;left:16px;right:16px;bottom:24px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;opacity:0;display:flex;justify-content:space-between;color:#fff;font-size:11px;letter-spacing:-.02em;text-transform:uppercase}
+@media (min-width:1024px){#pr-footer{right:auto;bottom:32px;justify-content:flex-start;gap:80px;font-size:13px}}
+</style>
+
+      <div id="pr-root">
+
+        <div id="pr-cursor" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22.75" stroke="#fff" stroke-width="2.5"/>
+            <text x="24" y="30" text-anchor="middle" fill="#fff" font-size="16" font-family="'Inter Tight',sans-serif">ABJ</text>
+          </svg>
         </div>
-        <div class="container-fluid px-4 px-md-5">
-          <div class="abj-hero-bottom">
-            <p class="abj-hero-note" data-fade="1" style="--fd:.35s;--fy:20px;">A skin care series driven by crafting gentle and unforgettable daily rituals</p>
+
+        <h1 id="pr-logo">abj<sup>R</sup></h1>
+
+        <p id="pr-caption">AIBAOJI is a skincare house built on gentle, science-backed formulas. Eleven daily essentials for skin, hair and body: cleanse softly, treat deeply, protect always. Crafted to be kind to sensitive skin, designed to turn routine into ritual.</p>
+
+        <nav id="pr-nav" aria-label="Site">
+          <a class="pr-about" href="/about-us">About</a>
+          <div class="pr-links">
+            <a href="/shop" aria-label="Shop menu">
+              <svg viewBox="0 0 40 40" fill="none">
+                <path d="M0 14H40" stroke="#fff" stroke-width="2.5"/>
+                <path d="M0 26H40" stroke="#fff" stroke-width="2.5"/>
+              </svg>
+            </a>
+            <a href="/shop/cart">[ CART ]</a>
           </div>
-        </div>
-        <div class="abj-portrait abj-magnet" data-fade="1" style="--fd:.6s;--fy:30px;">
-          <img src="/web/image/product.template/9/image_1024" alt="ABJ AIBAOJI Serum bottle" loading="eager"/>
-        </div>
-      </section>
+        </nav>
 
-      <!-- 2. MARQUEE -->
-      <section class="abj-mq-sec" aria-label="Product gallery">
-        <div class="abj-mq-row" data-mq="right">
-          <img src="/web/image/product.template/2/image_512" alt="ABJ BB Cream" loading="lazy"/>
-          <img src="/web/image/product.template/3/image_512" alt="ABJ Facial Foam" loading="lazy"/>
-          <img src="/web/image/product.template/4/image_512" alt="ABJ Hair Conditioner" loading="lazy"/>
-          <img src="/web/image/product.template/5/image_512" alt="ABJ Hair Shampoo" loading="lazy"/>
-          <img src="/web/image/product.template/6/image_512" alt="ABJ Face Mask" loading="lazy"/>
-          <img src="/web/image/product.template/7/image_512" alt="ABJ Night Cream" loading="lazy"/>
-          <img src="/web/image/product.template/8/image_512" alt="ABJ Makeup Remover" loading="lazy"/>
-          <img src="/web/image/product.template/9/image_512" alt="ABJ Serum" loading="lazy"/>
-          <img src="/web/image/product.template/10/image_512" alt="ABJ Shower Gel" loading="lazy"/>
-          <img src="/web/image/product.template/11/image_512" alt="ABJ Sunscreen" loading="lazy"/>
-          <img src="/web/image/product.template/12/image_512" alt="ABJ Underarm Cream" loading="lazy"/>
+        <div id="pr-video" aria-hidden="true">
+          <video id="pr-vid-l" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154433_532a85d3-dabf-4265-b8bd-19ac6af31842.mp4"></video>
+          <video id="pr-vid-r" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154401_a664f076-b971-4557-8728-40ef9ea4c49b.mp4"></video>
         </div>
-        <div class="abj-mq-row" data-mq="left">
-          <img src="/web/image/product.template/4/image_512" alt="ABJ Hair Conditioner" loading="lazy"/>
-          <img src="/web/image/product.template/5/image_512" alt="ABJ Hair Shampoo" loading="lazy"/>
-          <img src="/web/image/product.template/7/image_512" alt="ABJ Night Cream" loading="lazy"/>
-          <img src="/web/image/product.template/8/image_512" alt="ABJ Makeup Remover" loading="lazy"/>
-          <img src="/web/image/product.template/12/image_512" alt="ABJ Underarm Cream" loading="lazy"/>
-          <img src="/web/image/product.template/9/image_512" alt="ABJ Serum" loading="lazy"/>
-          <img src="/web/image/product.template/3/image_512" alt="ABJ Facial Foam" loading="lazy"/>
-          <img src="/web/image/product.template/11/image_512" alt="ABJ Sunscreen" loading="lazy"/>
-          <img src="/web/image/product.template/6/image_512" alt="ABJ Face Mask" loading="lazy"/>
-          <img src="/web/image/product.template/10/image_512" alt="ABJ Shower Gel" loading="lazy"/>
-        </div>
-      </section>
 
-      <!-- 3. ABOUT -->
-      <section class="abj-about">
-        <div class="abj-corner tl" data-fade="1" style="--fd:.1s;--fx:-80px;--fy:0px;">
-          <img src="/web/image/product.template/8/image_512" alt="ABJ Makeup Remover" loading="lazy"/>
+        <div id="pr-panel">
+          <div id="pr-wrap"></div>
         </div>
-        <div class="abj-corner tr" data-fade="1" style="--fd:.15s;--fx:80px;--fy:0px;">
-          <img src="/web/image/product.template/6/image_512" alt="ABJ Face Mask" loading="lazy"/>
-        </div>
-        <div class="abj-corner bl" data-fade="1" style="--fd:.25s;--fx:-80px;--fy:0px;">
-          <img src="/web/image/product.template/12/image_512" alt="ABJ Underarm Cream" loading="lazy"/>
-        </div>
-        <div class="abj-corner br" data-fade="1" style="--fd:.3s;--fx:80px;--fy:0px;">
-          <img src="/web/image/product.template/5/image_512" alt="ABJ Hair Shampoo" loading="lazy"/>
-        </div>
-        <div class="d-flex flex-column align-items-center" style="gap:clamp(2.5rem,5vw,4rem);position:relative;z-index:2;">
-          <h2 class="hero-heading mb-0" data-fade="1" style="--fy:40px;">About ABJ</h2>
-          <p class="abj-about-text" data-chars="1">With gentle, matched formulas at the heart of everything we make, ABJ AIBAOJI covers your whole ritual — cleanse without stripping water, brighten with proven niacinamide, protect with SPF 50+, and finish with softly fragrant hair and body care. Let's build your ritual together!</p>
-          <a href="/shop" class="abj-cta mt-4">Shop Now</a>
-        </div>
-      </section>
 
-      <!-- 4. SERVICES / SERIES -->
-      <section class="abj-white">
-        <div class="container" style="max-width:64rem;">
-          <h2>Our Series</h2>
-          <a class="abj-svc" href="/shop/category/cleansers-removers-1" data-fade="1" style="--fd:0s;">
-            <div class="num">01</div>
-            <div>
-              <div class="nm">Cleanse</div>
-              <p>Gentle facial foam and mild non-irritating makeup remover that lift away the day without stripping moisture or disturbing the skin barrier.</p>
-            </div>
-          </a>
-          <a class="abj-svc" href="/shop/category/serums-masks-2" data-fade="1" style="--fd:.1s;">
-            <div class="num">02</div>
-            <div>
-              <div class="nm">Treat</div>
-              <p>Niacinamide serum and brightening face masks that target dullness, acne marks and uneven tone with proven active ingredients.</p>
-            </div>
-          </a>
-          <a class="abj-svc" href="/shop/category/moisturizers-creams-3" data-fade="1" style="--fd:.2s;">
-            <div class="num">03</div>
-            <div>
-              <div class="nm">Moisturize</div>
-              <p>Overnight repair night cream that locks in hydration while you sleep, so you wake to soft, plump and rested skin.</p>
-            </div>
-          </a>
-          <a class="abj-svc" href="/shop/category/sun-care-makeup-4" data-fade="1" style="--fd:.3s;">
-            <div class="num">04</div>
-            <div>
-              <div class="nm">Protect</div>
-              <p>SPF 50+ brightening sunscreen and blush BB cream — daily photoaging protection and a natural, even finish in one light step.</p>
-            </div>
-          </a>
-          <a class="abj-svc" href="/shop/category/hair-body-care-5" data-fade="1" style="--fd:.4s;">
-            <div class="num">05</div>
-            <div>
-              <div class="nm">Nourish</div>
-              <p>Nourishing shampoo, creamy conditioner, softly fragrant shower gel and underarm cream for smooth hair and delicately scented skin.</p>
-            </div>
-          </a>
-        </div>
-      </section>
+        <div id="pr-overlay"></div>
 
-      <!-- 5. PROJECTS / THE RITUAL -->
-      <section class="abj-projects">
-        <h2 class="hero-heading">The Ritual</h2>
-        <div class="container px-0" style="max-width:74rem;" data-stack="1">
-          <div class="abj-stack-wrap">
-            <div class="abj-stack-card" data-stack-card="1" style="top:96px;">
-              <div class="abj-proj-top">
-                <div class="num">01</div>
-                <div class="cat">Skin Care Series</div>
-                <div class="pnm">Face Ritual</div>
-                <a href="/shop" class="abj-ghost">Shop Now</a>
-              </div>
-              <div class="abj-proj-grid">
-                <div class="colA">
-                  <img src="/web/image/product.template/3/image_512" alt="ABJ Facial Foam" loading="lazy"/>
-                  <img src="/web/image/product.template/9/image_512" alt="ABJ Serum" loading="lazy"/>
-                </div>
-                <div class="colB">
-                  <img src="/web/image/product.template/6/image_1024" alt="ABJ Face Mask" loading="lazy"/>
-                </div>
-              </div>
+        <div id="pr-info" data-outro-desktop="166" data-outro-mobile="132">
+          <div class="pr-top">
+            <div class="pr-circle">
+              <svg viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18.75" stroke="#fff" stroke-width="2.5"/>
+              </svg>
+              <span id="circle-symbol">8</span>
             </div>
+            <p class="pr-label">Skincare Collection<br/>&#8220;AIBAOJI&#8221;</p>
           </div>
-          <div class="abj-stack-wrap">
-            <div class="abj-stack-card" data-stack-card="1" style="top:124px;">
-              <div class="abj-proj-top">
-                <div class="num">02</div>
-                <div class="cat">Sun Care &amp; Makeup</div>
-                <div class="pnm">Glow &amp; Protect</div>
-                <a href="/shop/category/sun-care-makeup-4" class="abj-ghost">Shop Now</a>
-              </div>
-              <div class="abj-proj-grid">
-                <div class="colA">
-                  <img src="/web/image/product.template/2/image_512" alt="ABJ BB Cream" loading="lazy"/>
-                  <img src="/web/image/product.template/7/image_512" alt="ABJ Night Cream" loading="lazy"/>
-                </div>
-                <div class="colB">
-                  <img src="/web/image/product.template/11/image_1024" alt="ABJ Sunscreen" loading="lazy"/>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="abj-stack-wrap">
-            <div class="abj-stack-card" data-stack-card="1" style="top:152px;">
-              <div class="abj-proj-top">
-                <div class="num">03</div>
-                <div class="cat">Wash Care Series</div>
-                <div class="pnm">Hair &amp; Body</div>
-                <a href="/shop/category/hair-body-care-5" class="abj-ghost">Shop Now</a>
-              </div>
-              <div class="abj-proj-grid">
-                <div class="colA">
-                  <img src="/web/image/product.template/5/image_512" alt="ABJ Hair Shampoo" loading="lazy"/>
-                  <img src="/web/image/product.template/4/image_512" alt="ABJ Hair Conditioner" loading="lazy"/>
-                </div>
-                <div class="colB">
-                  <img src="/web/image/product.template/10/image_1024" alt="ABJ Shower Gel" loading="lazy"/>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p class="pr-price">$6,00</p>
         </div>
-      </section>
 
-      <script type="application/ld+json">{
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "name": "ABJ AIBAOJI Skincare",
-            "alternateName": "AIBAOJI",
-            "url": "https://odoo2.yifu.io",
-            "logo": "https://odoo2.yifu.io/web/image/website/1/favicon",
-            "email": "abj@yifu.io",
-            "telephone": "+855 31 266 3333",
-            "address": {"@type": "PostalAddress", "addressLocality": "Ta Khmau", "addressCountry": "KH"}
-          },
-          {
-            "@type": "WebSite",
-            "name": "ABJ AIBAOJI Skincare",
-            "url": "https://odoo2.yifu.io"
-          }
-        ]
-      }</script>
+        <a id="pr-buy" href="/shop"><span>view</span></a>
+
+        <div id="pr-footer">
+          <span>ABJ (R) 2026</span>
+          <span>AIBAOJI SKINCARE</span>
+        </div>
+
+      </div>
+
+<script>
+(function(){
+  var root=document.getElementById('pr-root'); if(!root){return;}
+  var vidL=document.getElementById('pr-vid-l');
+  var vidR=document.getElementById('pr-vid-r');
+  var vc=document.getElementById('pr-video');
+  var panel=document.getElementById('pr-panel');
+  var wrap=document.getElementById('pr-wrap');
+  var overlay=document.getElementById('pr-overlay');
+  var info=document.getElementById('pr-info');
+  var buy=document.getElementById('pr-buy');
+  var foot=document.getElementById('pr-footer');
+  var sym=document.getElementById('circle-symbol');
+  var cursor=document.getElementById('pr-cursor');
+
+  var IDS=[2,3,4,5,6,7,8,9,10,11,12];
+  var ALTS=['BB Cream','Facial Foam','Hair Conditioner','Shampoo','Face Mask','Night Cream','Makeup Remover','Serum','Shower Gel','Sunscreen','Underarm Cream'];
+
+  var touch=false;
+  if(window.matchMedia('(pointer:coarse)').matches){touch=true;}
+  if(!window.matchMedia('(min-width:1024px)').matches){touch=true;}
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function cols(){var w=window.innerWidth;if(w>=1024){return 4;}if(w>=640){return 3;}return 2;}
+
+  function buildLayout(count,c){
+    var rows=[],placed=0,r=0;
+    while(count>placed){
+      var row=[],i;
+      for(i=0;c>i;i++){row.push(-1);}
+      var a=(r*2+(r%2))%c;
+      row[a]=placed;placed++;
+      if(r%3===0){
+        if(count>placed){
+          var b=(a+2)%c;
+          if(b===a){b=(a+1)%c;}
+          row[b]=placed;placed++;
+        }
+      }
+      rows.push(row);r++;
+    }
+    return rows;
+  }
+
+  var cards=[],curCols=0;
+  function buildGrid(){
+    var c=cols();
+    if(c===curCols){return;}
+    curCols=c;
+    var rows=buildLayout(IDS.length,c);
+    var g=document.createElement('div');g.className='pr-grid';
+    rows.forEach(function(row){
+      row.forEach(function(idx,ci){
+        var cell=document.createElement('div');cell.className='bp-cell';
+        if(idx>-1){
+          var card=document.createElement('div');card.className='bp-card';
+          card.style.transformOrigin=(c/2>ci)?'right bottom':'left bottom';
+          var im=document.createElement('img');
+          im.src='/web/image/product.template/'+IDS[idx]+'/image_1024';
+          im.alt='ABJ '+ALTS[idx];
+          im.loading='lazy';
+          card.appendChild(im);cell.appendChild(card);
+        }
+        g.appendChild(cell);
+      });
+    });
+    wrap.innerHTML='';
+    wrap.appendChild(g);
+    cards=Array.prototype.slice.call(wrap.querySelectorAll('.bp-card'));
+  }
+
+  var vh=window.innerHeight,maxScroll=0;
+  function measure(){
+    vh=window.innerHeight;
+    buildGrid();
+    var prev=wrap.style.transform;
+    wrap.style.transform='none';
+    maxScroll=Math.max(0,wrap.scrollHeight-vh);
+    wrap.style.transform=prev;
+    root.style.height=(vh+maxScroll+2*vh)+'px';
+  }
+
+  var SYMS=['8','$','^^','%','/'],lastSym=0;
+  window.addEventListener('scroll',function(){
+    var n=Date.now();
+    if(n-lastSym>80){
+      lastSym=n;
+      if(sym){sym.textContent=SYMS[Math.floor(Math.random()*SYMS.length)];}
+    }
+  },{passive:true});
+
+  var mouseX=window.innerWidth/2;
+  window.addEventListener('mousemove',function(e){
+    mouseX=e.clientX;
+    if(cursor){cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';}
+  });
+
+  var loaded=0;
+  function onLoaded(){loaded++;if(loaded>1){vc.style.opacity='1';}}
+  vidL.addEventListener('loadeddata',onLoaded);
+  vidR.addEventListener('loadeddata',onLoaded);
+  if(vidL.readyState>2){onLoaded();}
+  if(vidR.readyState>2){onLoaded();}
+
+  vidL.style.display='none';
+  vidR.style.display='block';
+  var activeSide='right';
+
+  function playSafe(v){var p=v.play();if(p){p.catch(function(){});}}
+  if(touch){
+    if(!reduced){
+      vidR.style.display='none';
+      vidL.style.display='block';
+      vidL.addEventListener('ended',function(){
+        vidL.style.display='none';vidR.style.display='block';
+        vidR.currentTime=0;playSafe(vidR);
+      });
+      vidR.addEventListener('ended',function(){
+        vidR.style.display='none';vidL.style.display='block';
+        vidL.currentTime=0;playSafe(vidL);
+      });
+      playSafe(vidL);
+    }
+  }
+
+  function scrubVideos(){
+    if(touch){return;}
+    var w=window.innerWidth,cx=w/2,dz=Math.max(30,w*0.05);
+    var x=mouseX,show,prog=0;
+    if(Math.abs(x-cx)>dz){
+      if(cx>x){
+        show='right';
+        prog=(cx-dz-x)/Math.max(1,cx-dz);
+      }else{
+        show='left';
+        prog=(x-(cx+dz))/Math.max(1,w-(cx+dz));
+      }
+      activeSide=show;
+    }else{
+      show=activeSide;prog=0;
+    }
+    var vis=(show==='left')?vidL:vidR;
+    var hid=(show==='left')?vidR:vidL;
+    if(hid.style.display!=='none'){hid.style.display='none';}
+    if(vis.style.display!=='block'){vis.style.display='block';}
+    var d=vis.duration;
+    if(d>0){
+      if(!vis.seeking){
+        var t=Math.max(0,Math.min(d-0.05,prog*d));
+        vis.currentTime=t;
+      }
+    }
+  }
+
+  var buyActive=false;
+  function raf(){
+    var y=window.scrollY||window.pageYOffset||0;
+    var p1=Math.min(vh,Math.max(0,y));
+    panel.style.transform='translateY('+(vh-p1)+'px)';
+    var ph2=Math.min(maxScroll,Math.max(0,y-vh));
+    wrap.style.transform='translateY(-'+ph2+'px)';
+    if(y>=vh){
+      if(vc.style.visibility!=='hidden'){vc.style.visibility='hidden';}
+    }else{
+      if(vc.style.visibility==='hidden'){vc.style.visibility='visible';}
+      scrubVideos();
+    }
+    var i=0,n=cards.length;
+    for(i=0;n>i;i++){
+      var rect=cards[i].parentNode.getBoundingClientRect();
+      var s;
+      if(reduced){
+        s=1;
+      }else if(0>=rect.bottom||rect.top>=vh){
+        s=0;
+      }else{
+        var enter=Math.min(1,(vh-rect.top)/(vh*0.6));
+        var exit=Math.min(1,rect.bottom/(vh*0.4));
+        s=Math.max(0,Math.min(enter,exit));
+      }
+      cards[i].style.transform='scale('+s+')';
+    }
+    var op=Math.max(0,Math.min(1,(y-vh-maxScroll)/Math.max(1,vh-100)));
+    overlay.style.opacity=op;
+    var off=(window.innerWidth>=1024)?166:132;
+    info.style.transform='translateY(-'+(off*op)+'px)';
+    buy.style.transform='scale('+op+')';
+    foot.style.opacity=op;
+    var act=op>0.5;
+    if(act!==buyActive){
+      buyActive=act;
+      buy.style.pointerEvents=act?'auto':'none';
+    }
+    requestAnimationFrame(raf);
+  }
+
+  measure();
+  window.addEventListener('resize',function(){curCols=0;measure();});
+  requestAnimationFrame(raf);
+})();
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"ABJ AIBAOJI Skincare","url":"https://odoo2.yifu.io","logo":"https://odoo2.yifu.io/web/image/website/1/logo","description":"AIBAOJI gentle science-backed skincare: cleansers, serums, sunscreen, hair and body care."}
+</script>
 
     </div>
   </t>
