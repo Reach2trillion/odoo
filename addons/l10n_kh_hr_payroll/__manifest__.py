@@ -46,6 +46,7 @@ Cambodia Payroll Localization
             'l10n_kh_hr_payroll/static/src/css/khmer_fonts.css',
         ],
     },
+    'post_init_hook': 'post_init_hook',
     'installable': True,
     'application': False,
     'auto_install': False,
