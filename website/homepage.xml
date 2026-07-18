@@ -87,8 +87,8 @@
         </nav>
 
         <div id="pr-video" aria-hidden="true">
-          <video id="pr-vid-l" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154433_532a85d3-dabf-4265-b8bd-19ac6af31842.mp4"></video>
-          <video id="pr-vid-r" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154401_a664f076-b971-4557-8728-40ef9ea4c49b.mp4"></video>
+          <video id="pr-vid-l" muted="muted" playsinline="playsinline" preload="auto" src="https://drive.google.com/uc?export=download&#38;id=1-DKHzLuQv0aU_Rq1hOSmnfplzjRVIr48" data-fallback="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154433_532a85d3-dabf-4265-b8bd-19ac6af31842.mp4"></video>
+          <video id="pr-vid-r" muted="muted" playsinline="playsinline" preload="auto" src="https://drive.google.com/uc?export=download&#38;id=1R-VuhiF6Ed6KOTTeL0x5MPBEDXgspdSG" data-fallback="https://d8j0ntlcm91z4.cloudfront.net/user_39ca84eAE1ODL9hbR5VhoEj8tBf/hf_20260625_154401_a664f076-b971-4557-8728-40ef9ea4c49b.mp4"></video>
         </div>
 
         <div id="pr-panel">
@@ -220,6 +220,12 @@
   function onLoaded(){loaded++;if(loaded>1){vc.style.opacity='1';}}
   vidL.addEventListener('loadeddata',onLoaded);
   vidR.addEventListener('loadeddata',onLoaded);
+  function useFallback(v){
+    var f=v.getAttribute('data-fallback');
+    if(f){v.removeAttribute('data-fallback');v.src=f;v.load();}
+  }
+  vidL.addEventListener('error',function(){useFallback(vidL);});
+  vidR.addEventListener('error',function(){useFallback(vidR);});
   if(vidL.readyState>2){onLoaded();}
   if(vidR.readyState>2){onLoaded();}
 
