@@ -1,0 +1,72 @@
+/* ABJ dark-theme patch layer.
+   Deployed MINIFIED inside a <style> tag appended after abj_site.js in
+   website.custom_code_footer (website id 1), so it cascades after the
+   head CSS (abj_brand.css). Keep this file in sync with the live copy. */
+
+/* --- checkout / generic form surfaces --- */
+#wrapwrap .bg-white,
+#wrapwrap .bg-light { background-color: #101418 !important; }
+#wrapwrap label,
+#wrapwrap .col-form-label,
+#wrapwrap .form-label { color: var(--abj-ink); }
+#wrapwrap .btn-link { color: var(--abj-sky); }
+#wrapwrap .btn-light,
+#wrapwrap .btn-outline-secondary {
+  background: #12171D;
+  border: 1px solid #2A333D;
+  color: var(--abj-ink) !important;
+  border-radius: 999px;
+}
+#wrapwrap .btn-light:hover,
+#wrapwrap .btn-outline-secondary:hover { background: #1A222B; color: #fff !important; }
+#wrapwrap .o_delivery_carrier_select {
+  background: #101418;
+  border: 1px solid var(--abj-line);
+  border-radius: 14px;
+  padding: .9rem 1rem;
+  margin-bottom: .6rem;
+}
+#wrapwrap .o_delivery_carrier_select:hover { border-color: #3A4652; }
+#wrapwrap .o_wsale_delivery_price,
+#wrapwrap .o_wsale_delivery_badge { color: var(--abj-sky); }
+#wrapwrap .o_payment_form label { color: var(--abj-ink); }
+#wrapwrap .o_payment_form .o_payment_option_card:hover { border-color: #3A4652 !important; }
+#wrapwrap .card.border-primary {
+  border-color: var(--abj-blue) !important;
+  box-shadow: 0 0 0 2px rgba(30,143,209,.25);
+}
+#wrapwrap .o_wizard_steps a,
+#wrapwrap .progress-wizard a { color: var(--abj-soft); }
+#wrapwrap .input-group-text { background: #12171D; border-color: #2A333D; color: var(--abj-soft); }
+#wrapwrap .form-select option { background: #12171D; color: var(--abj-ink); }
+#wrapwrap input::-webkit-calendar-picker-indicator { filter: invert(.8); }
+
+/* --- cart totals card (order summary) --- */
+#wrapwrap .oe_website_sale .card {
+  background-color: #101418;
+  border: 1px solid #232B33;
+  color: var(--abj-ink);
+}
+#wrapwrap .oe_website_sale .card-body { background: transparent; color: var(--abj-ink); }
+#wrapwrap #cart_total table.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--abj-ink);
+  color: var(--abj-ink);
+}
+#wrapwrap #cart_total td,
+#wrapwrap #cart_total th { background: transparent; color: var(--abj-ink); border-color: #232B33; }
+#wrapwrap #cart_total tr.border-top { border-color: #232B33 !important; }
+#wrapwrap .oe_website_sale .text-muted { color: var(--abj-soft) !important; }
+#wrapwrap .oe_website_sale .monetary_field,
+#wrapwrap .oe_website_sale .oe_currency_value { color: var(--abj-ink); }
+#wrapwrap .coupon_form .form-control { background: #12171D; border: 1px solid #2A333D; color: var(--abj-ink); }
+#wrapwrap .coupon_form .form-control::placeholder { color: #63707B; }
+#wrapwrap .coupon_form .btn-secondary {
+  background: #12171D;
+  border: 1px solid #2A333D;
+  color: var(--abj-ink);
+  border-radius: 999px;
+}
+#wrapwrap .coupon_form .btn-secondary:hover { background: #1A222B; color: #fff; }
+#wrapwrap .oe_website_sale .card hr { border-color: #232B33; opacity: 1; }
+#wrapwrap .oe_website_sale .card a:not(.btn) { color: var(--abj-sky); }
