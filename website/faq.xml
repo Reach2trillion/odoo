@@ -6,7 +6,7 @@
         <div class="container text-center">
           <div class="abj-eyebrow mb-3">Help centre</div>
           <h1>Delivery, returns &amp; FAQ</h1>
-          <p class="lead mx-auto mt-3" style="max-width:38rem;">Everything you need to know about ordering from ABJ AIBAOJI.</p>
+          <p class="lead mx-auto mt-3" style="max-width:38rem;">Everything you need to know about ordering from ABJ.</p>
         </div>
       </section>
 
@@ -71,10 +71,10 @@
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          {"@type": "Question", "name": "How long does delivery take?", "acceptedAnswer": {"@type": "Answer", "text": "Phnom Penh and Ta Khmau: same or next day. Provinces: 2-4 working days via VET or J&T Express."}},
+          {"@type": "Question", "name": "How long does delivery take?", "acceptedAnswer": {"@type": "Answer", "text": "Phnom Penh and Ta Khmau: same or next day. Provinces: 2-4 working days via VET or J&amp;T Express."}},
           {"@type": "Question", "name": "How much does shipping cost?", "acceptedAnswer": {"@type": "Answer", "text": "Flat $1.50 in Phnom Penh, $2.50 to provinces, free on orders over $35."}},
           {"@type": "Question", "name": "What is your return policy?", "acceptedAnswer": {"@type": "Answer", "text": "Unopened products can be returned within 14 days for a full refund. Damaged items are replaced free within 48 hours of delivery."}},
-          {"@type": "Question", "name": "Are ABJ products cruelty-free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, ABJ AIBAOJI products are never tested on animals."}}
+          {"@type": "Question", "name": "Are ABJ products cruelty-free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, ABJ products are never tested on animals."}}
         ]
       }</script>
 

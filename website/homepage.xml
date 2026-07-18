@@ -71,7 +71,7 @@
 
         <h1 id="pr-logo">abj<sup>R</sup></h1>
 
-        <p id="pr-caption">AIBAOJI is a skincare house built on gentle, science-backed formulas. Eleven daily essentials for skin, hair and body: cleanse softly, treat deeply, protect always. Crafted to be kind to sensitive skin, designed to turn routine into ritual.</p>
+        <p id="pr-caption">ABJ is a skincare house built on gentle, science-backed formulas. Eleven daily essentials for skin, hair and body: cleanse softly, treat deeply, protect always. Crafted to be kind to sensitive skin, designed to turn routine into ritual.</p>
 
         <nav id="pr-nav" aria-label="Site">
           <a class="pr-about" href="/about-us">About</a>
@@ -105,7 +105,7 @@
               </svg>
               <span id="circle-symbol">8</span>
             </div>
-            <p class="pr-label">Skincare Collection<br/>&#8220;AIBAOJI&#8221;</p>
+            <p class="pr-label">Skincare Collection<br/>&#8220;ABJ&#8221;</p>
           </div>
           <p class="pr-price">$6,00</p>
         </div>
@@ -114,7 +114,7 @@
 
         <div id="pr-footer">
           <span>ABJ (R) 2026</span>
-          <span>AIBAOJI SKINCARE</span>
+          <span>ABJ SKINCARE</span>
         </div>
 
       </div>
@@ -328,7 +328,7 @@
 </script>
 
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"ABJ AIBAOJI Skincare","url":"https://odoo2.yifu.io","logo":"https://odoo2.yifu.io/web/image/website/1/logo","description":"AIBAOJI gentle science-backed skincare: cleansers, serums, sunscreen, hair and body care."}
+{"@context":"https://schema.org","@type":"Organization","name":"ABJ Skincare","url":"https://odoo2.yifu.io","logo":"https://odoo2.yifu.io/web/image/website/1/logo","description":"ABJ gentle science-backed skincare: cleansers, serums, sunscreen, hair and body care."}
 </script>
 
     </div>
