@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_form_l10n_kh" model="ir.ui.view">
+        <field name="name">account.account.form.l10n.kh</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_type']" position="after">
+                <field name="l10n_kh_tax_reportable"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_list_l10n_kh" model="ir.ui.view">
+        <field name="name">account.account.list.l10n.kh</field>
+        <field name="model">account.account</field>
+        <field name="arch" type="xml">
+            <list string="GDT Reportable Accounts" editable="bottom" create="false" delete="false">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="account_type"/>
+                <field name="l10n_kh_tax_reportable" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_account_search_l10n_kh" model="ir.ui.view">
+        <field name="name">account.account.search.l10n.kh</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter string="Reported to GDT (Cambodia)" name="kh_tax_reportable"
+                        domain="[('l10n_kh_tax_reportable', '=', True)]"/>
+                <filter string="Not Reported to GDT" name="kh_tax_not_reportable"
+                        domain="[('l10n_kh_tax_reportable', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_l10n_kh_reportable_accounts" model="ir.actions.act_window">
+        <field name="name">GDT Reportable Accounts</field>
+        <field name="res_model">account.account</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_account_list_l10n_kh"/>
+        <field name="context">{'search_default_kh_tax_reportable': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Select the accounts to report to the GDT
+            </p>
+            <p>
+                Accounts with the "Report to GDT (Cambodia)" checkbox enabled are
+                included in the monthly tax declaration and in the e-Filing
+                export. Untick the checkbox on accounts (payments, internal
+                transfers, ...) that must not be reported to the tax
+                administration.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_l10n_kh" model="ir.ui.view">
+        <field name="name">res.company.form.l10n.kh</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Cambodia Tax (GDT)" name="l10n_kh_tax">
+                    <group>
+                        <group string="Registration">
+                            <field name="l10n_kh_tin"/>
+                            <field name="l10n_kh_taxpayer_type"/>
+                            <field name="l10n_kh_gdt_branch"/>
+                        </group>
+                        <group string="e-Filing">
+                            <field name="l10n_kh_efiling_account"/>
+                            <field name="l10n_kh_exchange_rate"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

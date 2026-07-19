@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_l10n_kh_tax" model="ir.module.category">
+        <field name="name">Cambodia Tax</field>
+        <field name="description">Cambodia GDT monthly tax declaration</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <record id="group_l10n_kh_tax_user" model="res.groups">
+        <field name="name">Tax Officer</field>
+        <field name="category_id" ref="module_category_l10n_kh_tax"/>
+        <field name="implied_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+        <field name="comment">Can prepare and compute the Cambodia monthly tax declarations.</field>
+    </record>
+
+    <record id="group_l10n_kh_tax_manager" model="res.groups">
+        <field name="name">Tax Manager / Auditor</field>
+        <field name="category_id" ref="module_category_l10n_kh_tax"/>
+        <field name="implied_ids" eval="[(4, ref('group_l10n_kh_tax_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Can confirm, file and delete declarations, and manage the Cambodian tax configuration.</field>
+    </record>
+
+    <record id="l10n_kh_tax_report_company_rule" model="ir.rule">
+        <field name="name">Cambodia Tax Declaration: multi-company</field>
+        <field name="model_id" ref="model_l10n_kh_tax_report"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="l10n_kh_tax_report_line_company_rule" model="ir.rule">
+        <field name="name">Cambodia Tax Declaration Line: multi-company</field>
+        <field name="model_id" ref="model_l10n_kh_tax_report_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

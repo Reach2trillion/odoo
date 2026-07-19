@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_l10n_kh_tax_declaration" model="ir.actions.report">
+        <field name="name">Monthly Tax Declaration (GDT)</field>
+        <field name="model">l10n.kh.tax.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_kh_tax.report_tax_declaration</field>
+        <field name="report_file">l10n_kh_tax.report_tax_declaration</field>
+        <field name="print_report_name">'GDT_Declaration_%s_%s' % (object.year, object.month)</field>
+        <field name="binding_model_id" ref="model_l10n_kh_tax_report"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

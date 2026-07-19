@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_l10n_kh_tax_root"
+              name="Cambodia Tax"
+              sequence="60"
+              groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
+
+    <menuitem id="menu_l10n_kh_tax_report"
+              name="Monthly Declarations (GDT)"
+              parent="menu_l10n_kh_tax_root"
+              action="action_l10n_kh_tax_report"
+              sequence="10"/>
+
+    <menuitem id="menu_l10n_kh_tax_config"
+              name="Configuration"
+              parent="menu_l10n_kh_tax_root"
+              sequence="90"
+              groups="l10n_kh_tax.group_l10n_kh_tax_manager"/>
+
+    <menuitem id="menu_l10n_kh_reportable_accounts"
+              name="GDT Reportable Accounts"
+              parent="menu_l10n_kh_tax_config"
+              action="action_l10n_kh_reportable_accounts"
+              sequence="10"/>
+
+    <menuitem id="menu_l10n_kh_taxes"
+              name="Cambodian Taxes"
+              parent="menu_l10n_kh_tax_config"
+              action="action_l10n_kh_taxes"
+              sequence="20"/>
+</odoo>

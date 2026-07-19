@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tax_form_l10n_kh" model="ir.ui.view">
+        <field name="name">account.tax.form.l10n.kh</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type_tax_use']" position="after">
+                <field name="l10n_kh_tax_category"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_l10n_kh_taxes" model="ir.actions.act_window">
+        <field name="name">Cambodian Taxes</field>
+        <field name="res_model">account.tax</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('l10n_kh_tax_category', '!=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cambodian taxes (VAT, WHT, ...)
+            </p>
+            <p>
+                Each tax mapped to a "Cambodia Tax Category" feeds the matching
+                line of the GDT Monthly Tax Declaration.
+            </p>
+        </field>
+    </record>
+</odoo>

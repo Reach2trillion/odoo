@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_kh_tax_report_user,l10n.kh.tax.report user,model_l10n_kh_tax_report,group_l10n_kh_tax_user,1,1,1,0
+access_l10n_kh_tax_report_manager,l10n.kh.tax.report manager,model_l10n_kh_tax_report,group_l10n_kh_tax_manager,1,1,1,1
+access_l10n_kh_tax_report_line_user,l10n.kh.tax.report.line user,model_l10n_kh_tax_report_line,group_l10n_kh_tax_user,1,1,1,1
+access_l10n_kh_tax_report_line_manager,l10n.kh.tax.report.line manager,model_l10n_kh_tax_report_line,group_l10n_kh_tax_manager,1,1,1,1
+access_l10n_kh_tax_report_account_readonly,l10n.kh.tax.report account user,model_l10n_kh_tax_report,account.group_account_invoice,1,0,0,0
+access_l10n_kh_tax_report_line_account_readonly,l10n.kh.tax.report.line account user,model_l10n_kh_tax_report_line,account.group_account_invoice,1,0,0,0

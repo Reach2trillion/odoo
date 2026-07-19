@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_tax_declaration">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h3>ព្រះរាជាណាចក្រកម្ពុជា — ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
+                            <h4>Kingdom of Cambodia — Nation Religion King</h4>
+                            <h4>អគ្គនាយកដ្ឋានពន្ធដារ / General Department of Taxation</h4>
+                            <h4><span t-field="doc.name"/></h4>
+                        </div>
+                        <table class="table table-sm table-borderless mb-4">
+                            <tr>
+                                <td style="width:50%">
+                                    <strong>Taxpayer:</strong> <span t-field="doc.company_id.name"/><br/>
+                                    <strong>TIN:</strong> <span t-field="doc.company_id.l10n_kh_tin"/><br/>
+                                    <strong>Classification:</strong> <span t-field="doc.company_id.l10n_kh_taxpayer_type"/><br/>
+                                    <strong>Tax Branch:</strong> <span t-field="doc.company_id.l10n_kh_gdt_branch"/>
+                                </td>
+                                <td>
+                                    <strong>Period:</strong>
+                                    <span t-field="doc.date_from"/> — <span t-field="doc.date_to"/><br/>
+                                    <strong>Exchange Rate (KHR):</strong> <span t-field="doc.exchange_rate"/><br/>
+                                    <strong>Status:</strong> <span t-field="doc.state"/><br/>
+                                    <t t-if="doc.filed_date">
+                                        <strong>Filed:</strong> <span t-field="doc.filed_date"/>
+                                        by <span t-field="doc.filed_by_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr class="table-active">
+                                    <th>Code</th>
+                                    <th>ការពិពណ៌នា / Description</th>
+                                    <th class="text-end">Tax Base</th>
+                                    <th class="text-end">Tax Amount</th>
+                                    <th class="text-end">Amount (KHR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td><span t-field="line.code"/></td>
+                                    <td><span t-field="line.name"/></td>
+                                    <td class="text-end">
+                                        <span t-field="line.base_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="line.tax_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'{:,.0f}'.format(line.amount_khr)"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <th colspan="3">សរុបពន្ធត្រូវបង់ / Total Tax Payable</th>
+                                    <th class="text-end">
+                                        <span t-field="doc.total_tax_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="'{:,.0f}'.format(doc.total_tax_amount_khr)"/>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <p class="mt-3"><em>
+                            Monthly taxes must be declared and paid to the General
+                            Department of Taxation via the e-Filing system by the
+                            25th of the following month (Law on Taxation).
+                        </em></p>
+                        <t t-if="doc.note">
+                            <h5 class="mt-4">Audit Notes</h5>
+                            <p t-field="doc.note"/>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
