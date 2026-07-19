@@ -1,0 +1,33 @@
+<section style="max-width: 875px; margin: 0 auto; padding: 32px 16px; font-family: sans-serif;">
+    <h1 style="color: #E6500A;">Infobip SMS Connector</h1>
+    <p style="font-size: 18px;">
+        Send every SMS from Odoo through your own
+        <a href="https://www.infobip.com/sms/api" target="_blank">Infobip</a> account —
+        ideal for Cambodia (+855) and international routes where you want your own
+        sender ID, routes and pricing instead of Odoo IAP credits.
+    </p>
+
+    <h2>Works everywhere Odoo sends SMS</h2>
+    <ul style="font-size: 16px; line-height: 1.7;">
+        <li><b>CRM</b>: text leads and customers from the chatter, SMS activities</li>
+        <li><b>SMS Marketing</b> (<i>mass_mailing_sms</i>): mass campaigns with per-recipient tracking</li>
+        <li><b>Contacts / Sales / Deliveries</b> and any automation or server action using SMS templates</li>
+    </ul>
+
+    <h2>Features</h2>
+    <ul style="font-size: 16px; line-height: 1.7;">
+        <li>Official Infobip HTTP API (<code>POST /sms/2/text/advanced</code>), batched — up to 500 SMS per call</li>
+        <li>Delivery reports pushed back to Odoo: messages show as <b>Delivered</b>, <b>Sent</b> or <b>Failed</b> with the operator reason</li>
+        <li>Custom alphanumeric <b>sender ID</b> (register your brand for Smart, Cellcard, Metfone, ...)</li>
+        <li>Cambodian local numbers (<code>012 345 678</code>) automatically get the +855 prefix (configurable)</li>
+        <li><b>Send Test SMS</b> wizard right in the settings</li>
+        <li>Disable it any time to fall back to the standard Odoo IAP SMS service</li>
+    </ul>
+
+    <h2>Setup in 2 minutes</h2>
+    <ol style="font-size: 16px; line-height: 1.7;">
+        <li>Create an account on <a href="https://portal.infobip.com" target="_blank">portal.infobip.com</a> and copy your <b>API key</b> and <b>base URL</b></li>
+        <li>In Odoo: <i>Settings &gt; Infobip SMS</i> — enable, paste both values, set your sender ID, save</li>
+        <li>Click <b>Send Test SMS</b> and check your phone 📱</li>
+    </ol>
+</section>

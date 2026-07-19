@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sms.infobip</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Infobip SMS" string="Infobip SMS" name="sms_infobip"
+                     logo="/sms_infobip/static/description/icon.png">
+                    <block title="Infobip SMS Gateway"
+                           help="Send every SMS (CRM, Sales, SMS Marketing, ...) through your own Infobip account — ideal for Cambodia (+855) and international routes.">
+                        <setting id="sms_infobip_enabled_setting" string="Send SMS via Infobip"
+                                 help="When disabled, Odoo falls back to the standard Odoo IAP SMS service.">
+                            <field name="sms_infobip_enabled"/>
+                        </setting>
+                        <setting id="sms_infobip_credentials_setting" string="API Credentials"
+                                 invisible="not sms_infobip_enabled"
+                                 help="Both are shown on your Infobip portal homepage (portal.infobip.com).">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="sms_infobip_base_url" class="col-lg-4 o_light_label"/>
+                                    <field name="sms_infobip_base_url" placeholder="https://xxxxx.api.infobip.com"/>
+                                </div>
+                                <div class="row">
+                                    <label for="sms_infobip_api_key" class="col-lg-4 o_light_label"/>
+                                    <field name="sms_infobip_api_key" password="True"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="sms_infobip_sender_setting" string="Sender &amp; Numbers"
+                                 invisible="not sms_infobip_enabled"
+                                 help="Register your alphanumeric sender ID with Infobip for Cambodian operators (Smart, Cellcard, Metfone). Local numbers starting with 0 get the default prefix.">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="sms_infobip_sender" class="col-lg-4 o_light_label"/>
+                                    <field name="sms_infobip_sender" placeholder="MyBrand"/>
+                                </div>
+                                <div class="row">
+                                    <label for="sms_infobip_default_country_code" class="col-lg-4 o_light_label"/>
+                                    <field name="sms_infobip_default_country_code" placeholder="855"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="sms_infobip_dlr_setting" string="Delivery Reports"
+                                 invisible="not sms_infobip_enabled"
+                                 help="Infobip pushes the final delivery status (Delivered / Failed) back to Odoo. Requires an Odoo reachable from the internet.">
+                            <field name="sms_infobip_delivery_reports"/>
+                            <div class="content-group" invisible="not sms_infobip_delivery_reports">
+                                <div class="row mt8">
+                                    <label for="sms_infobip_webhook_url" class="col-lg-4 o_light_label"/>
+                                    <field name="sms_infobip_webhook_url" readonly="1" widget="CopyClipboardChar"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="sms_infobip_test_setting" string="Test Your Setup"
+                                 invisible="not sms_infobip_enabled"
+                                 help="Save the settings first, then send yourself a test SMS.">
+                            <button name="action_sms_infobip_send_test" type="object"
+                                    string="Send Test SMS" icon="oi-arrow-right" class="btn-link"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

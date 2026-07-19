@@ -105,3 +105,11 @@ The file is re-read on every message, so edits apply without a rebuild.
   so this normally only appears during manual API testing.
 - **Voice fails but text works** — the container needs outbound internet access to
   `translate.google.com` for text-to-speech.
+
+---
+
+## Odoo addons in this repository
+
+| Addon | Description |
+|---|---|
+| [`addons/sms_infobip`](addons/sms_infobip/README.md) | **Infobip SMS Connector** for Odoo 18 — send CRM & SMS-Marketing text messages through [Infobip](https://www.infobip.com/sms/api), with delivery reports, custom sender ID and Cambodian (+855) number handling. See its README for setup. |
