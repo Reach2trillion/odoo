@@ -1,7 +1,7 @@
 # Part of the sms_infobip module. License LGPL-3.
 {
     'name': 'Infobip SMS Connector',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Marketing',
     'summary': 'Send Odoo SMS (CRM, SMS Marketing, ...) through Infobip — ideal for Cambodia (+855)',
     'description': """

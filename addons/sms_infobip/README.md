@@ -26,6 +26,13 @@ covers **everything** that sends SMS:
 - Errors are mapped to Odoo's standard failure types (insufficient credit, wrong
   number format, sender not registered, ...) so resend/failure flows keep working
 
+## Compatibility
+
+All Odoo **18.0** builds — both recent ones (with the pluggable `SmsApiBase`
+provider framework) and earlier 18.0 releases (e.g. Debian/nightly packages)
+where the IAP client is hardcoded in `sms.sms._send()`. The module detects the
+framework at runtime and uses the matching integration path.
+
 ## Installation
 
 1. Copy `addons/sms_infobip` into an addons path of your Odoo 18 server.

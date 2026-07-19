@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import requests
 
-from odoo.addons.sms.tools.sms_api import SmsApiBase
 from odoo.tools import str2bool
 from odoo.tools.translate import _
 
@@ -16,13 +15,21 @@ INFOBIP_SEND_ENDPOINT = '/sms/2/text/advanced'
 INFOBIP_TIMEOUT = 30  # seconds; batches can hold up to 500 destinations
 
 
-class SmsApiInfobip(SmsApiBase):
+class SmsApiInfobip:
     """Send Odoo SMS through the Infobip HTTP API (https://www.infobip.com/docs/sms).
 
     Plugged into the standard Odoo 18 SMS framework through
     ``res.company._get_sms_api_class()`` and ``sms.sms._split_by_api()``, so it
     transparently covers everything built on ``sms.sms``: CRM, Contacts,
     SMS Marketing, server actions, ...
+
+    Deliberately a standalone class rather than a subclass of
+    ``odoo.addons.sms.tools.sms_api.SmsApi(Base)``: the framework only
+    duck-types the API object (``_send_sms_batch()``,
+    ``PROVIDER_TO_SMS_FAILURE_TYPE``, ...), and early Odoo 18.0 builds don't
+    ship the ``SmsApiBase`` extension class yet. Early builds without the
+    pluggable framework at all are handled by the ``sms.sms._send()`` override
+    in ``models/sms_sms.py``.
 
     The Infobip ``messageId`` of every destination is set to the ``sms.sms``
     UUID, so send responses and delivery report webhooks map back to Odoo
@@ -32,13 +39,23 @@ class SmsApiInfobip(SmsApiBase):
     # Provider states (returned by _send_sms_batch) -> sms.sms.failure_type.
     # Any state absent from this mapping ends up as failure_type 'unknown' and
     # its human readable 'failure_reason' is displayed on the notification.
-    PROVIDER_TO_SMS_FAILURE_TYPE = SmsApiBase.PROVIDER_TO_SMS_FAILURE_TYPE | {
+    PROVIDER_TO_SMS_FAILURE_TYPE = {
+        'server_error': 'sms_server',
+        'sms_number_missing': 'sms_number_missing',
+        'wrong_number_format': 'sms_number_format',
         'country_not_supported': 'sms_country_not_supported',
         'duplicate_message': 'sms_duplicate',
         'insufficient_credit': 'sms_credit',
         'registration_needed': 'sms_registration_needed',
         'unregistered': 'sms_acc',
     }
+
+    def __init__(self, env, account=None):
+        self.env = env
+        self.company = env.company
+
+    def _set_company(self, company):
+        self.company = company
 
     # ------------------------------------------------------------------
     # Configuration helpers (usable as classmethods from models/controllers)
@@ -194,8 +211,7 @@ class SmsApiInfobip(SmsApiBase):
     def _get_sms_api_error_messages(self):
         """Infobip-specific wording for error states (shown in SMS Marketing
         and message notifications instead of the IAP messages)."""
-        error_dict = super()._get_sms_api_error_messages()
-        error_dict.update({
+        return {
             'unregistered': _("Your Infobip API Key / Base URL is missing or invalid (Settings > Infobip SMS)."),
             'insufficient_credit': _("Your Infobip account balance is too low. Top it up on portal.infobip.com."),
             'wrong_number_format': _("The recipient number is invalid. Use the international format, e.g. +855 12 345 678."),
@@ -203,8 +219,7 @@ class SmsApiInfobip(SmsApiBase):
             'registration_needed': _("Your sender ID is not allowed for this destination. Register it on the Infobip portal."),
             'duplicate_message': _("Infobip flagged this message as a duplicate."),
             'server_error': _("Infobip could not process the message. Check the Odoo server log for details."),
-        })
-        return error_dict
+        }
 
     # ------------------------------------------------------------------
     # Internals
