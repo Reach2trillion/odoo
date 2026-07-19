@@ -2,6 +2,20 @@
 <odoo>
     <data noupdate="1">
 
+        <!--
+            NOTE on the salary-rule Python:
+            The rules use the classic/community payroll idiom, which also works
+            on Odoo Enterprise's hr_payroll:
+              * inputs / categories / rules are dictionaries
+                  -> 'CODE' in inputs, inputs['CODE'].amount, categories['GROSS']
+              * the Tax on Salary / NSSF constants are inlined (KHR values and
+                rates) instead of read from hr.rule.parameter, so the rules run
+                on any payroll variant. The hr.rule.parameter records in
+                data/hr_rule_parameter_data.xml remain the documented source of
+                truth for those legal values; update the rule Python if a rate
+                changes.
+        -->
+
         <!-- ======================= Salary Structure ====================== -->
         <record id="hr_payroll_structure_kh_monthly" model="hr.payroll.structure">
             <field name="name">Cambodia: Monthly Salary (បៀវត្សប្រចាំខែ)</field>
@@ -99,9 +113,9 @@
             <field name="sequence">30</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.OT)</field>
+            <field name="condition_python">result = 'OT' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.OT.amount</field>
+            <field name="amount_python_compute">result = inputs['OT'].amount</field>
         </record>
 
         <record id="rule_kh_bonus" model="hr.salary.rule">
@@ -111,9 +125,9 @@
             <field name="sequence">31</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.BONUS)</field>
+            <field name="condition_python">result = 'BONUS' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.BONUS.amount</field>
+            <field name="amount_python_compute">result = inputs['BONUS'].amount</field>
         </record>
 
         <record id="rule_kh_commission" model="hr.salary.rule">
@@ -123,9 +137,9 @@
             <field name="sequence">32</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.COMMISSION)</field>
+            <field name="condition_python">result = 'COMMISSION' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.COMMISSION.amount</field>
+            <field name="amount_python_compute">result = inputs['COMMISSION'].amount</field>
         </record>
 
         <!-- ======================= Taxable Gross ========================= -->
@@ -137,7 +151,7 @@
             <field name="category_id" ref="hr_payroll.GROSS"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = categories.BASIC + categories.ALW</field>
+            <field name="amount_python_compute">result = categories['BASIC'] + categories['ALW']</field>
         </record>
 
         <!-- ==================== Employee Deductions ====================== -->
@@ -148,15 +162,12 @@
             <field name="sequence">110</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="condition_python">result = categories['GROSS'] &gt; 0</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
-gross_khr = categories.GROSS * rate
-wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
-wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
-base_khr = min(max(gross_khr, wage_min), wage_max)
-pension_khr = base_khr * payslip.rule_parameter('l10n_kh_nssf_pension_rate_employee')
-result = -pension_khr / rate</field>
+gross_khr = categories['GROSS'] * rate
+base_khr = min(max(gross_khr, 400000), 1200000)
+result = -(base_khr * 0.02) / rate</field>
             <field name="note">Employee share of the NSSF pension scheme (phase 1: 2%), computed on the monthly contributory wage clamped to the KHR 400,000 - 1,200,000 band.</field>
         </record>
 
@@ -167,22 +178,23 @@ result = -pension_khr / rate</field>
             <field name="sequence">120</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="condition_python">result = categories['GROSS'] &gt; 0</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
-gross_khr = categories.GROSS * rate
-nssf_ee_khr = -(categories.DED) * rate
+gross_khr = categories['GROSS'] * rate
+nssf_ee_khr = -(categories['DED']) * rate
 if employee.l10n_kh_tax_resident == 'non_resident':
-    tax_khr = gross_khr * payslip.rule_parameter('l10n_kh_tos_nonresident_rate')
+    tax_khr = gross_khr * 0.20
 else:
     dependents = employee.l10n_kh_tax_dependents or 0
-    taxable_khr = gross_khr - nssf_ee_khr - dependents * payslip.rule_parameter('l10n_kh_tos_dependent_deduction')
+    taxable_khr = gross_khr - nssf_ee_khr - dependents * 150000
+    brackets = [[0, 1500000, 0.0], [1500000, 2000000, 0.05], [2000000, 8500000, 0.10], [8500000, 12500000, 0.15], [12500000, 0, 0.20]]
     tax_khr = 0.0
-    for bracket in payslip.rule_parameter('l10n_kh_tos_brackets'):
+    for bracket in brackets:
         low = bracket[0]
         high = bracket[1]
         bracket_rate = bracket[2]
-        if taxable_khr > low:
+        if taxable_khr &gt; low:
             upper = taxable_khr if not high else min(taxable_khr, high)
             tax_khr += (upper - low) * bracket_rate
 result = -(max(tax_khr, 0.0)) / rate</field>
@@ -210,9 +222,9 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="sequence">131</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.SENIORITY)</field>
+            <field name="condition_python">result = 'SENIORITY' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.SENIORITY.amount</field>
+            <field name="amount_python_compute">result = inputs['SENIORITY'].amount</field>
             <field name="note">Bi-annual seniority indemnity for unlimited duration contracts; exempted from Tax on Salary within the legal limits, therefore added after tax.</field>
         </record>
 
@@ -223,9 +235,9 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="sequence">132</field>
             <field name="category_id" ref="hr_payroll.ALW"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.NONTAX)</field>
+            <field name="condition_python">result = 'NONTAX' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.NONTAX.amount</field>
+            <field name="amount_python_compute">result = inputs['NONTAX'].amount</field>
         </record>
 
         <!-- ====================== Other Deductions ======================= -->
@@ -236,9 +248,9 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="sequence">140</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.ADVANCE)</field>
+            <field name="condition_python">result = 'ADVANCE' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = -inputs.ADVANCE.amount</field>
+            <field name="amount_python_compute">result = -inputs['ADVANCE'].amount</field>
         </record>
 
         <record id="rule_kh_other_deduction" model="hr.salary.rule">
@@ -248,9 +260,9 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="sequence">141</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.DEDUCTION)</field>
+            <field name="condition_python">result = 'DEDUCTION' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = -inputs.DEDUCTION.amount</field>
+            <field name="amount_python_compute">result = -inputs['DEDUCTION'].amount</field>
         </record>
 
         <!-- ============================ Net ============================== -->
@@ -262,7 +274,7 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="category_id" ref="hr_payroll.NET"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = categories.BASIC + categories.ALW + categories.DED</field>
+            <field name="amount_python_compute">result = categories['BASIC'] + categories['ALW'] + categories['DED']</field>
         </record>
 
         <!-- ================= Employer Contributions ====================== -->
@@ -275,14 +287,12 @@ result = -(max(tax_khr, 0.0)) / rate</field>
             <field name="appears_on_payslip" eval="False"/>
             <field name="appears_on_employee_cost_dashboard" eval="True"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="condition_python">result = categories['GROSS'] &gt; 0</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
-gross_khr = categories.GROSS * rate
-wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
-wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
-base_khr = min(max(gross_khr, wage_min), wage_max)
-result = base_khr * payslip.rule_parameter('l10n_kh_nssf_orc_rate_employer') / rate</field>
+gross_khr = categories['GROSS'] * rate
+base_khr = min(max(gross_khr, 400000), 1200000)
+result = base_khr * 0.008 / rate</field>
         </record>
 
         <record id="rule_kh_nssf_health_er" model="hr.salary.rule">
@@ -294,14 +304,12 @@ result = base_khr * payslip.rule_parameter('l10n_kh_nssf_orc_rate_employer') / r
             <field name="appears_on_payslip" eval="False"/>
             <field name="appears_on_employee_cost_dashboard" eval="True"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="condition_python">result = categories['GROSS'] &gt; 0</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
-gross_khr = categories.GROSS * rate
-wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
-wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
-base_khr = min(max(gross_khr, wage_min), wage_max)
-result = base_khr * payslip.rule_parameter('l10n_kh_nssf_health_rate_employer') / rate</field>
+gross_khr = categories['GROSS'] * rate
+base_khr = min(max(gross_khr, 400000), 1200000)
+result = base_khr * 0.026 / rate</field>
         </record>
 
         <record id="rule_kh_nssf_pension_er" model="hr.salary.rule">
@@ -313,14 +321,12 @@ result = base_khr * payslip.rule_parameter('l10n_kh_nssf_health_rate_employer') 
             <field name="appears_on_payslip" eval="False"/>
             <field name="appears_on_employee_cost_dashboard" eval="True"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = categories.GROSS > 0</field>
+            <field name="condition_python">result = categories['GROSS'] &gt; 0</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">rate = contract.company_id.l10n_kh_tos_exchange_rate or 1.0
-gross_khr = categories.GROSS * rate
-wage_min = payslip.rule_parameter('l10n_kh_nssf_wage_min')
-wage_max = payslip.rule_parameter('l10n_kh_nssf_wage_max')
-base_khr = min(max(gross_khr, wage_min), wage_max)
-result = base_khr * payslip.rule_parameter('l10n_kh_nssf_pension_rate_employer') / rate</field>
+gross_khr = categories['GROSS'] * rate
+base_khr = min(max(gross_khr, 400000), 1200000)
+result = base_khr * 0.02 / rate</field>
         </record>
 
         <record id="rule_kh_fbt" model="hr.salary.rule">
@@ -332,9 +338,9 @@ result = base_khr * payslip.rule_parameter('l10n_kh_nssf_pension_rate_employer')
             <field name="appears_on_payslip" eval="False"/>
             <field name="appears_on_employee_cost_dashboard" eval="True"/>
             <field name="condition_select">python</field>
-            <field name="condition_python">result = bool(inputs.FRINGE)</field>
+            <field name="condition_python">result = 'FRINGE' in inputs</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = inputs.FRINGE.amount * payslip.rule_parameter('l10n_kh_fbt_rate')</field>
+            <field name="amount_python_compute">result = inputs['FRINGE'].amount * 0.20</field>
             <field name="note">20% tax borne by the employer on the total value of fringe benefits provided (entered as the FRINGE other input).</field>
         </record>
 
