@@ -54,25 +54,22 @@ class SaleOrder(models.Model):
         return "%s %s" % ("{:,.2f}".format(amount), self.currency_id.symbol)
 
     def _get_telegram_order_lines_text(self):
-        """Build the itemized product list (unit, sell price, subtotal).
+        """Build a compact, easy-to-read product list: one line per product.
 
         Returns:
-            str: One line per order line, e.g.
-                "1. Product\n    2 Units x 10.00 $ = 20.00 $"
+            str: e.g. "• ABJ-Mask — 2 x 3.00 $ = 6.00 $"
         """
         self.ensure_one()
         lines = self.order_line.filtered(lambda l: not l.display_type)
         return "\n".join(
-            "%(index)s. %(product)s\n    %(qty)s %(uom)s x %(price)s = <b>%(subtotal)s</b>"
+            "• %(product)s — %(qty)s x %(price)s = <b>%(subtotal)s</b>"
             % {
-                'index': index,
                 'product': line.product_id.name,
                 'qty': ("%g" % line.product_uom_qty),
-                'uom': line.product_uom.name,
                 'price': self._format_telegram_amount(line.price_unit),
                 'subtotal': self._format_telegram_amount(line.price_subtotal),
             }
-            for index, line in enumerate(lines, start=1)
+            for line in lines
         )
 
     def _get_telegram_message_text(self):
@@ -83,13 +80,12 @@ class SaleOrder(models.Model):
         """
         self.ensure_one()
         return _(
-    "ជូនចំពោះ %(partner)s,\n\n"
-    "Quote តម្លៃរបស់លោកអ្នកត្រូវបានរៀបចំរួចរាល់ហើយ។\n"
-    "លេខយោង: <b>%(order)s</b>\n\n"
+    "ជូនចំពោះ %(partner)s 💜\n\n"
+    "🧾 Quote លេខ: <b>%(order)s</b>\n\n"
     "%(lines)s\n\n"
-    "សរុប: <b>%(total)s</b>\n\n"
-    "សូមពិនិត្យឯកសារ PDF ដែលបានភ្ជាប់មកជាមួយ។\n\n"
-    "ដោយក្តីគោរព ពី ABJ Skincare"
+    "💰 សរុប: <b>%(total)s</b>\n\n"
+    "📎 PDF ភ្ជាប់មកជាមួយ\n"
+    "អរគុណ ពី ABJ Skincare 💜"
       ) % {
     'partner': self.partner_id.name,
     'order': self.name,
