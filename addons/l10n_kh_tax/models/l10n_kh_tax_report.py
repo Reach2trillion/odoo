@@ -14,7 +14,7 @@ MONTHS = [
     ('12', 'December'),
 ]
 
-# (code, section, sequence, Khmer / English label, tax category or None)
+# (code, section, sequence, Khmer / English label, ledger tax category)
 REPORT_LINES = [
     ('PRE01', 'ptoi', 10,
      "ប្រាក់រំដោះពន្ធលើប្រាក់ចំណូល ១% / Prepayment of Tax on Income 1%", None),
@@ -36,26 +36,41 @@ REPORT_LINES = [
      "អតប លើការលក់ / VAT Output (Sales 10%)", 'vat_sale'),
     ('VAT02', 'vat', 31,
      "អតប លើការទិញ / VAT Input (Purchases 10%)", 'vat_purchase'),
-    ('VAT03', 'vat', 32,
+    ('VAT06', 'vat', 32,
+     "អតប ឥណទានយោងពីខែមុន / VAT Credit Brought Forward", None),
+    ('VAT03', 'vat', 33,
      "អតប ត្រូវបង់ / VAT Payable", None),
-    ('VAT04', 'vat', 33,
+    ('VAT04', 'vat', 34,
      "អតប ឥណទានយោងទៅមុខ / VAT Credit Carried Forward", None),
-    ('OTH01', 'other', 40,
+    ('VAT05', 'vat', 35,
+     "អតប កាតព្វកិច្ចបញ្ច្រាស / VAT Reverse Charge (e-Commerce)",
+     'vat_reverse'),
+    ('TOS01', 'salary', 40,
+     "ពន្ធលើប្រាក់បៀវត្ស / Tax on Salary", 'tos'),
+    ('TOS02', 'salary', 41,
+     "ពន្ធលើអត្ថប្រយោជន៍បន្ថែម ២០% / Fringe Benefit Tax 20%", 'fbt'),
+    ('OTH01', 'other', 50,
      "ពន្ធលើការស្នាក់នៅ ២% / Accommodation Tax 2%", 'accommodation'),
-    ('OTH02', 'other', 41,
+    ('OTH02', 'other', 51,
      "ពន្ធបំភ្លឺសាធារណៈ ៣% / Public Lighting Tax 3%", 'plt'),
-    ('OTH03', 'other', 42,
+    ('OTH03', 'other', 52,
      "អាករពិសេស / Specific Tax", 'specific'),
-    ('TOS01', 'salary', 50,
-     "ពន្ធលើប្រាក់បៀវត្ស / Tax on Salary", None),
+    ('OTH04', 'other', 53,
+     "ពន្ធរំដោះលើការបែងចែកភាគលាភ / Advance Tax on Dividend Distribution",
+     'atdd'),
+    ('OTH05', 'other', 54,
+     "ពន្ធផ្សេងទៀត / Other Taxes", 'other'),
 ]
+
+# Codes that are informative only and must not be added to the total payable.
+INFORMATIVE_CODES = ('VAT01', 'VAT02', 'VAT04', 'VAT06')
 
 SECTIONS = [
     ('ptoi', "Prepayment of Tax on Income"),
     ('wht', "Withholding Tax"),
     ('vat', "Value Added Tax"),
+    ('salary', "Salary Taxes"),
     ('other', "Other Taxes"),
-    ('salary', "Tax on Salary"),
 ]
 
 
@@ -63,7 +78,7 @@ class L10nKhTaxReport(models.Model):
     _name = 'l10n.kh.tax.report'
     _description = "Cambodia Monthly Tax Declaration (GDT)"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'year desc, month desc, company_id'
+    _order = 'date_from desc, company_id'
     _rec_name = 'name'
 
     name = fields.Char(compute='_compute_name', store=True)
@@ -91,16 +106,19 @@ class L10nKhTaxReport(models.Model):
         default='draft', required=True, tracking=True, copy=False)
     line_ids = fields.One2many(
         'l10n.kh.tax.report.line', 'report_id', string="Declaration Lines")
+    ledger_entry_ids = fields.One2many(
+        'l10n.kh.tax.ledger', 'report_id', string="Tax Ledger Entries")
+    ledger_entry_count = fields.Integer(
+        compute='_compute_ledger_entry_count')
     turnover = fields.Monetary(
         string="Monthly Turnover (Taxable)", readonly=True,
-        help="Turnover of the period computed from the income accounts "
-             "flagged 'Report to GDT (Cambodia)', excluding entries flagged "
-             "'Exclude from Cambodia Tax Report'. Basis of the 1% PToI.")
+        help="Turnover of the period from the GDT Tax Ledger (sales entries: "
+             "VAT taxable, zero-rated and non-VAT turnover). Basis of the 1% "
+             "Prepayment of Tax on Income.")
     total_tax_amount = fields.Monetary(
         string="Total Tax Payable", readonly=True, tracking=True)
-    total_tax_amount_khr = fields.Monetary(
-        string="Total Tax Payable (KHR)", readonly=True,
-        currency_field='currency_id')
+    total_tax_amount_khr = fields.Float(
+        string="Total Tax Payable (KHR)", readonly=True, digits=(16, 0))
     filed_date = fields.Date(readonly=True, copy=False, tracking=True)
     filed_by_id = fields.Many2one(
         'res.users', string="Filed By", readonly=True, copy=False)
@@ -131,86 +149,104 @@ class L10nKhTaxReport(models.Model):
             report.date_from = date(report.year, month, 1)
             report.date_to = date(report.year, month, last_day)
 
+    def _compute_ledger_entry_count(self):
+        for report in self:
+            report.ledger_entry_count = self.env['l10n.kh.tax.ledger'] \
+                .search_count(report._get_ledger_domain())
+
     # ------------------------------------------------------------------
-    # Computation
+    # Tax ledger helpers
     # ------------------------------------------------------------------
-    def _get_move_line_domain(self):
+    def _get_ledger_domain(self):
+        """Entries of the period that belong to this declaration: either not
+        yet assigned to any declaration, or already assigned to this one."""
         self.ensure_one()
         return [
             ('company_id', '=', self.company_id.id),
-            ('parent_state', '=', 'posted'),
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
-            ('move_id.l10n_kh_exclude_tax_report', '=', False),
+            '|', ('report_id', '=', False), ('report_id', '=', self.id),
         ]
 
-    def _compute_turnover(self):
-        """Taxable turnover = income posted on GDT-reportable accounts."""
+    def _get_ledger_entries(self, entry_types=None):
         self.ensure_one()
-        groups = self.env['account.move.line']._read_group(
-            self._get_move_line_domain() + [
-                ('account_id.account_type', 'in', ('income', 'income_other')),
-                ('account_id.l10n_kh_tax_reportable', '=', True),
-                ('display_type', 'not in', ('line_section', 'line_note')),
-            ],
-            aggregates=['balance:sum'],
-        )
-        balance = groups[0][0] if groups else 0.0
-        return -(balance or 0.0)
+        domain = self._get_ledger_domain()
+        if entry_types:
+            domain.append(('entry_type', 'in', entry_types))
+        return self.env['l10n.kh.tax.ledger'].search(
+            domain, order='date, id')
 
-    def _compute_tax_amounts(self):
-        """Return {category: (base, tax_amount)} from posted tax lines."""
+    def _get_registers(self):
+        """Registers printed as annexes for the government auditor."""
         self.ensure_one()
-        result = {}
-        groups = self.env['account.move.line']._read_group(
-            self._get_move_line_domain() + [
-                ('tax_line_id.l10n_kh_tax_category', '!=', False),
-            ],
-            groupby=['tax_line_id'],
-            aggregates=['balance:sum', 'tax_base_amount:sum'],
-        )
-        for tax, balance, base in groups:
-            category = tax.l10n_kh_tax_category
-            base_total, tax_total = result.get(category, (0.0, 0.0))
-            # Sales taxes and withholding taxes are posted in credit
-            # (negative balance): report them as positive amounts.
-            # Purchase VAT is posted in debit (positive balance).
-            if category == 'vat_purchase':
-                amount = balance or 0.0
-            else:
-                amount = -(balance or 0.0)
-            result[category] = (base_total + abs(base or 0.0),
-                                tax_total + amount)
-        return result
+        return [
+            (_("Sales Register (VAT Output, Zero-rated & Turnover)"),
+             self._get_ledger_entries(['sale'])),
+            (_("Purchase Register (VAT Input)"),
+             self._get_ledger_entries(['purchase'])),
+            (_("Withholding Tax Register"),
+             self._get_ledger_entries(['wht'])),
+            (_("Salary & Other Taxes Register"),
+             self._get_ledger_entries(['salary', 'other'])),
+        ]
 
-    def _compute_tax_on_salary(self):
-        """Sum Tax on Salary from Cambodian payslips when payroll is installed."""
+    def action_view_ledger(self):
         self.ensure_one()
-        if 'hr.payslip' not in self.env:
-            return 0.0
-        payslips = self.env['hr.payslip'].search([
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("GDT Tax Ledger - %s", self.name),
+            'res_model': 'l10n.kh.tax.ledger',
+            'view_mode': 'list,form,pivot',
+            'domain': self._get_ledger_domain(),
+            'context': {
+                'default_company_id': self.company_id.id,
+                'default_date': self.date_to,
+            },
+        }
+
+    # ------------------------------------------------------------------
+    # Computation
+    # ------------------------------------------------------------------
+    def _get_previous_vat_credit(self):
+        """VAT credit carried forward from the previous month's declaration
+        (the excess input VAT offsets the following months' output VAT)."""
+        self.ensure_one()
+        prev_year, prev_month = (self.year, int(self.month) - 1) \
+            if int(self.month) > 1 else (self.year - 1, 12)
+        prev_line = self.env['l10n.kh.tax.report.line'].search([
             ('company_id', '=', self.company_id.id),
-            ('state', 'in', ('done', 'paid')),
-            ('date_from', '>=', self.date_from),
-            ('date_to', '<=', self.date_to),
-        ])
-        lines = payslips.mapped('line_ids').filtered(
-            lambda line: line.code in ('TOS', 'ToS', 'TAX', 'TOSNR'))
-        return abs(sum(lines.mapped('total')))
+            ('code', '=', 'VAT04'),
+            ('report_id.year', '=', prev_year),
+            ('report_id.month', '=', str(prev_month)),
+        ], limit=1)
+        return prev_line.tax_amount or 0.0
 
     def action_compute(self):
         for report in self:
             if report.state != 'draft':
                 raise UserError(_("Only draft declarations can be recomputed."))
+            # Rebuild the tax book of the period from the reportable Odoo
+            # documents (manual and locked entries are preserved), then
+            # compute the declaration from the tax book only.
+            self.env['l10n.kh.tax.ledger']._sync_period(
+                report.company_id, report.date_from, report.date_to)
             report.line_ids.unlink()
 
-            turnover = report._compute_turnover()
-            tax_amounts = report._compute_tax_amounts()
-            tos_amount = report._compute_tax_on_salary()
+            amounts = {}
+            groups = self.env['l10n.kh.tax.ledger']._read_group(
+                report._get_ledger_domain(),
+                groupby=['tax_category'],
+                aggregates=['base_amount:sum', 'tax_amount:sum'],
+            )
+            for category, base, tax in groups:
+                amounts[category] = (base or 0.0, tax or 0.0)
 
-            vat_out_base, vat_out = tax_amounts.get('vat_sale', (0.0, 0.0))
-            vat_in_base, vat_in = tax_amounts.get('vat_purchase', (0.0, 0.0))
-            vat_net = vat_out - vat_in
+            turnover = sum(amounts.get(cat, (0.0, 0.0))[0]
+                           for cat in ('vat_sale', 'vat_zero', 'turnover'))
+            vat_out_base, vat_out = amounts.get('vat_sale', (0.0, 0.0))
+            vat_in_base, vat_in = amounts.get('vat_purchase', (0.0, 0.0))
+            vat_credit_bf = report._get_previous_vat_credit()
+            vat_net = vat_out - vat_in - vat_credit_bf
             vat_payable = max(vat_net, 0.0)
             vat_credit = max(-vat_net, 0.0)
 
@@ -223,16 +259,15 @@ class L10nKhTaxReport(models.Model):
                     base, amount = vat_out_base, vat_out
                 elif code == 'VAT02':
                     base, amount = vat_in_base, vat_in
+                elif code == 'VAT06':
+                    base, amount = 0.0, vat_credit_bf
                 elif code == 'VAT03':
                     base, amount = 0.0, vat_payable
                 elif code == 'VAT04':
                     base, amount = 0.0, vat_credit
-                elif code == 'TOS01':
-                    base, amount = 0.0, tos_amount
                 else:
-                    base, amount = tax_amounts.get(category, (0.0, 0.0))
-                # VAT01/VAT02/VAT04 are informative; VAT03 carries the payable.
-                if code not in ('VAT01', 'VAT02', 'VAT04'):
+                    base, amount = amounts.get(category, (0.0, 0.0))
+                if code not in INFORMATIVE_CODES:
                     total += amount
                 lines.append((0, 0, {
                     'code': code,
@@ -250,8 +285,8 @@ class L10nKhTaxReport(models.Model):
                 'total_tax_amount_khr': total * report.exchange_rate,
             })
             report.message_post(body=_(
-                "Declaration computed: turnover %(turnover)s, "
-                "total tax payable %(total)s.",
+                "Declaration computed from the GDT Tax Ledger: turnover "
+                "%(turnover)s, total tax payable %(total)s.",
                 turnover=turnover, total=total))
         return True
 
@@ -260,9 +295,19 @@ class L10nKhTaxReport(models.Model):
     # ------------------------------------------------------------------
     def action_confirm(self):
         for report in self:
+            if report.state != 'draft':
+                raise UserError(_("Only draft declarations can be confirmed."))
             if not report.line_ids:
                 raise UserError(_("Compute the declaration before confirming it."))
+            entries = report._get_ledger_entries()
+            entries.with_context(l10n_kh_tax_lock=True).write({
+                'report_id': report.id,
+                'locked': True,
+            })
             report.state = 'confirmed'
+            report.message_post(body=_(
+                "Declaration confirmed: %s tax ledger entries locked for "
+                "the government audit trail.", len(entries)))
         return True
 
     def action_mark_filed(self):
@@ -281,26 +326,29 @@ class L10nKhTaxReport(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        self.write({'state': 'draft', 'filed_date': False,
-                    'filed_by_id': False})
+        for report in self:
+            report.ledger_entry_ids.with_context(l10n_kh_tax_lock=True).write({
+                'locked': False,
+                'report_id': False,
+            })
+            report.write({'state': 'draft', 'filed_date': False,
+                          'filed_by_id': False})
         return True
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_confirmed(self):
+        if any(report.state != 'draft' for report in self):
+            raise UserError(_(
+                "Confirmed or filed declarations cannot be deleted: they "
+                "lock the tax ledger entries of the government audit trail. "
+                "Reset the declaration to draft first."))
 
     # ------------------------------------------------------------------
     # e-Filing export
     # ------------------------------------------------------------------
-    def _get_efiling_moves(self, move_types):
-        self.ensure_one()
-        return self.env['account.move'].search([
-            ('company_id', '=', self.company_id.id),
-            ('state', '=', 'posted'),
-            ('move_type', 'in', move_types),
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-            ('l10n_kh_exclude_tax_report', '=', False),
-        ], order='date, name')
-
     def action_export_efiling(self):
-        """Build the GDT e-Filing workbook (sales & purchase transaction lists)."""
+        """Build the GDT e-Filing workbook (sales, purchase and withholding
+        registers) from the tax ledger."""
         self.ensure_one()
         try:
             import xlsxwriter
@@ -317,42 +365,43 @@ class L10nKhTaxReport(models.Model):
         date_fmt = workbook.add_format(
             {'num_format': 'dd-mm-yyyy', 'border': 1})
 
+        categories = dict(
+            self.env['l10n.kh.tax.ledger']._fields['tax_category'].selection)
         sheets = [
-            (_("Sales"), ('out_invoice', 'out_refund'),
-             _("Customer TIN"), _("Customer Name")),
-            (_("Purchases"), ('in_invoice', 'in_refund'),
-             _("Supplier TIN"), _("Supplier Name")),
+            (_("Sales"), ['sale']),
+            (_("Purchases"), ['purchase']),
+            (_("Withholding Tax"), ['wht']),
+            (_("Salary & Other"), ['salary', 'other']),
         ]
-        for sheet_name, move_types, tin_label, name_label in sheets:
+        for sheet_name, entry_types in sheets:
             sheet = workbook.add_worksheet(sheet_name)
             headers = [
-                _("No."), _("Date"), _("Invoice No."), tin_label, name_label,
-                _("Description"), _("Amount Excl. Tax"), _("VAT Amount"),
-                _("Total Amount"), _("Total (KHR)"),
+                _("No."), _("Date"), _("Invoice / Document No."), _("TIN"),
+                _("Name"), _("Description"), _("Tax Category"),
+                _("Amount Excl. Tax"), _("Tax Amount"), _("Total Amount"),
+                _("Total (KHR)"),
             ]
             for col, header in enumerate(headers):
                 sheet.write(0, col, header, header_fmt)
             sheet.set_column(0, 0, 5)
-            sheet.set_column(1, 5, 18)
-            sheet.set_column(6, 9, 16)
+            sheet.set_column(1, 6, 20)
+            sheet.set_column(7, 10, 16)
 
-            for row, move in enumerate(self._get_efiling_moves(move_types),
-                                       start=1):
-                sign = -1 if move.move_type in ('out_refund', 'in_refund') else 1
-                untaxed = sign * move.amount_untaxed
-                total = sign * move.amount_total
-                vat = total - untaxed
+            for row, entry in enumerate(
+                    self._get_ledger_entries(entry_types), start=1):
                 sheet.write(row, 0, row, cell_fmt)
-                sheet.write_datetime(row, 1, move.date, date_fmt)
-                sheet.write(row, 2, move.name or '', cell_fmt)
-                sheet.write(row, 3, move.partner_id.vat or '', cell_fmt)
-                sheet.write(row, 4, move.partner_id.name or '', cell_fmt)
-                sheet.write(row, 5, move.ref or move.invoice_origin or '',
+                sheet.write_datetime(row, 1, entry.date, date_fmt)
+                sheet.write(row, 2, entry.invoice_number or '', cell_fmt)
+                sheet.write(row, 3, entry.partner_tin or '', cell_fmt)
+                sheet.write(row, 4, entry.partner_name or '', cell_fmt)
+                sheet.write(row, 5, entry.description or '', cell_fmt)
+                sheet.write(row, 6, categories.get(entry.tax_category, ''),
                             cell_fmt)
-                sheet.write_number(row, 6, untaxed, money_fmt)
-                sheet.write_number(row, 7, vat, money_fmt)
-                sheet.write_number(row, 8, total, money_fmt)
-                sheet.write_number(row, 9, total * self.exchange_rate,
+                sheet.write_number(row, 7, entry.base_amount, money_fmt)
+                sheet.write_number(row, 8, entry.tax_amount, money_fmt)
+                sheet.write_number(row, 9, entry.total_amount, money_fmt)
+                sheet.write_number(row, 10,
+                                   entry.total_amount * self.exchange_rate,
                                    money_fmt)
         workbook.close()
 
@@ -393,6 +442,9 @@ class L10nKhTaxReport(models.Model):
         for company in companies:
             if not company._l10n_kh_is_cambodian():
                 continue
+            # Idempotent: also creates the Cambodian taxes for companies
+            # added after installation, once their chart of accounts exists.
+            company._l10n_kh_create_taxes()
             existing = self.search([
                 ('company_id', '=', company.id),
                 ('year', '=', year),
@@ -428,8 +480,9 @@ class L10nKhTaxReportLine(models.Model):
     name = fields.Char(string="Description", required=True)
     base_amount = fields.Monetary(string="Tax Base")
     tax_amount = fields.Monetary(string="Tax Amount")
-    amount_khr = fields.Monetary(
-        string="Tax Amount (KHR)", compute='_compute_amount_khr', store=True)
+    amount_khr = fields.Float(
+        string="Tax Amount (KHR)", compute='_compute_amount_khr', store=True,
+        digits=(16, 0))
 
     @api.depends('tax_amount', 'report_id.exchange_rate')
     def _compute_amount_khr(self):

@@ -1,78 +1,96 @@
 # Cambodia - Accounting & Tax Reporting (l10n_kh_tax)
 
-Odoo 18 module for Cambodian monthly tax compliance with the **General
-Department of Taxation (GDT)**: VAT, Withholding Tax, Prepayment of Tax on
-Income, monthly declaration and **e-Filing** export.
+Odoo 18 module for Cambodian tax compliance with the **General Department of
+Taxation (GDT)**: a self-contained **GDT Tax Ledger** the government checks
+(independent from the Odoo accounting), monthly and annual declarations,
+VAT / Withholding Tax / Prepayment of Tax on Income, and **e-Filing** export.
+
+## Key concept: the tax book the government checks
+
+The **GDT Tax Ledger** (*Cambodia Tax → GDT Tax Ledger*) is a separate tax
+book that contains **only** what is reported to the tax administration — the
+rest of the Odoo accounting is excluded:
+
+* When a monthly declaration is computed, the ledger is synchronised from
+  the **reportable** Odoo documents only: posted entries not flagged
+  *Exclude from Cambodia Tax Report*; non-VAT income is taken only from
+  accounts flagged *Report to GDT (Cambodia)* (income carrying a Cambodian
+  VAT tax is always declared through the VAT registers, as required — use
+  the entry-level exclude flag for documents that must stay out entirely).
+* **Manual entries** can be added directly in the tax book without touching
+  the Odoo accounting.
+* Confirming a declaration **locks** its ledger entries — a tamper-proof
+  audit trail for the government inspection.
+* A dedicated **Government Auditor (GDT)** security group gives the
+  inspector **read-only** access to the tax book and the declarations, and
+  **no access** to the rest of the Odoo accounting.
 
 ## Features
 
 ### 1. Cambodian taxes created automatically
-On installation (and for every new Cambodian company), the module creates the
-taxes required by the Law on Taxation, each mapped to a **Cambodia Tax
-Category** that feeds the monthly declaration:
-
-| Tax | Rate | Type |
-|---|---|---|
-| VAT Output (Sales) | 10% | Sale |
-| VAT Zero-rated (Export) | 0% | Sale |
-| VAT Input (Purchases) | 10% | Purchase |
-| WHT Rental (Resident) | 10% | Purchase (withheld) |
-| WHT Services (Resident) | 15% | Purchase (withheld) |
-| WHT Royalties (Resident) | 15% | Purchase (withheld) |
-| WHT Fixed Deposit Interest | 6% | Purchase (withheld) |
-| WHT Saving Interest | 4% | Purchase (withheld) |
-| WHT Non-Resident | 14% | Purchase (withheld) |
-| Accommodation Tax | 2% | Sale |
-| Public Lighting Tax | 3% | Sale |
+VAT 10% (sales/purchases), VAT 0% (export), WHT 10% rent, WHT 15% services
+and royalties, WHT 6%/4% interest, WHT 14% non-resident, Accommodation Tax
+2%, Public Lighting Tax 3%. Additional categories are available for mapping
+your own taxes: reverse-charge VAT (e-commerce), Tax on Salary, Fringe
+Benefit Tax 20%, Specific Tax, Advance Tax on Dividend Distribution.
 
 ### 2. Choose what is reported to the GDT
-* **Account level** — every account has a **Report to GDT (Cambodia)**
-  checkbox. Only selected accounts feed the taxable turnover (basis of the 1%
-  Prepayment of Tax on Income). Untick it for payments/accounts that must not
-  be reported. Manage them from *Cambodia Tax > Configuration > GDT
-  Reportable Accounts*.
-* **Entry level** — every invoice, bill or payment has an **Exclude from
-  Cambodia Tax Report** checkbox to keep a single document out of the
-  declaration and the e-Filing export.
+* **Account level** — *Report to GDT (Cambodia)* checkbox on every account
+  (*Configuration → GDT Reportable Accounts*).
+* **Entry level** — *Exclude from Cambodia Tax Report* checkbox on every
+  invoice, bill or payment.
 
 ### 3. Monthly Tax Declaration (auto-generated)
-A scheduled action creates the declaration of the previous month on the 1st
-of each month for every Cambodian company, computed from posted entries:
+Created automatically on the 1st of each month by a scheduled action and
+computed **from the tax ledger**:
 
-* **PRE01** — Prepayment of Tax on Income, 1% of monthly taxable turnover
-* **WHT01-06** — Withholding taxes (resident & non-resident)
-* **VAT01-04** — Output VAT, Input VAT, VAT payable / credit carried forward
-* **OTH01-03** — Accommodation Tax, Public Lighting Tax, Specific Tax
-* **TOS01** — Tax on Salary (pulled from Cambodian payroll when installed)
+* PRE01 — Prepayment of Tax on Income 1% of taxable turnover
+* WHT01-06 — Withholding taxes (resident & non-resident)
+* VAT01-06 — Output, input, credit brought forward from the previous
+  month, payable, credit carried forward, reverse charge
+* TOS01-02 — Tax on Salary (from Cambodian payroll) & Fringe Benefit Tax
+* OTH01-05 — Accommodation, Public Lighting, Specific, Dividend, other
 
-Amounts are shown in company currency and converted to **KHR** using the
-official monthly exchange rate entered on the declaration.
+Amounts are converted to **KHR** with the official monthly exchange rate.
+The PDF declaration includes the **sales, purchase, withholding and salary
+registers as annexes** for the government inspection.
 
-### 4. e-Filing
-The **Export e-Filing (Excel)** button generates a workbook with the sales
-and purchase transaction lists (invoice number, customer/supplier TIN, base,
-VAT, total, KHR total) following the GDT e-Filing upload template, attached
-to the declaration for the audit trail.
+### 4. Annual Tax on Income declaration
+20% Tax on Income vs 1% Minimum Tax (with exemption flag), credit of the
+monthly PToI prepayments, balance payable / credit carried forward, and the
+annual Patent Tax by taxpayer classification. Printable bilingual PDF.
 
-### 5. Audit support
-* Workflow **Draft → Confirmed → Filed**; filed declarations are locked.
-* Full chatter/tracking history, filed date & user, audit notes tab.
-* **Tax Officer** and **Tax Manager / Auditor** security groups.
-* Printable bilingual Khmer/English declaration (PDF).
+### 5. e-Filing
+The **Export e-Filing (Excel)** button produces a workbook with the Sales,
+Purchases, Withholding Tax and Salary & Other registers (document number,
+TIN, partner, base, tax, totals, KHR) following the GDT e-Filing upload
+template, attached to the declaration for the audit trail.
+
+### 6. Audit support
+* Workflow **Draft → Confirmed → Filed**; confirmed declarations lock their
+  ledger entries and cannot be deleted; full chatter/tracking, filed date &
+  user, audit notes.
+* Security groups: **Tax Officer**, **Tax Manager**, **Government Auditor
+  (GDT)** (read-only on the tax book and declarations; no access to the
+  Odoo accounting). Note: the auditor is still a regular internal user —
+  like any employee login they can read shared data such as contacts. For a
+  stricter setup, hand the auditor the printed declaration with its
+  register annexes and the e-Filing export instead of a login.
 
 ## Configuration
-1. Install the module (application *Cambodia Tax* appears in the main menu).
-2. On the company form, tab **Cambodia Tax (GDT)**: fill the TIN, taxpayer
-   classification, tax branch, e-Filing account and default KHR rate.
-3. Review *Configuration > GDT Reportable Accounts* and untick the accounts
+1. Install the module (application *Cambodia Tax* in the main menu).
+2. Company form → **Cambodia Tax (GDT)** tab: TIN, taxpayer classification,
+   tax branch, e-Filing account, default KHR rate.
+3. Review *Configuration → GDT Reportable Accounts* and untick the accounts
    that must not be reported.
-4. Use the Cambodian taxes on your invoices/bills as usual.
+4. Give the tax inspector a user in the **Government Auditor (GDT)** group.
 
 ## Legal references
-* Law on Taxation (as amended) & Law on Financial Management
-* Prakas on VAT (10%), Prakas 372 on Withholding Tax
+* Law on Taxation (as amended) & annual Laws on Financial Management
+* Prakas on VAT (10%), Prakas 372 on Withholding Tax, Prakas on ToS
 * Monthly declarations due by the **25th of the following month** via the
-  GDT e-Filing system (https://efiling.tax.gov.kh)
+  GDT e-Filing system (https://efiling.tax.gov.kh); the annual ToI return
+  within **3 months** of the year end.
 
-> This module is a compliance aid. Always verify the declaration with your
+> This module is a compliance aid. Always verify the declarations with your
 > tax advisor before filing; rates and forms may change with new Prakas.

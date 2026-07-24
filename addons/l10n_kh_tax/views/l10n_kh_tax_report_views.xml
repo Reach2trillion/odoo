@@ -17,6 +17,7 @@
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'confirmed'"
                        decoration-success="state == 'filed'"/>
+                <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -28,13 +29,15 @@
             <form string="Monthly Tax Declaration">
                 <header>
                     <button name="action_compute" type="object" string="Compute"
-                            class="btn-primary" invisible="state != 'draft'"/>
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
                     <button name="action_confirm" type="object" string="Confirm"
                             class="btn-primary" invisible="state != 'draft'"
                             groups="l10n_kh_tax.group_l10n_kh_tax_manager"/>
                     <button name="action_export_efiling" type="object"
                             string="Export e-Filing (Excel)"
-                            invisible="state == 'draft'"/>
+                            invisible="state == 'draft'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
                     <button name="action_mark_filed" type="object"
                             string="Mark as Filed"
                             class="btn-success" invisible="state != 'confirmed'"
@@ -46,6 +49,13 @@
                            statusbar_visible="draft,confirmed,filed"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_ledger" type="object"
+                                class="oe_stat_button" icon="fa-book">
+                            <field name="ledger_entry_count" widget="statinfo"
+                                   string="Tax Ledger"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
                     </div>

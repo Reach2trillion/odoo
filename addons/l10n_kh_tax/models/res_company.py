@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import api, fields, models
+from odoo import fields, models
 
-# (category, name, type_tax_use, amount, description on invoice)
+# (category, name, type_tax_use, amount, label on invoice)
 KH_TAXES = [
     ('vat_sale', "VAT 10% (Sales)", 'sale', 10.0, "VAT 10%"),
     ('vat_zero', "VAT 0% (Export / Zero-rated)", 'sale', 0.0, "VAT 0%"),
@@ -56,15 +56,25 @@ class ResCompany(models.Model):
 
     def _l10n_kh_is_cambodian(self):
         self.ensure_one()
-        return self.country_id.code == 'KH' or not self.country_id
+        return self.country_id.code == 'KH'
 
     def _l10n_kh_create_taxes(self):
-        """Create the standard Cambodian taxes for the companies (idempotent)."""
+        """Create the standard Cambodian taxes for the companies (idempotent).
+
+        Companies whose chart of accounts is not installed yet are skipped:
+        creating a tax requires an existing tax group / fiscal country, which
+        only exist once the chart template is loaded. The daily cron retries,
+        so such companies get their taxes as soon as the chart is installed.
+        """
         Tax = self.env['account.tax'].sudo()
         for company in self:
             if not company._l10n_kh_is_cambodian():
                 continue
-            for category, name, tax_use, amount, description in KH_TAXES:
+            if not company.chart_template or not self.env['account.tax.group'] \
+                    .sudo().with_company(company).search(
+                        [('company_id', '=', company.id)], limit=1):
+                continue
+            for category, name, tax_use, amount, label in KH_TAXES:
                 existing = Tax.with_company(company).search([
                     ('l10n_kh_tax_category', '=', category),
                     ('type_tax_use', '=', tax_use),
@@ -77,13 +87,7 @@ class ResCompany(models.Model):
                     'amount_type': 'percent',
                     'amount': amount,
                     'type_tax_use': tax_use,
-                    'description': description,
+                    'invoice_label': label,
                     'l10n_kh_tax_category': category,
                     'company_id': company.id,
                 })
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        companies = super().create(vals_list)
-        companies._l10n_kh_create_taxes()
-        return companies

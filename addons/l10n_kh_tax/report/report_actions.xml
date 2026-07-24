@@ -10,4 +10,15 @@
         <field name="binding_model_id" ref="model_l10n_kh_tax_report"/>
         <field name="binding_type">report</field>
     </record>
+
+    <record id="action_report_l10n_kh_annual_tax_declaration" model="ir.actions.report">
+        <field name="name">Annual Tax on Income Declaration (GDT)</field>
+        <field name="model">l10n.kh.annual.tax.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_kh_tax.report_annual_tax_declaration</field>
+        <field name="report_file">l10n_kh_tax.report_annual_tax_declaration</field>
+        <field name="print_report_name">'GDT_Annual_Declaration_%s' % (object.year)</field>
+        <field name="binding_model_id" ref="model_l10n_kh_annual_tax_report"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

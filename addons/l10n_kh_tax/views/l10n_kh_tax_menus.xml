@@ -3,13 +3,25 @@
     <menuitem id="menu_l10n_kh_tax_root"
               name="Cambodia Tax"
               sequence="60"
-              groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
+              groups="l10n_kh_tax.group_l10n_kh_tax_user,l10n_kh_tax.group_l10n_kh_gov_auditor"/>
 
     <menuitem id="menu_l10n_kh_tax_report"
               name="Monthly Declarations (GDT)"
               parent="menu_l10n_kh_tax_root"
               action="action_l10n_kh_tax_report"
               sequence="10"/>
+
+    <menuitem id="menu_l10n_kh_annual_tax_report"
+              name="Annual Declarations (ToI)"
+              parent="menu_l10n_kh_tax_root"
+              action="action_l10n_kh_annual_tax_report"
+              sequence="20"/>
+
+    <menuitem id="menu_l10n_kh_tax_ledger"
+              name="GDT Tax Ledger"
+              parent="menu_l10n_kh_tax_root"
+              action="action_l10n_kh_tax_ledger"
+              sequence="30"/>
 
     <menuitem id="menu_l10n_kh_tax_config"
               name="Configuration"

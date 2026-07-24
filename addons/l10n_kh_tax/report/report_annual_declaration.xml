@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_annual_tax_declaration">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h3>ព្រះរាជាណាចក្រកម្ពុជា — ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
+                            <h4>Kingdom of Cambodia — Nation Religion King</h4>
+                            <h4>អគ្គនាយកដ្ឋានពន្ធដារ / General Department of Taxation</h4>
+                            <h4><span t-field="doc.name"/></h4>
+                        </div>
+                        <table class="table table-sm table-borderless mb-4">
+                            <tr>
+                                <td style="width:50%">
+                                    <strong>Taxpayer:</strong> <span t-field="doc.company_id.name"/><br/>
+                                    <strong>TIN:</strong> <span t-field="doc.company_id.l10n_kh_tin"/><br/>
+                                    <strong>Classification:</strong> <span t-field="doc.company_id.l10n_kh_taxpayer_type"/><br/>
+                                    <strong>Tax Branch:</strong> <span t-field="doc.company_id.l10n_kh_gdt_branch"/>
+                                </td>
+                                <td>
+                                    <strong>Fiscal Year:</strong> <span t-esc="doc.year"/><br/>
+                                    <strong>Exchange Rate (KHR):</strong> <span t-field="doc.exchange_rate"/><br/>
+                                    <strong>Status:</strong> <span t-field="doc.state"/><br/>
+                                    <t t-if="doc.filed_date">
+                                        <strong>Filed:</strong> <span t-field="doc.filed_date"/>
+                                        by <span t-field="doc.filed_by_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>ចំណូលប្រចាំឆ្នាំ / Annual Turnover</td>
+                                    <td class="text-end"><span t-field="doc.revenue" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>ចំណូលជាប់ពន្ធផ្សេងទៀត / Other Taxable Income</td>
+                                    <td class="text-end"><span t-field="doc.other_income" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>ចំណាយអាចកាត់កងបាន / Deductible Expenses</td>
+                                    <td class="text-end"><span t-field="doc.deductible_expenses" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr class="table-active">
+                                    <th>ប្រាក់ចំណូលជាប់ពន្ធ / Taxable Income</th>
+                                    <th class="text-end"><span t-field="doc.taxable_income" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></th>
+                                </tr>
+                                <tr>
+                                    <td>ពន្ធលើប្រាក់ចំណូល ២០% / Tax on Income 20%</td>
+                                    <td class="text-end"><span t-field="doc.toi_amount" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>ពន្ធអប្បបរមា ១% / Minimum Tax 1%
+                                        <t t-if="doc.minimum_tax_exempt"> (Exempt)</t></td>
+                                    <td class="text-end"><span t-field="doc.minimum_tax" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr class="table-active">
+                                    <th>ពន្ធប្រចាំឆ្នាំត្រូវបង់ / Annual Tax Due</th>
+                                    <th class="text-end"><span t-field="doc.tax_due" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></th>
+                                </tr>
+                                <tr>
+                                    <td>ប្រាក់រំដោះពន្ធប្រចាំខែ / Monthly Prepayments (PToI)</td>
+                                    <td class="text-end"><span t-field="doc.prepaid_toi" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr class="table-active">
+                                    <th>សមតុល្យត្រូវបង់ / Balance Payable</th>
+                                    <th class="text-end"><span t-field="doc.tax_payable" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></th>
+                                </tr>
+                                <tr>
+                                    <td>សមតុល្យត្រូវបង់ (រៀល) / Balance Payable (KHR)</td>
+                                    <td class="text-end"><span t-esc="'{:,.0f}'.format(doc.tax_payable_khr)"/></td>
+                                </tr>
+                                <tr>
+                                    <td>ឥណទានពន្ធយោងទៅមុខ / Credit Carried Forward</td>
+                                    <td class="text-end"><span t-field="doc.tax_credit" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>ពន្ធប៉ាតង់ប្រចាំឆ្នាំ (រៀល) / Annual Patent Tax (KHR)</td>
+                                    <td class="text-end"><span t-esc="'{:,.0f}'.format(doc.patent_tax_khr)"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="mt-3"><em>
+                            The annual Tax on Income declaration must be filed with
+                            the General Department of Taxation within 3 months of
+                            the fiscal year end.
+                        </em></p>
+                        <t t-if="doc.note">
+                            <h5 class="mt-4">Audit Notes</h5>
+                            <p t-field="doc.note"/>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

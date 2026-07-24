@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_kh_annual_tax_report_list" model="ir.ui.view">
+        <field name="name">l10n.kh.annual.tax.report.list</field>
+        <field name="model">l10n.kh.annual.tax.report</field>
+        <field name="arch" type="xml">
+            <list string="Annual Tax on Income Declarations">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="revenue"/>
+                <field name="toi_amount"/>
+                <field name="minimum_tax"/>
+                <field name="prepaid_toi"/>
+                <field name="tax_payable"/>
+                <field name="filed_date" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-success="state == 'filed'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_kh_annual_tax_report_form" model="ir.ui.view">
+        <field name="name">l10n.kh.annual.tax.report.form</field>
+        <field name="model">l10n.kh.annual.tax.report</field>
+        <field name="arch" type="xml">
+            <form string="Annual Tax on Income Declaration">
+                <header>
+                    <button name="action_compute" type="object" string="Compute"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_manager"/>
+                    <button name="action_mark_filed" type="object"
+                            string="Mark as Filed" class="btn-success"
+                            invisible="state != 'confirmed'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_manager"/>
+                    <button name="action_reset_to_draft" type="object"
+                            string="Reset to Draft" invisible="state == 'draft'"
+                            groups="l10n_kh_tax.group_l10n_kh_tax_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,filed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Period">
+                            <field name="year" readonly="state != 'draft'"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="exchange_rate"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Company / Filing">
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="filed_date"/>
+                            <field name="filed_by_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Taxable Result">
+                            <field name="revenue"/>
+                            <field name="other_income"
+                                   readonly="state != 'draft'"/>
+                            <field name="deductible_expenses"
+                                   readonly="state != 'draft'"/>
+                            <field name="taxable_income"/>
+                        </group>
+                        <group string="Tax Computation">
+                            <field name="toi_amount"/>
+                            <field name="minimum_tax"/>
+                            <field name="minimum_tax_exempt"
+                                   readonly="state != 'draft'"/>
+                            <field name="tax_due"/>
+                            <field name="prepaid_toi"/>
+                            <field name="tax_payable" class="fw-bold"/>
+                            <field name="tax_payable_khr"/>
+                            <field name="tax_credit"/>
+                            <field name="patent_tax_khr"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group string="Notes / Audit Remarks">
+                        <field name="note" nolabel="1" colspan="2"
+                               placeholder="Reconciliation with the audited financial statements, non-deductible expenses detail, ..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_kh_annual_tax_report" model="ir.actions.act_window">
+        <field name="name">Annual Declarations (ToI)</field>
+        <field name="res_model">l10n.kh.annual.tax.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create the annual Tax on Income declaration
+            </p>
+            <p>
+                The annual declaration compares the 20% Tax on Income with the
+                1% Minimum Tax, credits the monthly prepayments (PToI) already
+                declared, and computes the balance payable to the GDT.
+                It must be filed within 3 months of the year end.
+            </p>
+        </field>
+    </record>
+</odoo>

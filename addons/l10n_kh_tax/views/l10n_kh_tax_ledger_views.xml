@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_kh_tax_ledger_list" model="ir.ui.view">
+        <field name="name">l10n.kh.tax.ledger.list</field>
+        <field name="model">l10n.kh.tax.ledger</field>
+        <field name="arch" type="xml">
+            <list string="GDT Tax Ledger" editable="bottom" multi_edit="1"
+                  decoration-muted="locked">
+                <field name="name" readonly="1"/>
+                <field name="date" readonly="locked"/>
+                <field name="entry_type"/>
+                <field name="tax_category" readonly="locked"/>
+                <field name="invoice_number" readonly="locked"/>
+                <field name="partner_name" readonly="locked"/>
+                <field name="partner_tin" readonly="locked" optional="show"/>
+                <field name="description" readonly="locked" optional="show"/>
+                <field name="base_amount" readonly="locked" sum="Total Base"/>
+                <field name="tax_amount" readonly="locked" sum="Total Tax"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="source" optional="show"/>
+                <field name="report_id" optional="show"/>
+                <field name="locked" column_invisible="1"/>
+                <field name="company_id" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_kh_tax_ledger_form" model="ir.ui.view">
+        <field name="name">l10n.kh.tax.ledger.form</field>
+        <field name="model">l10n.kh.tax.ledger</field>
+        <field name="arch" type="xml">
+            <form string="GDT Tax Ledger Entry">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Entry">
+                            <field name="date" readonly="locked"/>
+                            <field name="tax_category" readonly="locked"/>
+                            <field name="entry_type"/>
+                            <field name="invoice_number" readonly="locked"/>
+                            <field name="description" readonly="locked"/>
+                            <field name="note" readonly="locked"/>
+                        </group>
+                        <group string="Partner / Amounts">
+                            <field name="partner_id" readonly="locked"/>
+                            <field name="partner_name" readonly="locked"/>
+                            <field name="partner_tin" readonly="locked"/>
+                            <field name="base_amount" readonly="locked"/>
+                            <field name="tax_amount" readonly="locked"/>
+                            <field name="total_amount"/>
+                        </group>
+                        <group string="Audit Trail">
+                            <field name="source"/>
+                            <field name="move_id"
+                                   groups="l10n_kh_tax.group_l10n_kh_tax_user"/>
+                            <field name="report_id"/>
+                            <field name="locked"/>
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_kh_tax_ledger_search" model="ir.ui.view">
+        <field name="name">l10n.kh.tax.ledger.search</field>
+        <field name="model">l10n.kh.tax.ledger</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_name"/>
+                <field name="partner_tin"/>
+                <field name="invoice_number"/>
+                <filter string="Sales" name="sales"
+                        domain="[('entry_type', '=', 'sale')]"/>
+                <filter string="Purchases" name="purchases"
+                        domain="[('entry_type', '=', 'purchase')]"/>
+                <filter string="Withholding Tax" name="wht"
+                        domain="[('entry_type', '=', 'wht')]"/>
+                <filter string="Salary Taxes" name="salary"
+                        domain="[('entry_type', '=', 'salary')]"/>
+                <separator/>
+                <filter string="Manual Entries" name="manual"
+                        domain="[('source', '=', 'manual')]"/>
+                <filter string="Locked (Declared)" name="locked"
+                        domain="[('locked', '=', True)]"/>
+                <separator/>
+                <filter string="Date" name="filter_date" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Month" name="group_month"
+                            context="{'group_by': 'date:month'}"/>
+                    <filter string="Type" name="group_type"
+                            context="{'group_by': 'entry_type'}"/>
+                    <filter string="Tax Category" name="group_category"
+                            context="{'group_by': 'tax_category'}"/>
+                    <filter string="Declaration" name="group_report"
+                            context="{'group_by': 'report_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_l10n_kh_tax_ledger_pivot" model="ir.ui.view">
+        <field name="name">l10n.kh.tax.ledger.pivot</field>
+        <field name="model">l10n.kh.tax.ledger</field>
+        <field name="arch" type="xml">
+            <pivot string="GDT Tax Ledger Analysis">
+                <field name="date" interval="month" type="row"/>
+                <field name="tax_category" type="col"/>
+                <field name="base_amount" type="measure"/>
+                <field name="tax_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_l10n_kh_tax_ledger" model="ir.actions.act_window">
+        <field name="name">GDT Tax Ledger</field>
+        <field name="res_model">l10n.kh.tax.ledger</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="search_view_id" ref="view_l10n_kh_tax_ledger_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                The Cambodia tax book checked by the government
+            </p>
+            <p>
+                This ledger contains only the transactions reported to the
+                General Department of Taxation — independent from the Odoo
+                accounting. Entries are synchronised from the reportable
+                documents when the monthly declaration is computed, and you
+                can add manual entries that exist only in the tax book.
+            </p>
+        </field>
+    </record>
+</odoo>

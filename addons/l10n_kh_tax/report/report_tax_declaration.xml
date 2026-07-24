@@ -80,6 +80,60 @@
                             <h5 class="mt-4">Audit Notes</h5>
                             <p t-field="doc.note"/>
                         </t>
+
+                        <t t-foreach="doc._get_registers()" t-as="register">
+                            <t t-set="register_title" t-value="register[0]"/>
+                            <t t-set="register_entries" t-value="register[1]"/>
+                            <t t-if="register_entries">
+                                <div style="page-break-before: always;"/>
+                                <h4 class="mt-4">
+                                    Annex — <span t-esc="register_title"/>
+                                </h4>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="table-active">
+                                            <th>Date</th>
+                                            <th>Document No.</th>
+                                            <th>TIN</th>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th class="text-end">Tax Base</th>
+                                            <th class="text-end">Tax Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="register_entries" t-as="entry">
+                                            <td><span t-field="entry.date"/></td>
+                                            <td><span t-field="entry.invoice_number"/></td>
+                                            <td><span t-field="entry.partner_tin"/></td>
+                                            <td><span t-field="entry.partner_name"/></td>
+                                            <td><span t-field="entry.tax_category"/></td>
+                                            <td class="text-end">
+                                                <span t-field="entry.base_amount"
+                                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="entry.tax_amount"
+                                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-active">
+                                            <th colspan="5">Total</th>
+                                            <th class="text-end">
+                                                <span t-esc="sum(register_entries.mapped('base_amount'))"
+                                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            </th>
+                                            <th class="text-end">
+                                                <span t-esc="sum(register_entries.mapped('tax_amount'))"
+                                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </t>
                     </div>
                 </t>
             </t>

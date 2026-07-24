@@ -1,7 +1,19 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_l10n_kh_tax_report_user,l10n.kh.tax.report user,model_l10n_kh_tax_report,group_l10n_kh_tax_user,1,1,1,0
 access_l10n_kh_tax_report_manager,l10n.kh.tax.report manager,model_l10n_kh_tax_report,group_l10n_kh_tax_manager,1,1,1,1
+access_l10n_kh_tax_report_auditor,l10n.kh.tax.report gov auditor,model_l10n_kh_tax_report,group_l10n_kh_gov_auditor,1,0,0,0
+access_l10n_kh_tax_report_account_readonly,l10n.kh.tax.report account user,model_l10n_kh_tax_report,account.group_account_invoice,1,0,0,0
 access_l10n_kh_tax_report_line_user,l10n.kh.tax.report.line user,model_l10n_kh_tax_report_line,group_l10n_kh_tax_user,1,1,1,1
 access_l10n_kh_tax_report_line_manager,l10n.kh.tax.report.line manager,model_l10n_kh_tax_report_line,group_l10n_kh_tax_manager,1,1,1,1
-access_l10n_kh_tax_report_account_readonly,l10n.kh.tax.report account user,model_l10n_kh_tax_report,account.group_account_invoice,1,0,0,0
+access_l10n_kh_tax_report_line_auditor,l10n.kh.tax.report.line gov auditor,model_l10n_kh_tax_report_line,group_l10n_kh_gov_auditor,1,0,0,0
 access_l10n_kh_tax_report_line_account_readonly,l10n.kh.tax.report.line account user,model_l10n_kh_tax_report_line,account.group_account_invoice,1,0,0,0
+access_l10n_kh_tax_ledger_user,l10n.kh.tax.ledger user,model_l10n_kh_tax_ledger,group_l10n_kh_tax_user,1,1,1,1
+access_l10n_kh_tax_ledger_manager,l10n.kh.tax.ledger manager,model_l10n_kh_tax_ledger,group_l10n_kh_tax_manager,1,1,1,1
+access_l10n_kh_tax_ledger_auditor,l10n.kh.tax.ledger gov auditor,model_l10n_kh_tax_ledger,group_l10n_kh_gov_auditor,1,0,0,0
+access_l10n_kh_tax_ledger_account_readonly,l10n.kh.tax.ledger account user,model_l10n_kh_tax_ledger,account.group_account_invoice,1,0,0,0
+access_l10n_kh_annual_tax_report_user,l10n.kh.annual.tax.report user,model_l10n_kh_annual_tax_report,group_l10n_kh_tax_user,1,1,1,0
+access_l10n_kh_annual_tax_report_manager,l10n.kh.annual.tax.report manager,model_l10n_kh_annual_tax_report,group_l10n_kh_tax_manager,1,1,1,1
+access_l10n_kh_annual_tax_report_auditor,l10n.kh.annual.tax.report gov auditor,model_l10n_kh_annual_tax_report,group_l10n_kh_gov_auditor,1,0,0,0
+access_l10n_kh_annual_tax_report_account_readonly,l10n.kh.annual.tax.report account user,model_l10n_kh_annual_tax_report,account.group_account_invoice,1,0,0,0
+access_account_account_kh_tax_manager,account.account kh tax manager,account.model_account_account,group_l10n_kh_tax_manager,1,1,0,0
+access_account_tax_kh_tax_manager,account.tax kh tax manager,account.model_account_tax,group_l10n_kh_tax_manager,1,1,1,0
