@@ -2,7 +2,7 @@
 {
     'name': 'Cambodia - Accounting & Tax Reporting (គណនេយ្យ និងពន្ធដារ កម្ពុជា)',
     'countries': ['kh'],
-    'version': '18.0.2.1.0',
+    'version': '18.0.2.2.0',
     'category': 'Accounting/Localizations/Reporting',
     'license': 'LGPL-3',
     'author': 'ABJ SkinCare',
@@ -33,9 +33,12 @@ Cambodia Accounting & Tax Localization
     on Dividend Distribution
 * **Annual Tax on Income declaration**: 20% ToI vs 1% Minimum Tax,
   credit of the monthly prepayments, Patent Tax by classification.
-* Only the accounts you select ("Report to GDT" checkbox on the account)
-  feed the tax book; journal entries can also be excluded individually
-  ("Exclude from Cambodia Tax Report" on the entry).
+* Opt-in reporting: by default documents are NOT reported to the GDT.
+  Mark an invoice, bill or payment "Report to GDT" (individually or in
+  batch from the list view) to put it in the tax book — report only when
+  you need. A company setting can switch to report-everything-except-
+  excluded instead. Non-VAT income additionally follows the "Report to
+  GDT" checkbox on each account.
 * e-Filing export: sales, purchase, withholding and salary registers as
   an Excel workbook following the GDT e-Filing upload template.
 * KHR conversion using the monthly official exchange rate.

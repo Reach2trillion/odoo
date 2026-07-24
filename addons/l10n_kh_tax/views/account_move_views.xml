@@ -8,10 +8,61 @@
             <xpath expr="//sheet" position="inside">
                 <group>
                     <group string="Cambodia Tax (GDT)" name="l10n_kh_tax">
-                        <field name="l10n_kh_exclude_tax_report"/>
+                        <field name="l10n_kh_tax_status" widget="radio"/>
                     </group>
                 </group>
             </xpath>
         </field>
+    </record>
+
+    <record id="view_account_move_filter_l10n_kh" model="ir.ui.view">
+        <field name="name">account.move.select.l10n.kh</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_move_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Report to GDT (Cambodia)" name="kh_included"
+                        domain="[('l10n_kh_tax_status', '=', 'include')]"/>
+                <filter string="Not Reported to GDT" name="kh_not_included"
+                        domain="[('l10n_kh_tax_status', '!=', 'include')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_filter_l10n_kh" model="ir.ui.view">
+        <field name="name">account.invoice.select.l10n.kh</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Report to GDT (Cambodia)" name="kh_included"
+                        domain="[('l10n_kh_tax_status', '=', 'include')]"/>
+                <filter string="Not Reported to GDT" name="kh_not_included"
+                        domain="[('l10n_kh_tax_status', '!=', 'include')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Mark many documents at once from the invoices / entries list. -->
+    <record id="action_server_l10n_kh_include" model="ir.actions.server">
+        <field name="name">Report to GDT (Cambodia)</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('l10n_kh_tax.group_l10n_kh_tax_user'))]"/>
+        <field name="state">code</field>
+        <field name="code">records.action_l10n_kh_include()</field>
+    </record>
+
+    <record id="action_server_l10n_kh_exclude" model="ir.actions.server">
+        <field name="name">Do Not Report to GDT (Cambodia)</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('l10n_kh_tax.group_l10n_kh_tax_user'))]"/>
+        <field name="state">code</field>
+        <field name="code">records.action_l10n_kh_exclude()</field>
     </record>
 </odoo>

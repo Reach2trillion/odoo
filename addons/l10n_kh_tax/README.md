@@ -11,12 +11,14 @@ The **GDT Tax Ledger** (*Cambodia Tax → GDT Tax Ledger*) is a separate tax
 book that contains **only** what is reported to the tax administration — the
 rest of the Odoo accounting is excluded:
 
-* When a monthly declaration is computed, the ledger is synchronised from
-  the **reportable** Odoo documents only: posted entries not flagged
-  *Exclude from Cambodia Tax Report*; non-VAT income is taken only from
-  accounts flagged *Report to GDT (Cambodia)* (income carrying a Cambodian
-  VAT tax is always declared through the VAT registers, as required — use
-  the entry-level exclude flag for documents that must stay out entirely).
+* **Excluded by default — report only when you need**: posted documents do
+  NOT enter the tax book unless you mark them **Report to GDT** (on the
+  invoice/bill/payment form, or in batch: select lines in any invoices/
+  entries list → Action → *Report to GDT (Cambodia)*). A company setting
+  (*Cambodia Tax Reporting Mode*) can switch to the opposite behaviour
+  (report everything except documents marked *Do Not Report*).
+* Non-VAT income of reported documents is additionally filtered by the
+  *Report to GDT (Cambodia)* checkbox on each account.
 * **Manual entries** can be added directly in the tax book without touching
   the Odoo accounting.
 * Confirming a declaration **locks** its ledger entries — a tamper-proof
@@ -35,10 +37,15 @@ your own taxes: reverse-charge VAT (e-commerce), Tax on Salary, Fringe
 Benefit Tax 20%, Specific Tax, Advance Tax on Dividend Distribution.
 
 ### 2. Choose what is reported to the GDT
+* **Document level (default: excluded)** — every invoice, bill or payment
+  has a *Cambodia Tax Reporting* status: *Follow Company Default* /
+  *Report to GDT* / *Do Not Report*. With the default company mode, only
+  documents marked *Report to GDT* are declared. Batch actions on the
+  list views mark many documents at once, and search filters show what is
+  / is not reported.
 * **Account level** — *Report to GDT (Cambodia)* checkbox on every account
+  filters the non-VAT income counted as turnover
   (*Configuration → GDT Reportable Accounts*).
-* **Entry level** — *Exclude from Cambodia Tax Report* checkbox on every
-  invoice, bill or payment.
 
 ### 3. Monthly Tax Declaration (auto-generated)
 Created automatically on the 1st of each month by a scheduled action and

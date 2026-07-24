@@ -173,9 +173,12 @@ class L10nKhTaxLedger(models.Model):
         """Rebuild the synchronised tax book of the period from the
         reportable Odoo documents.
 
-        Only posted entries that are not flagged "Exclude from Cambodia Tax
-        Report" are considered; income is only taken from accounts flagged
-        "Report to GDT (Cambodia)". Manual and locked entries are preserved.
+        Which posted documents are reportable depends on the company's
+        Cambodia Tax Reporting Mode: by default ('selected') only documents
+        explicitly marked "Report to GDT" enter the tax book; in 'all' mode
+        every document is reported unless marked "Do Not Report". Non-VAT
+        income is only taken from accounts flagged "Report to GDT
+        (Cambodia)". Manual and locked entries are preserved.
         """
         self.with_context(l10n_kh_tax_lock=True).search([
             ('company_id', '=', company.id),
@@ -195,17 +198,23 @@ class L10nKhTaxLedger(models.Model):
         ])
         locked_move_ids = set(locked_entries.mapped('move_id').ids)
 
+        # Company reporting mode: by default only documents explicitly
+        # marked "Report to GDT" enter the tax book ('selected' mode);
+        # in 'all' mode everything is reported except "Do Not Report".
+        if company.l10n_kh_tax_report_mode == 'all':
+            status_domain = [('l10n_kh_tax_status', '!=', 'exclude')]
+        else:
+            status_domain = [('l10n_kh_tax_status', '=', 'include')]
         moves = self.env['account.move'].search([
             ('company_id', '=', company.id),
             ('state', '=', 'posted'),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
-            ('l10n_kh_exclude_tax_report', '=', False),
             # Cash-basis transfer entries repeat the invoice's tax lines:
             # skip them to avoid declaring the same tax twice.
             ('tax_cash_basis_origin_move_id', '=', False),
             ('id', 'not in', list(locked_move_ids)),
-        ])
+        ] + status_domain)
         vals_list = []
         for move in moves:
             vals_list += self._prepare_entries_from_move(move)

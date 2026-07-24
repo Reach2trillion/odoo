@@ -17,6 +17,9 @@
                             <field name="l10n_kh_efiling_account"/>
                             <field name="l10n_kh_exchange_rate"/>
                         </group>
+                        <group string="Reporting Mode">
+                            <field name="l10n_kh_tax_report_mode" widget="radio"/>
+                        </group>
                     </group>
                 </page>
             </xpath>

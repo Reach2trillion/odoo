@@ -44,6 +44,18 @@ class ResCompany(models.Model):
         help="Login/account name used on the GDT e-Filing portal "
              "(for reference only, no password is stored).",
     )
+    l10n_kh_tax_report_mode = fields.Selection(
+        selection=[
+            ('selected', "Report only selected documents (default: excluded)"),
+            ('all', "Report all documents except excluded"),
+        ],
+        string="Cambodia Tax Reporting Mode",
+        default='selected', required=True,
+        help="Report only selected documents: invoices, bills and payments "
+             "are NOT reported to the GDT unless you mark them 'Report to "
+             "GDT' — report only when you need.\n"
+             "Report all documents except excluded: everything posted is "
+             "reported unless marked 'Do Not Report'.")
     l10n_kh_exchange_rate = fields.Float(
         string="Default KHR Exchange Rate",
         digits=(12, 2),
