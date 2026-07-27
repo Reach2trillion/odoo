@@ -37,15 +37,21 @@ class ChatflowController(http.Controller):
         raw_body = request.httprequest.get_data()
         signature = request.httprequest.headers.get(
             'X-Hub-Signature-256', '')
-        Page = request.env['chatflow.page'].sudo()
-        if not Page._verify_webhook_signature(raw_body, signature):
-            _logger.warning(
-                "chatflow: rejected webhook call with bad signature")
-            return request.make_response('Invalid signature', status=403)
         try:
             payload = json.loads(raw_body.decode('utf-8'))
         except (ValueError, UnicodeDecodeError):
             payload = {}
+        Page = request.env['chatflow.page'].sudo()
+        # Validate against the secrets of the pages this payload targets:
+        # pages without an app secret opted out of signature validation.
+        target_pages = Page.browse()
+        for entry in payload.get('entry', []):
+            target_pages |= Page._find_for_entry(entry.get('id'))
+        if not Page._verify_webhook_signature(
+                raw_body, signature, pages=target_pages):
+            _logger.warning(
+                "chatflow: rejected webhook call with bad signature")
+            return request.make_response('Invalid signature', status=403)
         if payload.get('object') in ('page', 'instagram'):
             request.env['chatflow.event'].sudo().create({
                 'payload': json.dumps(payload, ensure_ascii=False),

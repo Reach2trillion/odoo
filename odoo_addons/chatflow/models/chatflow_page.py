@@ -213,14 +213,21 @@ class ChatflowPage(models.Model):
     # Webhook helpers
     # ------------------------------------------------------------------
     @api.model
-    def _verify_webhook_signature(self, raw_body, signature_header):
-        """Validate X-Hub-Signature-256 against connected pages' app secrets.
+    def _verify_webhook_signature(self, raw_body, signature_header, pages=None):
+        """Validate X-Hub-Signature-256 against the app secrets of `pages`
+        (the pages targeted by the payload; all connected pages when not
+        provided).
 
         Pages without an app secret configured do not enforce validation
-        (same behaviour as leaving APP_SECRET empty in a standalone bot).
+        (same behaviour as leaving APP_SECRET empty in a standalone bot),
+        so a request targeting such a page is always accepted.
         """
-        pages = self.sudo().search([])
-        app_secrets = {p.app_secret for p in pages if p.app_secret}
+        if not pages:
+            pages = self.sudo().search([])
+        enforcing = pages.filtered('app_secret')
+        if len(enforcing) < len(pages):
+            return True
+        app_secrets = set(enforcing.mapped('app_secret'))
         if not app_secrets:
             return True
         if not signature_header.startswith('sha256='):

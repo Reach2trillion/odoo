@@ -119,10 +119,11 @@ class ChatflowBroadcast(models.Model):
         now = fields.Datetime.now()
         broadcasts = self.search(
             [('state', 'in', ('queued', 'sending'))])
-        work_left = False
+        more_batches = False
+        future_dates = []
         for broadcast in broadcasts:
             if broadcast.scheduled_date and broadcast.scheduled_date > now:
-                work_left = True
+                future_dates.append(broadcast.scheduled_date)
                 continue
             broadcast.state = 'sending'
             lines = broadcast.line_ids.filtered(
@@ -136,12 +137,15 @@ class ChatflowBroadcast(models.Model):
                 continue
             for line in lines:
                 line._send()
-            work_left = True
+            more_batches = True
             # Persist progress between batches: broadcasts can be large
             # and the Send API is slow.
             self.env.cr.commit()
-        if work_left:
-            self.env.ref('chatflow.ir_cron_send_broadcasts').sudo()._trigger()
+        cron = self.env.ref('chatflow.ir_cron_send_broadcasts').sudo()
+        if more_batches:
+            cron._trigger()
+        elif future_dates:
+            cron._trigger(at=min(future_dates))
 
 
 class ChatflowBroadcastLine(models.Model):
