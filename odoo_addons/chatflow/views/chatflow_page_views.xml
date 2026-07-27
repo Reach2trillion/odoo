@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_page_list" model="ir.ui.view">
+        <field name="name">chatflow.page.list</field>
+        <field name="model">chatflow.page</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="page_fb_id"/>
+                <field name="tts_lang"/>
+                <field name="reply_to_comments"/>
+                <field name="subscriber_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_page_form" model="ir.ui.view">
+        <field name="name">chatflow.page.form</field>
+        <field name="model">chatflow.page</field>
+        <field name="arch" type="xml">
+            <form string="Facebook Page">
+                <header>
+                    <button name="action_setup_get_started" type="object"
+                            string="Setup Get Started Button"
+                            class="btn-secondary"
+                            groups="chatflow.group_chatflow_manager"
+                            help="Configure the Messenger 'Get Started' button so the Welcome trigger fires for new conversations."/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_subscribers" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="subscriber_count" widget="statinfo"
+                                   string="Subscribers"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. ABJ Official Page"/></h1>
+                    </div>
+                    <group>
+                        <group string="Facebook Connection">
+                            <field name="page_fb_id"/>
+                            <field name="page_access_token" password="True"/>
+                            <field name="app_secret" password="True"/>
+                            <field name="graph_api_version"/>
+                        </group>
+                        <group string="Webhook">
+                            <field name="webhook_url" readonly="1"/>
+                            <field name="verify_token"/>
+                        </group>
+                        <group string="Bot Behaviour">
+                            <field name="tts_lang"/>
+                            <field name="reply_to_comments"/>
+                            <field name="handoff_user_id"/>
+                        </group>
+                    </group>
+                    <div class="text-muted" colspan="2">
+                        In the Meta app dashboard, register the webhook URL above with the
+                        verify token, and subscribe to the fields
+                        <b>messages</b>, <b>messaging_postbacks</b>
+                        (and <b>feed</b> for comment auto-replies).
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chatflow_page" model="ir.actions.act_window">
+        <field name="name">Pages</field>
+        <field name="res_model">chatflow.page</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Connect your first Facebook Page</p>
+            <p>Paste the Page Access Token from your Meta app, then register
+            the webhook URL shown on the page form.</p>
+        </field>
+    </record>
+</odoo>

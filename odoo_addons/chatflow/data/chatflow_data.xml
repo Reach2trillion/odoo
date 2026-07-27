@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Tags -->
+    <record id="tag_new" model="chatflow.tag">
+        <field name="name">New</field>
+        <field name="color">4</field>
+    </record>
+    <record id="tag_interested" model="chatflow.tag">
+        <field name="name">Interested</field>
+        <field name="color">10</field>
+    </record>
+    <record id="tag_customer" model="chatflow.tag">
+        <field name="name">Customer</field>
+        <field name="color">7</field>
+    </record>
+
+    <!-- ================= Flows (text + Khmer voice) ================= -->
+
+    <record id="flow_greeting" model="chatflow.flow">
+        <field name="name">Greeting</field>
+    </record>
+    <record id="flow_greeting_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_greeting"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">សួស្តី! អរគុណដែលបានទាក់ទងមកកាន់ ABJ។ តើយើងអាចជួយអ្វីបានខ្លះ?</field>
+    </record>
+    <record id="flow_greeting_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_greeting"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">សួស្តី! អរគុណដែលបានទាក់ទងមកកាន់ ABJ។ តើយើងអាចជួយអ្វីបានខ្លះ?</field>
+    </record>
+    <record id="flow_greeting_step_tag" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_greeting"/>
+        <field name="sequence">30</field>
+        <field name="step_type">add_tag</field>
+        <field name="tag_id" ref="tag_new"/>
+    </record>
+
+    <record id="flow_product" model="chatflow.flow">
+        <field name="name">ABJ Product Info</field>
+    </record>
+    <record id="flow_product_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_product"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">អរគុណសម្រាប់ការចាប់អារម្មណ៍លើផលិតផល ABJ! សូមប្រាប់យើងពីអ្វីដែលអ្នកចង់ដឹងបន្ថែម ក្រុមការងារយើងនឹងឆ្លើយតបភ្លាមៗ។</field>
+    </record>
+    <record id="flow_product_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_product"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">អរគុណសម្រាប់ការចាប់អារម្មណ៍លើផលិតផល ABJ! សូមប្រាប់យើងពីអ្វីដែលអ្នកចង់ដឹងបន្ថែម ក្រុមការងារយើងនឹងឆ្លើយតបភ្លាមៗ។</field>
+    </record>
+    <record id="flow_product_step_tag" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_product"/>
+        <field name="sequence">30</field>
+        <field name="step_type">add_tag</field>
+        <field name="tag_id" ref="tag_interested"/>
+    </record>
+
+    <record id="flow_price" model="chatflow.flow">
+        <field name="name">Price Inquiry</field>
+    </record>
+    <record id="flow_price_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_price"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">សម្រាប់តម្លៃផលិតផល ABJ សូមទុកសារ ឬលេខទូរស័ព្ទរបស់អ្នក ក្រុមការងារនឹងទាក់ទងទៅវិញឆាប់ៗ។</field>
+    </record>
+    <record id="flow_price_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_price"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">សម្រាប់តម្លៃផលិតផល ABJ សូមទុកសារ ឬលេខទូរស័ព្ទរបស់អ្នក ក្រុមការងារនឹងទាក់ទងទៅវិញឆាប់ៗ។</field>
+    </record>
+    <record id="flow_price_step_tag" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_price"/>
+        <field name="sequence">30</field>
+        <field name="step_type">add_tag</field>
+        <field name="tag_id" ref="tag_interested"/>
+    </record>
+
+    <record id="flow_location" model="chatflow.flow">
+        <field name="name">Location / Address</field>
+    </record>
+    <record id="flow_location_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_location"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">ហាងយើងខ្ញុំបើកជារៀងរាល់ថ្ងៃ។ សូមទុកសារ ដើម្បីទទួលបានអាសយដ្ឋាន និងផែនទីលម្អិត។</field>
+    </record>
+    <record id="flow_location_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_location"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">ហាងយើងខ្ញុំបើកជារៀងរាល់ថ្ងៃ។ សូមទុកសារ ដើម្បីទទួលបានអាសយដ្ឋាន និងផែនទីលម្អិត។</field>
+    </record>
+
+    <record id="flow_delivery" model="chatflow.flow">
+        <field name="name">Delivery</field>
+    </record>
+    <record id="flow_delivery_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_delivery"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">យើងមានសេវាដឹកជញ្ជូនដល់ទីតាំងរបស់អ្នក។ សូមផ្ញើអាសយដ្ឋានរបស់អ្នក ដើម្បីឱ្យយើងគណនាថ្លៃដឹកជញ្ជូន។</field>
+    </record>
+    <record id="flow_delivery_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_delivery"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">យើងមានសេវាដឹកជញ្ជូនដល់ទីតាំងរបស់អ្នក។ សូមផ្ញើអាសយដ្ឋានរបស់អ្នក ដើម្បីឱ្យយើងគណនាថ្លៃដឹកជញ្ជូន។</field>
+    </record>
+
+    <record id="flow_thanks" model="chatflow.flow">
+        <field name="name">Thank You</field>
+    </record>
+    <record id="flow_thanks_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_thanks"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">អរគុណច្រើន! សូមទាក់ទងមកយើងខ្ញុំបានគ្រប់ពេល។</field>
+    </record>
+    <record id="flow_thanks_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_thanks"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">អរគុណច្រើន! សូមទាក់ទងមកយើងខ្ញុំបានគ្រប់ពេល។</field>
+    </record>
+
+    <record id="flow_default" model="chatflow.flow">
+        <field name="name">Default Reply</field>
+    </record>
+    <record id="flow_default_step_text" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_default"/>
+        <field name="sequence">10</field>
+        <field name="step_type">text</field>
+        <field name="message">អរគុណសម្រាប់សាររបស់អ្នក! ក្រុមការងារ ABJ បានទទួលសាររបស់អ្នកហើយ ហើយនឹងឆ្លើយតបក្នុងពេលឆាប់ៗនេះ។</field>
+    </record>
+    <record id="flow_default_step_voice" model="chatflow.flow.step">
+        <field name="flow_id" ref="flow_default"/>
+        <field name="sequence">20</field>
+        <field name="step_type">voice</field>
+        <field name="message">អរគុណសម្រាប់សាររបស់អ្នក! ក្រុមការងារ ABJ បានទទួលសាររបស់អ្នកហើយ ហើយនឹងឆ្លើយតបក្នុងពេលឆាប់ៗនេះ។</field>
+    </record>
+
+    <!-- ================= Triggers ================= -->
+
+    <record id="trigger_greeting" model="chatflow.trigger">
+        <field name="name">Greeting keywords</field>
+        <field name="sequence">10</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">hello, hi, hey, សួស្តី, ជំរាបសួរ</field>
+        <field name="flow_id" ref="flow_greeting"/>
+    </record>
+    <record id="trigger_product" model="chatflow.trigger">
+        <field name="name">ABJ product keywords</field>
+        <field name="sequence">20</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">abj, product, ផលិតផល</field>
+        <field name="flow_id" ref="flow_product"/>
+    </record>
+    <record id="trigger_price" model="chatflow.trigger">
+        <field name="name">Price keywords</field>
+        <field name="sequence">30</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">price, how much, cost, តម្លៃ, ថ្លៃប៉ុន្មាន</field>
+        <field name="flow_id" ref="flow_price"/>
+    </record>
+    <record id="trigger_location" model="chatflow.trigger">
+        <field name="name">Location keywords</field>
+        <field name="sequence">40</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">location, address, where, ទីតាំង, អាសយដ្ឋាន, នៅឯណា</field>
+        <field name="flow_id" ref="flow_location"/>
+    </record>
+    <record id="trigger_delivery" model="chatflow.trigger">
+        <field name="name">Delivery keywords</field>
+        <field name="sequence">50</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">delivery, ship, ដឹកជញ្ជូន, ដឹក</field>
+        <field name="flow_id" ref="flow_delivery"/>
+    </record>
+    <record id="trigger_thanks" model="chatflow.trigger">
+        <field name="name">Thank you keywords</field>
+        <field name="sequence">60</field>
+        <field name="trigger_type">keyword</field>
+        <field name="keywords">thank, អរគុណ</field>
+        <field name="flow_id" ref="flow_thanks"/>
+    </record>
+    <record id="trigger_welcome" model="chatflow.trigger">
+        <field name="name">Welcome new conversations</field>
+        <field name="sequence">5</field>
+        <field name="trigger_type">welcome</field>
+        <field name="flow_id" ref="flow_greeting"/>
+    </record>
+    <record id="trigger_default" model="chatflow.trigger">
+        <field name="name">Default reply</field>
+        <field name="sequence">100</field>
+        <field name="trigger_type">default</field>
+        <field name="flow_id" ref="flow_default"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_subscriber_list" model="ir.ui.view">
+        <field name="name">chatflow.subscriber.list</field>
+        <field name="model">chatflow.subscriber</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="page_id"/>
+                <field name="tag_ids" widget="many2many_tags"
+                       options="{'color_field': 'color'}"/>
+                <field name="last_interaction"/>
+                <field name="in_24h_window" string="24h Window"/>
+                <field name="bot_paused" optional="show"/>
+                <field name="opted_in" optional="hide"/>
+                <field name="chat_message_count" string="Messages"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_subscriber_kanban" model="ir.ui.view">
+        <field name="name">chatflow.subscriber.kanban</field>
+        <field name="model">chatflow.subscriber</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="bot_paused"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex flex-column p-2">
+                            <strong><field name="name"/></strong>
+                            <div class="text-muted small">
+                                <field name="page_id"/>
+                            </div>
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"/>
+                            <div class="small mt-1">
+                                <field name="last_interaction"/>
+                                <span t-if="record.bot_paused.raw_value"
+                                      class="badge text-bg-warning ms-1">Paused</span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_chatflow_subscriber_form" model="ir.ui.view">
+        <field name="name">chatflow.subscriber.form</field>
+        <field name="model">chatflow.subscriber</field>
+        <field name="arch" type="xml">
+            <form string="Subscriber">
+                <header>
+                    <button name="action_open_send_message" type="object"
+                            string="Send Message" class="btn-primary"/>
+                    <button name="action_toggle_pause" type="object"
+                            string="Pause Bot" invisible="bot_paused"/>
+                    <button name="action_toggle_pause" type="object"
+                            string="Resume Bot" invisible="not bot_paused"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_conversation" type="object"
+                                class="oe_stat_button" icon="fa-comments">
+                            <field name="chat_message_count" widget="statinfo"
+                                   string="Messages"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Bot Paused"
+                            bg_color="text-bg-warning" invisible="not bot_paused"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="page_id"/>
+                            <field name="psid"/>
+                            <field name="partner_id"/>
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"/>
+                        </group>
+                        <group>
+                            <field name="last_interaction"/>
+                            <field name="in_24h_window"/>
+                            <field name="opted_in"/>
+                            <field name="bot_paused"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Conversation">
+                            <field name="chat_message_ids" readonly="1">
+                                <list decoration-muted="direction == 'out'"
+                                      decoration-danger="error">
+                                    <field name="create_date"/>
+                                    <field name="direction"/>
+                                    <field name="message_type"/>
+                                    <field name="body"/>
+                                    <field name="is_bot"/>
+                                    <field name="error" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_chatflow_subscriber_search" model="ir.ui.view">
+        <field name="name">chatflow.subscriber.search</field>
+        <field name="model">chatflow.subscriber</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="psid"/>
+                <field name="tag_ids"/>
+                <filter string="In 24h Window" name="recent"
+                        domain="[('last_interaction', '&gt;=', datetime.datetime.now() - datetime.timedelta(hours=24))]"/>
+                <filter string="Bot Paused" name="paused"
+                        domain="[('bot_paused', '=', True)]"/>
+                <filter string="Subscribed" name="opted_in"
+                        domain="[('opted_in', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Page" name="group_page"
+                            context="{'group_by': 'page_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_chatflow_subscriber" model="ir.actions.act_window">
+        <field name="name">Subscribers</field>
+        <field name="res_model">chatflow.subscriber</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_chatflow_subscriber_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No subscribers yet</p>
+            <p>Everyone who messages your connected Facebook Page appears
+            here automatically.</p>
+        </field>
+    </record>
+</odoo>

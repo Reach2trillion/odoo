@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_process_events" model="ir.cron">
+        <field name="name">ChatFlow: process incoming webhook events</field>
+        <field name="model_id" ref="model_chatflow_event"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_process()</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="ir_cron_send_broadcasts" model="ir.cron">
+        <field name="name">ChatFlow: send queued broadcasts</field>
+        <field name="model_id" ref="model_chatflow_broadcast"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

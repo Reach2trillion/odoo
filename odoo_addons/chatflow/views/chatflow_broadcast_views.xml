@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_broadcast_list" model="ir.ui.view">
+        <field name="name">chatflow.broadcast.list</field>
+        <field name="model">chatflow.broadcast</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'queued'"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="page_id"/>
+                <field name="flow_id"/>
+                <field name="scheduled_date"/>
+                <field name="recipient_count"/>
+                <field name="sent_count"/>
+                <field name="failed_count"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('queued', 'sending')"
+                       decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_broadcast_form" model="ir.ui.view">
+        <field name="name">chatflow.broadcast.form</field>
+        <field name="model">chatflow.broadcast</field>
+        <field name="arch" type="xml">
+            <form string="Broadcast">
+                <header>
+                    <button name="action_queue" type="object" string="Queue"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('queued', 'sending')"/>
+                    <button name="action_reset_to_draft" type="object"
+                            string="Reset to Draft"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,queued,sending,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. New Product Announcement"/></h1>
+                    </div>
+                    <group>
+                        <group string="Content">
+                            <field name="page_id" readonly="state != 'draft'"/>
+                            <field name="flow_id" readonly="state != 'draft'"/>
+                            <field name="scheduled_date"
+                                   readonly="state not in ('draft', 'queued')"/>
+                        </group>
+                        <group string="Audience">
+                            <field name="include_tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"
+                                   readonly="state != 'draft'"/>
+                            <field name="exclude_tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"
+                                   readonly="state != 'draft'"/>
+                            <field name="only_recent" readonly="state != 'draft'"/>
+                            <field name="messaging_tag" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Progress">
+                            <field name="recipient_count"/>
+                            <field name="sent_count"/>
+                            <field name="failed_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Recipients" name="recipients">
+                            <field name="line_ids" readonly="1">
+                                <list decoration-danger="state == 'failed'"
+                                      decoration-success="state == 'sent'">
+                                    <field name="subscriber_id"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'sent'"
+                                           decoration-danger="state == 'failed'"/>
+                                    <field name="error"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chatflow_broadcast" model="ir.actions.act_window">
+        <field name="name">Broadcasts</field>
+        <field name="res_model">chatflow.broadcast</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Send your first broadcast</p>
+            <p>Broadcast a flow to all subscribers of a page, filtered by
+            tags. Delivery is queued and processed in the background.</p>
+        </field>
+    </record>
+</odoo>

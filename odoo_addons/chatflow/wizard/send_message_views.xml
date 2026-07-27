@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_send_message_form" model="ir.ui.view">
+        <field name="name">chatflow.send.message.form</field>
+        <field name="model">chatflow.send.message</field>
+        <field name="arch" type="xml">
+            <form string="Send Message">
+                <group>
+                    <field name="subscriber_id" readonly="1"/>
+                    <field name="in_24h_window"/>
+                    <field name="message" placeholder="Type your reply..."/>
+                    <field name="send_voice"/>
+                </group>
+                <div class="alert alert-warning" role="alert"
+                     invisible="in_24h_window">
+                    This person last messaged the page more than 24 hours
+                    ago: Facebook will most likely reject a standard reply.
+                </div>
+                <footer>
+                    <button name="action_send" type="object" string="Send"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

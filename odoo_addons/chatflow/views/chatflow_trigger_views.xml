@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_trigger_list" model="ir.ui.view">
+        <field name="name">chatflow.trigger.list</field>
+        <field name="model">chatflow.trigger</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="trigger_type"/>
+                <field name="keywords"/>
+                <field name="match_type" optional="hide"/>
+                <field name="flow_id"/>
+                <field name="page_id" optional="show"/>
+                <field name="apply_to_comments" optional="hide"/>
+                <field name="hit_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_trigger_form" model="ir.ui.view">
+        <field name="name">chatflow.trigger.form</field>
+        <field name="model">chatflow.trigger</field>
+        <field name="arch" type="xml">
+            <form string="Trigger">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Price keywords"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="trigger_type"/>
+                            <field name="keywords"
+                                   invisible="trigger_type != 'keyword'"
+                                   required="trigger_type == 'keyword'"/>
+                            <field name="match_type"
+                                   invisible="trigger_type != 'keyword'"/>
+                        </group>
+                        <group>
+                            <field name="flow_id"/>
+                            <field name="page_id"/>
+                            <field name="apply_to_comments"/>
+                            <field name="sequence"/>
+                            <field name="hit_count"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chatflow_trigger" model="ir.actions.act_window">
+        <field name="name">Triggers</field>
+        <field name="res_model">chatflow.trigger</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first trigger</p>
+            <p>Triggers connect incoming messages to flows: keywords, the
+            Welcome (Get Started) event, or the default reply.</p>
+        </field>
+    </record>
+</odoo>

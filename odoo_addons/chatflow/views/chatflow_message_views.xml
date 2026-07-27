@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_message_list" model="ir.ui.view">
+        <field name="name">chatflow.message.list</field>
+        <field name="model">chatflow.message</field>
+        <field name="arch" type="xml">
+            <list create="false" decoration-danger="error"
+                  decoration-muted="direction == 'out'">
+                <field name="create_date"/>
+                <field name="page_id" optional="hide"/>
+                <field name="subscriber_id"/>
+                <field name="direction"/>
+                <field name="message_type" optional="show"/>
+                <field name="body"/>
+                <field name="is_bot" optional="show"/>
+                <field name="error" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_message_search" model="ir.ui.view">
+        <field name="name">chatflow.message.search</field>
+        <field name="model">chatflow.message</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="body"/>
+                <field name="subscriber_id"/>
+                <filter string="Incoming" name="incoming"
+                        domain="[('direction', '=', 'in')]"/>
+                <filter string="Outgoing" name="outgoing"
+                        domain="[('direction', '=', 'out')]"/>
+                <filter string="Delivery Errors" name="errors"
+                        domain="[('error', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Subscriber" name="group_subscriber"
+                            context="{'group_by': 'subscriber_id'}"/>
+                    <filter string="Page" name="group_page"
+                            context="{'group_by': 'page_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_chatflow_message" model="ir.actions.act_window">
+        <field name="name">Messages</field>
+        <field name="res_model">chatflow.message</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_chatflow_message_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No messages yet</p>
+            <p>Every incoming and outgoing Messenger message and comment
+            reply is logged here.</p>
+        </field>
+    </record>
+
+    <!-- Incoming webhook event queue (debugging) -->
+    <record id="view_chatflow_event_list" model="ir.ui.view">
+        <field name="name">chatflow.event.list</field>
+        <field name="model">chatflow.event</field>
+        <field name="arch" type="xml">
+            <list create="false" decoration-danger="state == 'failed'">
+                <field name="create_date"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"/>
+                <field name="error"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_event_form" model="ir.ui.view">
+        <field name="name">chatflow.event.form</field>
+        <field name="model">chatflow.event</field>
+        <field name="arch" type="xml">
+            <form string="Webhook Event" create="false">
+                <sheet>
+                    <group>
+                        <field name="create_date"/>
+                        <field name="state"/>
+                        <field name="error"/>
+                    </group>
+                    <field name="payload" widget="text"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chatflow_event" model="ir.actions.act_window">
+        <field name="name">Webhook Events</field>
+        <field name="res_model">chatflow.event</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Tags -->
+    <record id="view_chatflow_tag_list" model="ir.ui.view">
+        <field name="name">chatflow.tag.list</field>
+        <field name="model">chatflow.tag</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="color" widget="color_picker"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_chatflow_tag" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">chatflow.tag</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

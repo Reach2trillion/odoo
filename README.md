@@ -1,5 +1,11 @@
 # Facebook Auto-Reply Bot — Khmer Voice 🇰🇭🔊
 
+> **New:** this repository now also contains **ChatFlow**, a ManyChat-style
+> Messenger marketing module for **Odoo 18** (flows, keyword triggers,
+> subscribers, tags, broadcasts, inbox and the same Khmer voice replies).
+> See [`odoo_addons/chatflow/README.md`](odoo_addons/chatflow/README.md).
+> The standalone Flask bot below still works as before.
+
 A small Dockerized service that automatically answers your Facebook Page:
 
 - **Messenger messages** → replies with **Khmer text + a Khmer voice (audio) message**, generated with text-to-speech.

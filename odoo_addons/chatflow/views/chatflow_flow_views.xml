@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chatflow_flow_list" model="ir.ui.view">
+        <field name="name">chatflow.flow.list</field>
+        <field name="model">chatflow.flow</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="step_count"/>
+                <field name="times_triggered"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_chatflow_flow_form" model="ir.ui.view">
+        <field name="name">chatflow.flow.form</field>
+        <field name="model">chatflow.flow</field>
+        <field name="arch" type="xml">
+            <form string="Flow">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Price Inquiry"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="times_triggered"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Steps" name="steps">
+                            <field name="step_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="step_type"/>
+                                    <field name="message" widget="text"/>
+                                    <field name="tag_id"
+                                           optional="show"/>
+                                    <field name="image_url" optional="hide"/>
+                                    <field name="delay" optional="hide"/>
+                                    <field name="button_ids" widget="many2many_tags"
+                                           string="Buttons" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Triggers" name="triggers">
+                            <field name="trigger_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="trigger_type"/>
+                                    <field name="keywords"/>
+                                    <field name="hit_count"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_chatflow_flow_step_form" model="ir.ui.view">
+        <field name="name">chatflow.flow.step.form</field>
+        <field name="model">chatflow.flow.step</field>
+        <field name="arch" type="xml">
+            <form string="Flow Step">
+                <sheet>
+                    <group>
+                        <field name="step_type"/>
+                        <field name="message"
+                               invisible="step_type in ('image', 'typing', 'add_tag', 'remove_tag', 'create_lead')"
+                               required="step_type in ('text', 'voice', 'quick_replies', 'buttons')"/>
+                        <field name="image_url"
+                               invisible="step_type != 'image'"
+                               required="step_type == 'image'"/>
+                        <field name="tag_id"
+                               invisible="step_type not in ('add_tag', 'remove_tag')"
+                               required="step_type in ('add_tag', 'remove_tag')"/>
+                        <field name="delay" invisible="step_type != 'typing'"/>
+                    </group>
+                    <group string="Buttons / Quick Replies"
+                           invisible="step_type not in ('quick_replies', 'buttons')">
+                        <field name="button_ids" nolabel="1" colspan="2">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="button_type"/>
+                                <field name="target_flow_id"
+                                       required="button_type == 'flow'"/>
+                                <field name="url"
+                                       required="button_type == 'url'"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chatflow_flow" model="ir.actions.act_window">
+        <field name="name">Flows</field>
+        <field name="res_model">chatflow.flow</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first flow</p>
+            <p>A flow is the automated answer sent to a subscriber: a
+            sequence of text, voice, images, buttons and actions.</p>
+        </field>
+    </record>
+</odoo>

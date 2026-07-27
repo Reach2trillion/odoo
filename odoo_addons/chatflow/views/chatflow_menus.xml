@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_chatflow_root" name="ChatFlow"
+              web_icon="chatflow,static/description/icon.png"
+              sequence="76"
+              groups="chatflow.group_chatflow_user"/>
+
+    <menuitem id="menu_chatflow_inbox" name="Inbox"
+              parent="menu_chatflow_root" sequence="10"
+              action="action_chatflow_subscriber"/>
+    <menuitem id="menu_chatflow_messages" name="Messages"
+              parent="menu_chatflow_root" sequence="20"
+              action="action_chatflow_message"/>
+
+    <menuitem id="menu_chatflow_automation" name="Automation"
+              parent="menu_chatflow_root" sequence="30"/>
+    <menuitem id="menu_chatflow_flows" name="Flows"
+              parent="menu_chatflow_automation" sequence="10"
+              action="action_chatflow_flow"/>
+    <menuitem id="menu_chatflow_triggers" name="Triggers"
+              parent="menu_chatflow_automation" sequence="20"
+              action="action_chatflow_trigger"/>
+
+    <menuitem id="menu_chatflow_marketing" name="Marketing"
+              parent="menu_chatflow_root" sequence="40"/>
+    <menuitem id="menu_chatflow_broadcasts" name="Broadcasts"
+              parent="menu_chatflow_marketing" sequence="10"
+              action="action_chatflow_broadcast"/>
+    <menuitem id="menu_chatflow_tags" name="Tags"
+              parent="menu_chatflow_marketing" sequence="20"
+              action="action_chatflow_tag"/>
+
+    <menuitem id="menu_chatflow_config" name="Configuration"
+              parent="menu_chatflow_root" sequence="50"
+              groups="chatflow.group_chatflow_manager"/>
+    <menuitem id="menu_chatflow_pages" name="Facebook Pages"
+              parent="menu_chatflow_config" sequence="10"
+              action="action_chatflow_page"/>
+    <menuitem id="menu_chatflow_events" name="Webhook Events"
+              parent="menu_chatflow_config" sequence="20"
+              action="action_chatflow_event"/>
+</odoo>
