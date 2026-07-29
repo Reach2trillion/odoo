@@ -10,7 +10,7 @@
         </div>
       </section>
 
-      <section class="pt64 pb48" style="background:#0C0C0C;">
+      <section class="pt64 pb48" style="background:var(--abj-bg);">
         <div class="container">
           <div class="row align-items-center g-5">
             <div class="col-lg-6">
@@ -28,7 +28,7 @@
         </div>
       </section>
 
-      <section class="pt48 pb64" style="background:#0C0C0C;">
+      <section class="pt48 pb64" style="background:var(--abj-bg);">
         <div class="container">
           <div class="text-center mb-5">
             <div class="abj-eyebrow mb-2">What we believe</div>

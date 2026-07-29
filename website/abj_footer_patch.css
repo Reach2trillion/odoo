@@ -1,50 +1,50 @@
-/* ABJ dark-theme patch layer.
+/* ABJ light baby-blue patch layer.
    Deployed MINIFIED inside a <style> tag appended after abj_site.js in
    website.custom_code_footer (website id 1), so it cascades after the
    head CSS (abj_brand.css). Keep this file in sync with the live copy. */
 
 /* --- checkout / generic form surfaces --- */
 #wrapwrap .bg-white,
-#wrapwrap .bg-light { background-color: #0F1E2A !important; }
+#wrapwrap .bg-light { background-color: #FFFFFF !important; }
 #wrapwrap label,
 #wrapwrap .col-form-label,
 #wrapwrap .form-label { color: var(--abj-ink); }
 #wrapwrap .btn-link { color: var(--abj-sky); }
 #wrapwrap .btn-light,
 #wrapwrap .btn-outline-secondary {
-  background: #112331;
-  border: 1px solid #2A4A63;
+  background: #FFFFFF;
+  border: 1px solid #BFDCEE;
   color: var(--abj-ink) !important;
   border-radius: 999px;
 }
 #wrapwrap .btn-light:hover,
-#wrapwrap .btn-outline-secondary:hover { background: #163048; color: #fff !important; }
+#wrapwrap .btn-outline-secondary:hover { background: #CDE7F7; color: #0B3D5C !important; }
 #wrapwrap .o_delivery_carrier_select {
-  background: #0F1E2A;
+  background: #FFFFFF;
   border: 1px solid var(--abj-line);
   border-radius: 14px;
   padding: .9rem 1rem;
   margin-bottom: .6rem;
 }
-#wrapwrap .o_delivery_carrier_select:hover { border-color: #3E6785; }
+#wrapwrap .o_delivery_carrier_select:hover { border-color: #7FB8DD; }
 #wrapwrap .o_wsale_delivery_price,
 #wrapwrap .o_wsale_delivery_badge { color: var(--abj-sky); }
 #wrapwrap .o_payment_form label { color: var(--abj-ink); }
-#wrapwrap .o_payment_form .o_payment_option_card:hover { border-color: #3E6785 !important; }
+#wrapwrap .o_payment_form .o_payment_option_card:hover { border-color: #7FB8DD !important; }
 #wrapwrap .card.border-primary {
   border-color: var(--abj-blue) !important;
   box-shadow: 0 0 0 2px rgba(137,207,240,.3);
 }
 #wrapwrap .o_wizard_steps a,
 #wrapwrap .progress-wizard a { color: var(--abj-soft); }
-#wrapwrap .input-group-text { background: #112331; border-color: #2A4A63; color: var(--abj-soft); }
-#wrapwrap .form-select option { background: #112331; color: var(--abj-ink); }
-#wrapwrap input::-webkit-calendar-picker-indicator { filter: invert(.8); }
+#wrapwrap .input-group-text { background: #FFFFFF; border-color: #BFDCEE; color: var(--abj-soft); }
+#wrapwrap .form-select option { background: #FFFFFF; color: var(--abj-ink); }
+#wrapwrap input::-webkit-calendar-picker-indicator { filter: none; }
 
 /* --- cart totals card (order summary) --- */
 #wrapwrap .oe_website_sale .card {
-  background-color: #0F1E2A;
-  border: 1px solid #1F3A4E;
+  background-color: #FFFFFF;
+  border: 1px solid #C9E2F2;
   color: var(--abj-ink);
 }
 #wrapwrap .oe_website_sale .card-body { background: transparent; color: var(--abj-ink); }
@@ -54,19 +54,19 @@
   color: var(--abj-ink);
 }
 #wrapwrap #cart_total td,
-#wrapwrap #cart_total th { background: transparent; color: var(--abj-ink); border-color: #1F3A4E; }
-#wrapwrap #cart_total tr.border-top { border-color: #1F3A4E !important; }
+#wrapwrap #cart_total th { background: transparent; color: var(--abj-ink); border-color: #C9E2F2; }
+#wrapwrap #cart_total tr.border-top { border-color: #C9E2F2 !important; }
 #wrapwrap .oe_website_sale .text-muted { color: var(--abj-soft) !important; }
 #wrapwrap .oe_website_sale .monetary_field,
 #wrapwrap .oe_website_sale .oe_currency_value { color: var(--abj-ink); }
-#wrapwrap .coupon_form .form-control { background: #112331; border: 1px solid #2A4A63; color: var(--abj-ink); }
-#wrapwrap .coupon_form .form-control::placeholder { color: #6E90A6; }
+#wrapwrap .coupon_form .form-control { background: #FFFFFF; border: 1px solid #BFDCEE; color: var(--abj-ink); }
+#wrapwrap .coupon_form .form-control::placeholder { color: #7FA0B5; }
 #wrapwrap .coupon_form .btn-secondary {
-  background: #112331;
-  border: 1px solid #2A4A63;
+  background: #FFFFFF;
+  border: 1px solid #BFDCEE;
   color: var(--abj-ink);
   border-radius: 999px;
 }
-#wrapwrap .coupon_form .btn-secondary:hover { background: #163048; color: #fff; }
-#wrapwrap .oe_website_sale .card hr { border-color: #1F3A4E; opacity: 1; }
+#wrapwrap .coupon_form .btn-secondary:hover { background: #CDE7F7; color: #0B3D5C; }
+#wrapwrap .oe_website_sale .card hr { border-color: #C9E2F2; opacity: 1; }
 #wrapwrap .oe_website_sale .card a:not(.btn) { color: var(--abj-sky); }

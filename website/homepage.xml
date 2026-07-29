@@ -29,7 +29,7 @@
 #pr-video{position:fixed;left:0;top:220px;width:100vw;height:calc(100vh - 220px);z-index:0;overflow:hidden;opacity:0;transition:opacity .3s ease;pointer-events:none}
 @media (min-width:1024px){#pr-video{top:0;width:100%;height:100%}}
 #pr-video video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover}
-#pr-panel{position:fixed;left:0;top:0;right:0;bottom:0;background:#000;z-index:10;transform:translateY(100vh);pointer-events:none;overflow:hidden}
+#pr-panel{position:fixed;left:0;top:0;right:0;bottom:0;background:#BFE3F7;z-index:10;transform:translateY(100vh);pointer-events:none;overflow:hidden}
 #pr-wrap{width:100%;padding-top:min(400px,40vh)}
 .pr-grid{display:grid;grid-template-columns:repeat(2,1fr)}
 @media (min-width:640px){.pr-grid{grid-template-columns:repeat(3,1fr)}}
