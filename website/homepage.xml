@@ -58,6 +58,50 @@
 @media (min-width:1024px){#pr-buy span{font-size:110px}}
 #pr-footer{position:fixed;left:16px;right:16px;bottom:24px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;opacity:0;display:flex;justify-content:space-between;color:#fff;font-size:11px;letter-spacing:-.02em;text-transform:uppercase}
 @media (min-width:1024px){#pr-footer{right:auto;bottom:32px;justify-content:flex-start;gap:80px;font-size:13px}}
+
+/* --- NovaAI-style mid block --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700');
+#nv-block{position:relative;color:#fff;font-family:'Inter','Inter Tight',sans-serif}
+#nv-bg{position:absolute;left:0;top:0;width:100%;height:100vh;overflow:hidden;background:#0a0a0a;z-index:0;will-change:transform}
+#nv-bg video{width:100%;height:100%;object-fit:cover;display:block}
+.nv-sec{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:96px 20px 48px}
+@media (min-width:640px){.nv-sec{padding:112px 32px 48px}}
+@media (min-width:768px){.nv-sec{padding:112px 48px 64px}}
+.nv-spacer{height:80vh}
+.nv-rv{opacity:0;transform:translateY(2rem);transition:all .7s ease-out;will-change:transform}
+.nv-rv.nv-in{opacity:1;transform:translateY(0)}
+.nv-mono{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.15em}
+.nv-sh{text-shadow:0 2px 6px rgba(0,0,0,.45)}
+.nv-shl{text-shadow:0 4px 14px rgba(0,0,0,.5)}
+.nv-top{display:flex;flex-direction:column;gap:32px}
+@media (min-width:640px){.nv-top{flex-direction:row;justify-content:space-between;align-items:flex-start}}
+.nv-svc{display:flex;flex-direction:column;gap:8px;color:rgba(255,255,255,.9)}
+#pr-root .nv-intro{max-width:20rem;font-size:18px;line-height:1.6;color:#fff;margin:0}
+@media (min-width:640px){#pr-root .nv-intro{text-align:right;font-size:20px}}
+.nv-bottom{display:flex;flex-direction:column;gap:32px;align-items:flex-start}
+@media (min-width:768px){.nv-bottom{flex-direction:row;align-items:flex-end;justify-content:space-between}}
+.nv-badge{display:inline-block;border-left:2px solid #fff;background:rgba(255,255,255,.15);padding:6px 12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);margin-bottom:20px;color:#fff}
+#pr-root .nv-h{font-family:'Inter','Inter Tight',sans-serif;font-size:clamp(3rem,7vw,4.5rem);font-weight:400;line-height:1.05;letter-spacing:-.02em;color:#fff;text-transform:none;margin:0}
+.nv-card{display:flex;align-items:center;gap:16px;border-radius:12px;background:rgba(255,255,255,.15);padding:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nv-card img{height:96px;width:80px;border-radius:8px;object-fit:cover;display:block}
+.nv-card .c{display:flex;flex-direction:column;gap:6px;padding-right:8px}
+#pr-root .nv-name{font-size:14px;font-weight:500;color:#fff;margin:0}
+.nv-role{color:rgba(255,255,255,.6);font-size:10px}
+#pr-root #nv-block a{pointer-events:auto;text-decoration:none}
+#pr-root .nv-btn{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#fff;color:#000;padding:8px 16px;font-size:12px;font-weight:500;margin-top:6px;transition:background .3s}
+#pr-root .nv-btn:hover{background:rgba(255,255,255,.85);color:#000}
+#pr-root .nv-ghostbtn{display:inline-flex;align-items:center;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:10px 20px;font-size:13px;transition:background .3s}
+#pr-root .nv-ghostbtn:hover{background:rgba(255,255,255,.2);color:#fff}
+#pr-root .nv-body{margin:24px 0 0;max-width:28rem;font-size:15px;line-height:1.6;color:rgba(255,255,255,.8)}
+.nv-ctas{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+.nv-panel{width:100%;max-width:28rem;border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:0 24px}
+.nv-row{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.15)}
+.nv-row:last-child{border-bottom:0}
+.nv-idx{color:rgba(255,255,255,.55);font-size:11px;letter-spacing:.15em;font-family:'Inter',sans-serif;padding-top:4px}
+#pr-root .nv-rt{display:flex;align-items:center;gap:6px;font-family:'Inter','Inter Tight',sans-serif;font-size:17px;font-weight:500;color:#fff;text-transform:none;letter-spacing:0;margin:0}
+.nv-rt svg{transition:transform .3s,color .3s;color:rgba(255,255,255,.4);flex:none}
+.nv-row:hover .nv-rt svg{transform:translateX(2px);color:#fff}
+#pr-root .nv-rb{margin:6px 0 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.7)}
 </style>
 
       <div id="pr-root">
@@ -92,7 +136,78 @@
         </div>
 
         <div id="pr-panel">
-          <div id="pr-wrap"></div>
+          <div id="pr-wrap">
+            <div id="pr-grid-host"></div>
+            <div id="nv-block">
+              <div id="nv-bg" aria-hidden="true">
+                <video id="nv-vid" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260729_102822_0e6c87e8-c141-4744-bf32-ad30db296371.mp4"></video>
+              </div>
+              <section class="nv-sec">
+                <div class="nv-top">
+                  <div class="nv-svc">
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:150ms">/ GENTLE CLEANSING</div>
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:270ms">/ DAILY HYDRATION</div>
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:390ms">/ SPF PROTECTION</div>
+                  </div>
+                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:300ms">We craft skincare that brings calm, balance and glow to the way your skin lives every day.</p>
+                </div>
+                <div class="nv-bottom">
+                  <div>
+                    <div class="nv-rv nv-badge nv-mono" style="transition-delay:150ms">Trusted By 2,000+ Customers</div>
+                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:280ms">Clear. Gentle.<br/>Glowing.</h2>
+                  </div>
+                  <div class="nv-rv nv-card" style="transition-delay:420ms">
+                    <img src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260728_050334_5b076e26-0ce7-4898-b432-d764190e448f.png&amp;w=1280&amp;q=85" alt="Mitha, co-founder of ABJ" loading="lazy"/>
+                    <div class="c">
+                      <p class="nv-name">Talk with Mitha</p>
+                      <span class="nv-role nv-mono" style="font-size:10px">Co-founder of ABJ</span>
+                      <a class="nv-btn" href="/contactus">Book 15-mins call <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <div class="nv-spacer" aria-hidden="true"></div>
+              <section class="nv-sec">
+                <div class="nv-top">
+                  <div><div class="nv-rv nv-badge nv-mono" style="transition-delay:120ms">Care On Demand</div></div>
+                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:220ms;max-width:24rem">Our formulas don&#8217;t just sit on skin &#8212; they read it, restore it and deliver the barrier support you need.</p>
+                </div>
+                <div class="nv-bottom" style="gap:48px">
+                  <div style="max-width:36rem">
+                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:180ms">Learn to glow<br/>brilliantly.</h2>
+                    <p class="nv-rv nv-body nv-sh" style="transition-delay:320ms">From the first cleanse to the final SPF, ABJ turns a daily routine into results you can see &#8212; quietly, gently, every day.</p>
+                    <div class="nv-rv nv-ctas" style="transition-delay:420ms">
+                      <a class="nv-btn" style="padding:10px 20px;font-size:13px;margin-top:0" href="/shop">Shop the ritual <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
+                      <a class="nv-ghostbtn" href="/contactus">Free consultation</a>
+                    </div>
+                  </div>
+                  <div class="nv-panel">
+                    <div class="nv-rv nv-row" style="transition-delay:300ms">
+                      <span class="nv-idx">01</span>
+                      <div>
+                        <h3 class="nv-rt">Barrier first <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb">Mild, non-irritating formulas that protect the skin barrier with every wash.</p>
+                      </div>
+                    </div>
+                    <div class="nv-rv nv-row" style="transition-delay:410ms">
+                      <span class="nv-idx">02</span>
+                      <div>
+                        <h3 class="nv-rt">Layered hydration <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb">From cleanser to night cream, each step builds moisture without losing the thread.</p>
+                      </div>
+                    </div>
+                    <div class="nv-rv nv-row" style="transition-delay:520ms">
+                      <span class="nv-idx">03</span>
+                      <div>
+                        <h3 class="nv-rt">Adaptive protection <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb">SPF 50+ and antioxidants that keep pace with sun, city and seasons.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
         </div>
 
         <div id="pr-overlay"></div>
@@ -133,6 +248,11 @@
   var foot=document.getElementById('pr-footer');
   var sym=document.getElementById('circle-symbol');
   var cursor=document.getElementById('pr-cursor');
+  var gridHost=document.getElementById('pr-grid-host');
+  var nvBlock=document.getElementById('nv-block');
+  var nvBg=document.getElementById('nv-bg');
+  var nvVid=document.getElementById('nv-vid');
+  var nvEls=Array.prototype.slice.call(document.querySelectorAll('.nv-rv'));
 
   var IDS=[2,3,4,5,6,7,8,9,10,11,12];
   var ALTS=['BB Cream','Facial Foam','Hair Conditioner','Shampoo','Face Mask','Night Cream','Makeup Remover','Serum','Shower Gel','Sunscreen','Underarm Cream'];
@@ -185,8 +305,8 @@
         g.appendChild(cell);
       });
     });
-    wrap.innerHTML='';
-    wrap.appendChild(g);
+    gridHost.innerHTML='';
+    gridHost.appendChild(g);
     cards=Array.prototype.slice.call(wrap.querySelectorAll('.bp-card'));
   }
 
@@ -286,6 +406,28 @@
     panel.style.transform='translateY('+(vh-p1)+'px)';
     var ph2=Math.min(maxScroll,Math.max(0,y-vh));
     wrap.style.transform='translateY(-'+ph2+'px)';
+    if(nvBlock){
+      var bt=nvBlock.offsetTop,bh=nvBlock.offsetHeight;
+      var lim=Math.max(0,bh-vh);
+      var local=Math.min(lim,Math.max(0,ph2-bt));
+      nvBg.style.transform='translateY('+local+'px)';
+      if(lim>0){
+        var np=local/lim;
+        var nd=nvVid.duration;
+        if(nd>0){
+          if(!nvVid.seeking){
+            nvVid.currentTime=Math.max(0,Math.min(nd-0.05,np*nd));
+          }
+        }
+      }
+      var k=0,m=nvEls.length;
+      for(k=0;m>k;k++){
+        var er=nvEls[k].getBoundingClientRect();
+        if(vh*0.85>er.top){
+          if(er.bottom>0){nvEls[k].classList.add('nv-in');}
+        }
+      }
+    }
     if(y>=vh){
       if(vc.style.visibility!=='hidden'){vc.style.visibility='hidden';}
     }else{
