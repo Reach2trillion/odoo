@@ -131,8 +131,34 @@
 .mb-track{display:flex;width:max-content;white-space:nowrap;font-size:16vh;line-height:1;color:#efeee9;animation:mbMq 30s linear infinite}
 @media (min-width:640px){.mb-track{font-size:26vh}}
 .mb-track span{padding-right:6vw}
-.mb-front{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:70vh;max-width:92vw;object-fit:contain;z-index:20;pointer-events:none;opacity:0;filter:drop-shadow(0 30px 60px rgba(0,0,0,.55))}
-.mb-on .mb-front{animation:mbRise 1.4s cubic-bezier(.22,1,.36,1) .3s both}
+#mb-inner{position:absolute;left:0;top:0;width:100%;height:200vh;will-change:transform}
+.mb-screen{position:relative;height:100vh;overflow:hidden}
+.mb-front-link{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:70vh;max-width:92vw;z-index:20;opacity:0;display:block}
+.mb-front-link img{height:100%;width:auto;max-width:100%;object-fit:contain;display:block;filter:drop-shadow(0 30px 60px rgba(0,0,0,.55))}
+.mb-on .mb-front-link{animation:mbRise 1.4s cubic-bezier(.22,1,.36,1) .3s both}
+.mb-brand sup{font-size:.55em}
+#pr-root #mb-panel a.mb-cta{display:inline-flex;align-items:center;gap:8px;background:#efeee9;color:#0d0d0d;border-radius:999px;padding:12px 26px;font-size:14px;font-weight:500;transition:opacity .3s}
+#pr-root #mb-panel a.mb-cta:hover{opacity:.85;color:#0d0d0d}
+.mb-cta1{position:absolute;right:24px;bottom:8.5rem;z-index:30}
+@media (min-width:640px){.mb-cta1{right:40px;bottom:10rem}}
+.mb2{background:#0d0d0d}
+.mb2-wrap{height:100%;display:flex;flex-direction:column;justify-content:center;padding:80px 24px 48px;max-width:1200px;margin:0 auto;width:100%}
+@media (min-width:640px){.mb2-wrap{padding:100px 40px 64px}}
+.mb2-head{display:flex;flex-direction:column;gap:20px;align-items:flex-start;justify-content:space-between;margin-bottom:32px}
+@media (min-width:768px){.mb2-head{flex-direction:row;align-items:flex-end}}
+.mb2-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,238,233,.5);margin-bottom:10px}
+#pr-root .mb2-h{font-family:'Helvetica Neue ME',Helvetica,Arial,sans-serif;font-size:clamp(2.4rem,6vw,4rem);font-weight:400;line-height:1.05;color:#efeee9;text-transform:none;letter-spacing:-.01em;margin:0}
+#pr-root .mb2-sub{margin:12px 0 0;font-size:14px;color:rgba(239,238,233,.7)}
+.mb2-grid{display:flex;flex-direction:column}
+@media (min-width:768px){.mb2-grid{flex-direction:row;gap:40px}}
+.mb2-card{padding:22px 0;border-top:1px solid rgba(239,238,233,.18);display:flex;flex-direction:column;gap:12px;flex:1}
+.mb2-av{width:52px;height:52px;border-radius:50%;border:1.5px solid #efeee9;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:.05em;color:#efeee9}
+.mb2-st{letter-spacing:.25em;font-size:12px;color:#efeee9}
+#pr-root .mb2-q{margin:0;font-size:15px;line-height:1.7;color:rgba(239,238,233,.85)}
+.mb2-nm{font-size:14px;font-weight:500}
+.mb2-lc{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(239,238,233,.5);margin-top:2px}
+#mb-panel [data-mb2]{opacity:0}
+.mb-on2 [data-mb2]{animation:mbFadeUp .9s cubic-bezier(.22,1,.36,1) both;animation-delay:var(--d,0ms)}
 .mb-rule{position:absolute;left:24px;right:24px;bottom:5.5rem;height:2px;background:#efeee9;z-index:10;transform:scaleX(0);transform-origin:left}
 @media (min-width:640px){.mb-rule{left:40px;right:40px;bottom:7rem}}
 .mb-on .mb-rule{animation:mbLine 1.1s cubic-bezier(.76,0,.24,1) 1.2s both}
@@ -177,7 +203,7 @@
 .mb-open .mb-dsoc a:nth-child(2){transition-delay:.61s}
 .mb-open .mb-dsoc a:nth-child(3){transition-delay:.67s}
 @media (prefers-reduced-motion:reduce){
-.mb-on [data-mb],.mb-on .mb-bg,.mb-on .mb-front,.mb-on .mb-rule{animation-duration:.01ms;animation-delay:0ms}
+.mb-on [data-mb],.mb-on .mb-bg,.mb-on .mb-front-link,.mb-on .mb-rule,.mb-on2 [data-mb2]{animation-duration:.01ms;animation-delay:0ms}
 .mb-track{animation:none}
 }
 </style>
@@ -316,23 +342,75 @@
         </div>
 
         <div id="mb-panel">
-          <img class="mb-bg" src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260729_022513_486985a2-ac8c-4278-91a8-071dcd9fcaff.png&amp;w=1280&amp;q=85" alt="" loading="lazy"/>
-          <div class="mb-mq" data-mb="1" style="--d:500ms">
-            <div class="mb-track">
-              <span>ABJ &#8212; Skincare&#160;</span>
-              <span>ABJ &#8212; Skincare&#160;</span>
+          <div id="mb-inner">
+            <div class="mb-screen">
+              <img class="mb-bg" src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260729_022513_486985a2-ac8c-4278-91a8-071dcd9fcaff.png&amp;w=1280&amp;q=85" alt="" loading="lazy"/>
+              <div class="mb-mq" data-mb="1" style="--d:500ms">
+                <div class="mb-track">
+                  <span>ABJ &#8212; Skincare&#160;</span>
+                  <span>ABJ &#8212; Skincare&#160;</span>
+                </div>
+              </div>
+              <a class="mb-front-link" href="/shop/abj-serum-9" aria-label="Buy ABJ Serum">
+                <img class="mb-front" src="/web/image/product.template/9/image_1024" alt="ABJ Serum" loading="lazy"/>
+              </a>
+              <div class="mb-rule"></div>
+              <a class="mb-cta mb-cta1" data-mb="1" style="--d:1600ms" href="/shop">Buy now</a>
+              <div class="mb-foot">
+                <div data-mb="1" style="--d:1400ms">Gentle by design<br/>Backed by science<br/>Obsessed with glow</div>
+                <div class="tr" data-mb="1" style="--d:1550ms">A daily ritual by<br/>ABJ Skincare</div>
+              </div>
+            </div>
+            <div class="mb-screen mb2">
+              <div class="mb2-wrap">
+                <div class="mb2-head">
+                  <div>
+                    <div class="mb2-eyebrow" data-mb2="1" style="--d:100ms">Customer Stories</div>
+                    <h2 class="mb2-h" data-mb2="1" style="--d:220ms">Loved, daily.</h2>
+                    <p class="mb2-sub" data-mb2="1" style="--d:340ms">4.9 / 5 average from 2,000+ customers across Cambodia.</p>
+                  </div>
+                  <a class="mb-cta" data-mb2="1" style="--d:460ms" href="/shop">Shop bestsellers</a>
+                </div>
+                <div class="mb2-grid">
+                  <div class="mb2-card" data-mb2="1" style="--d:520ms">
+                    <div class="mb2-av">SP</div>
+                    <div class="mb2-st">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="mb2-q">&#8220;The serum brightened my skin in three weeks. Gentle, no sting, no breakouts &#8212; just glow.&#8221;</p>
+                    <div>
+                      <div class="mb2-nm">Sreyneang P.</div>
+                      <div class="mb2-lc">Phnom Penh &#183; Serum + Face Mask</div>
+                    </div>
+                  </div>
+                  <div class="mb2-card" data-mb2="1" style="--d:640ms">
+                    <div class="mb2-av">DK</div>
+                    <div class="mb2-st">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="mb2-q">&#8220;The sunscreen never feels heavy in this heat. My skin stays calm and protected all day.&#8221;</p>
+                    <div>
+                      <div class="mb2-nm">Dara K.</div>
+                      <div class="mb2-lc">Siem Reap &#183; Sunscreen SPF 50+</div>
+                    </div>
+                  </div>
+                  <div class="mb2-card" data-mb2="1" style="--d:760ms">
+                    <div class="mb2-av">MC</div>
+                    <div class="mb2-st">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="mb2-q">&#8220;The wash care set smells amazing and my hair has never been softer. The whole family uses it.&#8221;</p>
+                    <div>
+                      <div class="mb2-nm">Malis C.</div>
+                      <div class="mb2-lc">Battambang &#183; Shampoo + Shower Gel</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <img class="mb-front" src="/web/image/product.template/9/image_1024" alt="ABJ Serum" loading="lazy"/>
-          <div class="mb-rule"></div>
           <div class="mb-head">
-            <a class="mb-brand" data-mb="1" style="--d:800ms" href="/">ABJ</a>
+            <a class="mb-brand" data-mb="1" style="--d:800ms" href="/">abj<sup>&#174;</sup></a>
             <div class="mb-cols">
               <div class="mb-year" data-mb="1" style="--d:900ms">2026</div>
               <div class="mb-col">
-                <a data-mb="1" style="--d:1000ms" href="/about-us">Story</a>
+                <a data-mb="1" style="--d:1000ms" href="/about-us">About</a>
                 <a data-mb="1" style="--d:1080ms" href="/shop">Shop</a>
-                <a data-mb="1" style="--d:1160ms" href="/contactus">Message</a>
+                <a data-mb="1" style="--d:1160ms" href="/shop/cart">[ Cart ]</a>
               </div>
               <div class="mb-col">
                 <a data-mb="1" style="--d:1150ms" href="#">Instagram</a>
@@ -342,18 +420,14 @@
             </div>
             <button class="mb-burger" data-mb="1" style="--d:900ms" id="mb-burger" aria-label="Menu"><span></span><span></span><span></span></button>
           </div>
-          <div class="mb-foot">
-            <div data-mb="1" style="--d:1400ms">Gentle by design<br/>Backed by science<br/>Obsessed with glow</div>
-            <div class="tr" data-mb="1" style="--d:1550ms">A daily ritual by<br/>ABJ Skincare</div>
-          </div>
           <div class="mb-backdrop" id="mb-backdrop"></div>
           <div class="mb-drawer" id="mb-drawer">
             <button class="mb-close" id="mb-close" aria-label="Close"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
             <div class="mb-label l1">Site Index</div>
             <div class="mb-dnav">
-              <a href="/about-us">Story</a>
+              <a href="/about-us">About</a>
               <a href="/shop">Shop</a>
-              <a href="/contactus">Message</a>
+              <a href="/shop/cart">Cart</a>
             </div>
             <div class="mb-label l2">Find Me</div>
             <div class="mb-dsoc">
@@ -393,7 +467,8 @@
   var mbClose=document.getElementById('mb-close');
   var mbBackdrop=document.getElementById('mb-backdrop');
   var navEl=document.getElementById('pr-nav');
-  var mbOn=false,mbOpen=false;
+  var mbInner=document.getElementById('mb-inner');
+  var mbOn=false,mbOn2=false,mbOpen=false;
   function mbToggle(o){
     mbOpen=o;
     if(o){mbPanel.classList.add('mb-open');document.body.style.overflow='hidden';}
@@ -472,7 +547,7 @@
     wrap.style.transform='none';
     maxScroll=Math.max(0,wrap.scrollHeight-vh);
     wrap.style.transform=prev;
-    root.style.height=(vh+maxScroll+3*vh)+'px';
+    root.style.height=(vh+maxScroll+4*vh)+'px';
   }
 
   var SYMS=['8','$','^^','%','/'],lastSym=0;
@@ -641,6 +716,11 @@
       mbPanel.style.transform='translateY('+((1-fp)*100)+'vh)';
       if(fp>0.98){
         if(!mbOn){mbOn=true;mbPanel.classList.add('mb-on');}
+      }
+      var fq=Math.max(0,Math.min(1,(y-oEnd-vh)/vh));
+      if(mbInner){mbInner.style.transform='translateY('+(-fq*100)+'vh)';}
+      if(fq>0.5){
+        if(!mbOn2){mbOn2=true;mbPanel.classList.add('mb-on2');}
       }
       if(navEl){navEl.style.visibility=(fp>0.9)?'hidden':'visible';}
     }
