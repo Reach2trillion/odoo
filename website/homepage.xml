@@ -65,10 +65,15 @@
 .pg-eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#2E7FB0;margin-bottom:12px;font-weight:600}
 #pr-root .pg-title{font-family:'Inter Tight',sans-serif;font-size:clamp(2.2rem,6vw,4rem);font-weight:600;letter-spacing:-.03em;line-height:1.05;color:#0B3D5C;margin:0 0 10px;text-transform:none}
 .pg-sub{font-size:14px;color:#3D6B87;margin:0}
-.bp-card{flex-direction:column;gap:10px}
-.bp-card img{max-height:82%}
+.bp-card{flex-direction:column;gap:8px}
+.bp-card img{max-height:62%}
 .bp-name{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#0B3D5C;font-weight:600;text-align:center}
 @media (min-width:1024px){.bp-name{font-size:11px}}
+#pr-root a.bp-card{pointer-events:auto;text-decoration:none;color:inherit;cursor:pointer}
+#pr-root .bp-desc{font-size:11px;line-height:1.5;color:#3D6B87;text-align:center;max-width:24ch;margin:0}
+.bp-buy{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#1D82C4;font-weight:700;border-bottom:1px solid #89CFF0;padding-bottom:2px}
+#pr-root a.bp-card:hover .bp-buy{color:#0B3D5C;border-color:#0B3D5C}
+@media (min-width:1024px){#pr-root .bp-desc{font-size:12px}.bp-buy{font-size:10px}}
 
 /* --- NovaAI-style mid block --- */
 #nv-block{position:relative;color:#fff;font-family:'Inter','Inter Tight',sans-serif}
@@ -151,7 +156,7 @@
             <div id="pr-gal-head">
               <div class="pg-eyebrow">The Collection</div>
               <h2 class="pg-title">Eleven daily essentials</h2>
-              <p class="pg-sub">Cleanse, treat, protect &#8212; skin, hair and body in one gentle ritual.</p>
+              <p class="pg-sub">Cleanse, treat, protect &#8212; skin, hair and body in one gentle ritual. Tap any product to shop it directly.</p>
             </div>
             <div id="pr-grid-host"></div>
             <div id="nv-block">
@@ -276,6 +281,8 @@
 
   var IDS=[2,3,4,5,6,7,8,9,10,11,12];
   var ALTS=['BB Cream','Facial Foam','Hair Conditioner','Shampoo','Face Mask','Night Cream','Makeup Remover','Serum','Shower Gel','Sunscreen','Underarm Cream'];
+  var SLUGS=['bb-cream','facial-foam','hair-conditioner','shampoo','face-mask','night-cream','makeup-remover','serum','shower-gel','sunscreen','underarm-cream'];
+  var DESCS=['Sheer daily coverage that evens tone as it cares','Creamy foam that cleanses without taking away water','Detangles and smooths for soft, silky lengths','Strengthens roots for stronger, shinier hair','A 10-minute weekly reset for tired, dull skin','White truffle night repair while you sleep','Mild remover that melts makeup, never strips','Niacinamide serum for a brighter, clearer glow','A gentle, softly scented everyday body wash','SPF 50+ daily shield, light and invisible','Brightens and smooths delicate underarm skin'];
 
   var touch=false;
   if(window.matchMedia('(pointer:coarse)').matches){touch=true;}
@@ -314,7 +321,9 @@
       row.forEach(function(idx,ci){
         var cell=document.createElement('div');cell.className='bp-cell';
         if(idx>-1){
-          var card=document.createElement('div');card.className='bp-card';
+          var card=document.createElement('a');card.className='bp-card';
+          card.href='/shop/'+SLUGS[idx]+'-'+IDS[idx];
+          card.setAttribute('aria-label','Buy ABJ '+ALTS[idx]);
           card.style.transformOrigin=(c/2>ci)?'right bottom':'left bottom';
           var im=document.createElement('img');
           im.src='/web/image/product.template/'+IDS[idx]+'/image_1024';
@@ -325,6 +334,14 @@
           nm.className='bp-name';
           nm.textContent=ALTS[idx];
           card.appendChild(nm);
+          var ds=document.createElement('div');
+          ds.className='bp-desc';
+          ds.textContent=DESCS[idx];
+          card.appendChild(ds);
+          var bu=document.createElement('div');
+          bu.className='bp-buy';
+          bu.textContent='Shop now';
+          card.appendChild(bu);
           cell.appendChild(card);
         }
         g.appendChild(cell);
