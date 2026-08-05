@@ -164,8 +164,8 @@
         </nav>
 
         <div id="pr-video" aria-hidden="true">
-          <video id="pr-vid-l" muted="muted" playsinline="playsinline" preload="auto" src="https://raw.githubusercontent.com/Reach2trillion/odoo/58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-left.mp4" data-fallback="https://cdn.jsdelivr.net/gh/Reach2trillion/odoo@58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-left.mp4"></video>
-          <video id="pr-vid-r" muted="muted" playsinline="playsinline" preload="auto" src="https://raw.githubusercontent.com/Reach2trillion/odoo/58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-right.mp4" data-fallback="https://cdn.jsdelivr.net/gh/Reach2trillion/odoo@58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-right.mp4"></video>
+          <video id="pr-vid-l" muted="muted" playsinline="playsinline" preload="auto" src="/web/content/2801/turnleft.mp4" data-fallback="https://raw.githubusercontent.com/Reach2trillion/odoo/58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-left.mp4"></video>
+          <video id="pr-vid-r" muted="muted" playsinline="playsinline" preload="auto" src="/web/content/2802/turnright.mp4" data-fallback="https://raw.githubusercontent.com/Reach2trillion/odoo/58366be9d904887ae7c767c33ef173886f528e46/website/video/turn-right.mp4"></video>
         </div>
 
         <div id="pr-panel">
