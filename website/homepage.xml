@@ -56,9 +56,10 @@
 .bp-card{will-change:transform;transform:scale(0);width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12%}
 .bp-card img{max-width:100%;max-height:100%;object-fit:contain}
 @media (prefers-reduced-motion:reduce){.bp-card{will-change:auto}}
-#pr-overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:#0d0d0d;opacity:0;z-index:12;pointer-events:none;overflow:hidden}
+#pr-overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:#DCEFFA;opacity:0;z-index:12;pointer-events:none;overflow:hidden}
 .ov-mq{position:absolute;left:0;right:0;top:16vh;overflow:hidden}
 @media (min-width:640px){.ov-mq{top:14vh}}
+.ov-mq .prbg-track{color:#0B3D5C}
 #pr-info{position:fixed;left:0;right:0;bottom:48px;z-index:20;pointer-events:none;mix-blend-mode:exclusion;display:flex;flex-direction:column;align-items:center;color:#fff;opacity:0;animation:prFade .6s ease .45s forwards}
 @media (min-width:1024px){#pr-info{left:auto;right:32px;bottom:80px;width:330px}}
 .pr-top{display:flex;flex-direction:column;align-items:flex-start;width:252px;margin-bottom:12px}
