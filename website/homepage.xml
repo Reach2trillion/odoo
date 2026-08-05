@@ -422,6 +422,13 @@
   vidL.addEventListener('error',function(){useFallback(vidL);});
   vidR.addEventListener('error',function(){useFallback(vidR);});
   if(nvVid){nvVid.addEventListener('error',function(){useFallback(nvVid);});}
+  function armStall(v){
+    if(!v){return;}
+    setTimeout(function(){
+      if(2>v.readyState){useFallback(v);}
+    },5000);
+  }
+  armStall(vidL);armStall(vidR);armStall(nvVid);
   if(vidL.readyState>2){onLoaded();}
   if(vidR.readyState>2){onLoaded();}
 
