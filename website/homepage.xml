@@ -186,7 +186,7 @@
             <div id="pr-grid-host"></div>
             <div id="nv-block">
               <div id="nv-bg" aria-hidden="true">
-                <video id="nv-vid" muted="muted" playsinline="playsinline" preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260729_102822_0e6c87e8-c141-4744-bf32-ad30db296371.mp4"></video>
+                <video id="nv-vid" muted="muted" playsinline="playsinline" preload="auto" src="https://raw.githubusercontent.com/Reach2trillion/odoo/6ec30dd9d9582741e9e15a562fc740d22fa4b667/website/video/nv-skincare.mp4" data-fallback="https://cdn.jsdelivr.net/gh/Reach2trillion/odoo@6ec30dd9d9582741e9e15a562fc740d22fa4b667/website/video/nv-skincare.mp4"></video>
               </div>
               <section class="nv-sec">
                 <div class="nv-top">
@@ -421,6 +421,7 @@
   }
   vidL.addEventListener('error',function(){useFallback(vidL);});
   vidR.addEventListener('error',function(){useFallback(vidR);});
+  if(nvVid){nvVid.addEventListener('error',function(){useFallback(nvVid);});}
   if(vidL.readyState>2){onLoaded();}
   if(vidR.readyState>2){onLoaded();}
 
