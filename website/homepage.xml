@@ -4,6 +4,7 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400..700');
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&amp;display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700');
 @import url('https://db.onlinewebfonts.com/c/95cecf452d3208890088a5b4c19c7ecf?family=Helvetica+Neue+ME');
 #wrapwrap{background:#DCEFFA !important}
@@ -135,6 +136,14 @@
 .nv-row:hover .nv-rt svg{transform:translateX(2px);color:#fff}
 #pr-root .nv-rb{margin:6px 0 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.7)}
 
+/* --- Khmer language (auto on /km routes) --- */
+.lk{display:none !important;font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;letter-spacing:0}
+html.abj-km .lk{display:revert !important}
+html.abj-km .le{display:none !important}
+html.abj-km #pr-caption{line-height:1.7}
+html.abj-km .bp-desc,html.abj-km .bp-name,html.abj-km .bp-buy{font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;letter-spacing:.02em}
+html.abj-km .nv-mono{letter-spacing:.05em}
+
 </style>
 
       <div id="pr-root">
@@ -148,7 +157,7 @@
 
         <h1 id="pr-logo">abj<sup>R</sup></h1>
 
-        <p id="pr-caption">ABJ is a skincare house built on gentle, science-backed formulas. Eleven daily essentials for skin, hair and body: cleanse softly, treat deeply, protect always. Crafted to be kind to sensitive skin, designed to turn routine into ritual.</p>
+        <p id="pr-caption"><span class="le">ABJ Skincare offers 11 daily essentials for skin, hair and body care. Discover simple products for cleansing, moisturizing, protecting and completing your everyday beauty routine in Cambodia.</span><span class="lk">ABJ Skincare ផ្តល់ជូនផលិតផលចាំបាច់ ១១ មុខ ប្រចាំថ្ងៃ សម្រាប់ថែទាំស្បែក សក់ និងរាងកាយ។ ស្វែងរកផលិតផលសាមញ្ញ សម្រាប់សម្អាត ផ្តល់សំណើម ការពារ និងបំពេញទម្លាប់សម្រស់ប្រចាំថ្ងៃរបស់អ្នក នៅកម្ពុជា។</span></p>
 
         <nav id="pr-nav" aria-label="Site">
           <a class="pr-about" href="/about-us">About</a>
@@ -179,9 +188,9 @@
           </div>
           <div id="pr-wrap">
             <div id="pr-gal-head">
-              <div class="pg-eyebrow">The Collection</div>
-              <h2 class="pg-title">Eleven daily essentials</h2>
-              <p class="pg-sub">Cleanse, treat, protect &#8212; skin, hair and body in one gentle ritual. Tap any product to shop it directly.</p>
+              <div class="pg-eyebrow"><span class="le">The Collection</span><span class="lk">បណ្តុំផលិតផល</span></div>
+              <h2 class="pg-title"><span class="le">Eleven daily essentials</span><span class="lk">ផលិតផលចាំបាច់ ១១ មុខ ប្រចាំថ្ងៃ</span></h2>
+              <p class="pg-sub"><span class="le">Cleanse, treat, protect &#8212; skin, hair and body in one gentle ritual. Tap any product to shop it directly.</span><span class="lk">សម្អាត ព្យាបាល ការពារ &#8212; ស្បែក សក់ និងរាងកាយ ក្នុងទម្លាប់ទន់ភ្លន់តែមួយ។ ចុចលើផលិតផលណាមួយ ដើម្បីទិញផ្ទាល់។</span></p>
             </div>
             <div id="pr-grid-host"></div>
             <div id="nv-block">
@@ -191,23 +200,23 @@
               <section class="nv-sec">
                 <div class="nv-top">
                   <div class="nv-svc">
-                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:150ms">/ GENTLE CLEANSING</div>
-                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:270ms">/ DAILY HYDRATION</div>
-                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:390ms">/ SPF PROTECTION</div>
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:150ms"><span class="le">/ GENTLE CLEANSING</span><span class="lk">/ សម្អាតទន់ភ្លន់</span></div>
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:270ms"><span class="le">/ DAILY HYDRATION</span><span class="lk">/ សំណើមប្រចាំថ្ងៃ</span></div>
+                    <div class="nv-rv nv-mono nv-sh" style="transition-delay:390ms"><span class="le">/ SPF PROTECTION</span><span class="lk">/ ការពារ SPF</span></div>
                   </div>
-                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:300ms">We craft skincare that brings calm, balance and glow to the way your skin lives every day.</p>
+                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:300ms"><span class="le">We craft skincare that brings calm, balance and glow to the way your skin lives every day.</span><span class="lk">យើងបង្កើតផលិតផលថែស្បែក ដែលនាំមកនូវភាពស្ងប់ តុល្យភាព និងពន្លឺ ដល់ស្បែករបស់អ្នក រាល់ថ្ងៃ។</span></p>
                 </div>
                 <div class="nv-bottom">
                   <div>
-                    <div class="nv-rv nv-badge nv-mono" style="transition-delay:150ms">Trusted By 2,000+ Customers</div>
-                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:280ms">Clear. Gentle.<br/>Glowing.</h2>
+                    <div class="nv-rv nv-badge nv-mono" style="transition-delay:150ms"><span class="le">Trusted By 2,000+ Customers</span><span class="lk">ទុកចិត្តដោយអតិថិជន ២,០០០+</span></div>
+                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:280ms"><span class="le">Clear. Gentle.<br/>Glowing.</span><span class="lk">ថ្លា។ ទន់ភ្លន់។<br/>ភ្លឺរស្មី។</span></h2>
                   </div>
                   <div class="nv-rv nv-card" style="transition-delay:420ms">
-                    <img src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260728_050334_5b076e26-0ce7-4898-b432-d764190e448f.png&amp;w=1280&amp;q=85" alt="Mitha, co-founder of ABJ" loading="lazy"/>
+                    <img src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260728_050334_5b076e26-0ce7-4898-b432-d764190e448f.png&amp;w=1280&amp;q=85" alt="ABJ Skincare customer care" loading="lazy"/>
                     <div class="c">
-                      <p class="nv-name">Talk with Mitha</p>
-                      <span class="nv-role nv-mono" style="font-size:10px">Co-founder of ABJ</span>
-                      <a class="nv-btn" href="/contactus">Book 15-mins call <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
+                      <p class="nv-name"><span class="le">Talk with ABJ</span><span class="lk">និយាយជាមួយ ABJ</span></p>
+                      <span class="nv-role nv-mono" style="font-size:10px"><span class="le">CUSTOMER CARE</span><span class="lk">ផ្នែកបម្រើអតិថិជន</span></span>
+                      <a class="nv-btn" href="tel:+855312663333" aria-label="Call ABJ Skincare now"><span class="le">Call now</span><span class="lk">ហៅឥឡូវ</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
                     </div>
                   </div>
                 </div>
@@ -215,38 +224,38 @@
               <div class="nv-spacer" aria-hidden="true"></div>
               <section class="nv-sec">
                 <div class="nv-top">
-                  <div><div class="nv-rv nv-badge nv-mono" style="transition-delay:120ms">Care On Demand</div></div>
-                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:220ms;max-width:24rem">Our formulas don&#8217;t just sit on skin &#8212; they read it, restore it and deliver the barrier support you need.</p>
+                  <div><div class="nv-rv nv-badge nv-mono" style="transition-delay:120ms"><span class="le">Care On Demand</span><span class="lk">ថែទាំតាមតម្រូវការ</span></div></div>
+                  <p class="nv-rv nv-intro nv-sh" style="transition-delay:220ms;max-width:24rem"><span class="le">Our formulas don&#8217;t just sit on skin &#8212; they read it, restore it and deliver the barrier support you need.</span><span class="lk">រូបមន្តរបស់យើង មិនគ្រាន់តែនៅលើស្បែកទេ &#8212; វាស្គាល់ស្បែក ស្តារវាឡើងវិញ និងផ្តល់ការគាំទ្ររបាំងស្បែក ដែលអ្នកត្រូវការ។</span></p>
                 </div>
                 <div class="nv-bottom" style="gap:48px">
                   <div style="max-width:36rem">
-                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:180ms">Learn to glow<br/>brilliantly.</h2>
-                    <p class="nv-rv nv-body nv-sh" style="transition-delay:320ms">From the first cleanse to the final SPF, ABJ turns a daily routine into results you can see &#8212; quietly, gently, every day.</p>
+                    <h2 class="nv-rv nv-h nv-shl" style="transition-delay:180ms"><span class="le">Learn to glow<br/>brilliantly.</span><span class="lk">រៀនបញ្ចេញពន្លឺ<br/>យ៉ាងភ្លឺថ្លា។</span></h2>
+                    <p class="nv-rv nv-body nv-sh" style="transition-delay:320ms"><span class="le">From the first cleanse to the final SPF, ABJ turns a daily routine into results you can see &#8212; quietly, gently, every day.</span><span class="lk">ពីការសម្អាតដំបូង ដល់ SPF ចុងក្រោយ ABJ ប្រែទម្លាប់ប្រចាំថ្ងៃ ទៅជាលទ្ធផលដែលមើលឃើញ &#8212; ស្ងាត់ៗ ទន់ភ្លន់ រាល់ថ្ងៃ។</span></p>
                     <div class="nv-rv nv-ctas" style="transition-delay:420ms">
-                      <a class="nv-btn" style="padding:10px 20px;font-size:13px;margin-top:0" href="/shop">Shop the ritual <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
-                      <a class="nv-ghostbtn" href="/contactus">Free consultation</a>
+                      <a class="nv-btn" style="padding:10px 20px;font-size:13px;margin-top:0" href="/shop"><span class="le">Shop the ritual</span><span class="lk">ទិញតាមទម្លាប់</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
+                      <a class="nv-ghostbtn" href="/contactus"><span class="le">Free consultation</span><span class="lk">ប្រឹក្សាឥតគិតថ្លៃ</span></a>
                     </div>
                   </div>
                   <div class="nv-panel">
                     <div class="nv-rv nv-row" style="transition-delay:300ms">
                       <span class="nv-idx">01</span>
                       <div>
-                        <h3 class="nv-rt">Barrier first <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
-                        <p class="nv-rb">Mild, non-irritating formulas that protect the skin barrier with every wash.</p>
+                        <h3 class="nv-rt"><span class="le">Barrier first</span><span class="lk">របាំងស្បែកជាមុន</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb"><span class="le">Mild, non-irritating formulas that protect the skin barrier with every wash.</span><span class="lk">រូបមន្តស្រាល មិនរលាក ការពាររបាំងស្បែក រាល់ការលាងសម្អាត។</span></p>
                       </div>
                     </div>
                     <div class="nv-rv nv-row" style="transition-delay:410ms">
                       <span class="nv-idx">02</span>
                       <div>
-                        <h3 class="nv-rt">Layered hydration <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
-                        <p class="nv-rb">From cleanser to night cream, each step builds moisture without losing the thread.</p>
+                        <h3 class="nv-rt"><span class="le">Layered hydration</span><span class="lk">សំណើមជាស្រទាប់</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb"><span class="le">From cleanser to night cream, each step builds moisture without losing the thread.</span><span class="lk">ពីទឹកលាងមុខ ដល់ក្រែមយប់ គ្រប់ជំហានបន្ថែមសំណើម ជាបន្តបន្ទាប់។</span></p>
                       </div>
                     </div>
                     <div class="nv-rv nv-row" style="transition-delay:520ms">
                       <span class="nv-idx">03</span>
                       <div>
-                        <h3 class="nv-rt">Adaptive protection <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
-                        <p class="nv-rb">SPF 50+ and antioxidants that keep pace with sun, city and seasons.</p>
+                        <h3 class="nv-rt"><span class="le">Adaptive protection</span><span class="lk">ការពារបត់បែន</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></h3>
+                        <p class="nv-rb"><span class="le">SPF 50+ and antioxidants that keep pace with sun, city and seasons.</span><span class="lk">SPF 50+ និងសារធាតុប្រឆាំងអុកស៊ីតកម្ម ដែលតាមទាន់ព្រះអាទិត្យ ទីក្រុង និងរដូវ។</span></p>
                       </div>
                     </div>
                   </div>
@@ -273,12 +282,12 @@
               </svg>
               <span id="circle-symbol">8</span>
             </div>
-            <p class="pr-label">Skincare Collection<br/>&#8220;ABJ&#8221;</p>
+            <p class="pr-label"><span class="le">Skincare Collection<br/>&#8220;ABJ&#8221;</span><span class="lk">បណ្តុំថែទាំស្បែក<br/>&#8220;ABJ&#8221;</span></p>
           </div>
           <p class="pr-price">$6,00</p>
         </div>
 
-        <a id="pr-buy" href="/shop"><span>view</span></a>
+        <a id="pr-buy" href="/shop"><span><span class="le">view</span><span class="lk">មើល</span></span></a>
 
         <div id="pr-footer">
           <span>ABJ (R) 2026</span>
@@ -312,10 +321,22 @@
   var nvSm=0,nvPlaying=false;
   var pvOn=false;
 
+  var KM=false;
+  (function(){
+    var chosen=null;
+    try{chosen=localStorage.getItem('abjLang');}catch(e){}
+    var docKm=((document.documentElement.getAttribute('lang')||'').toLowerCase().indexOf('km')===0)||(window.location.pathname.indexOf('/km')===0);
+    KM = chosen ? (chosen==='km') : docKm;
+    document.documentElement.classList.toggle('abj-km', KM);
+  })();
+
   var IDS=[2,3,4,5,6,7,8,9,10,11,12];
   var ALTS=['BB Cream','Facial Foam','Hair Conditioner','Shampoo','Face Mask','Night Cream','Makeup Remover','Serum','Shower Gel','Sunscreen','Underarm Cream'];
   var SLUGS=['bb-cream','facial-foam','hair-conditioner','shampoo','face-mask','night-cream','makeup-remover','serum','shower-gel','sunscreen','underarm-cream'];
-  var DESCS=['Sheer daily coverage that evens tone as it cares','Creamy foam that cleanses without taking away water','Detangles and smooths for soft, silky lengths','Strengthens roots for stronger, shinier hair','A 10-minute weekly reset for tired, dull skin','White truffle night repair while you sleep','Mild remover that melts makeup, never strips','Niacinamide serum for a brighter, clearer glow','A gentle, softly scented everyday body wash','SPF 50+ daily shield, light and invisible','Brightens and smooths delicate underarm skin'];
+  var DESCS_EN=['Sheer daily coverage that evens tone as it cares','Creamy foam that cleanses without taking away water','Detangles and smooths for soft, silky lengths','Strengthens roots for stronger, shinier hair','A 10-minute weekly reset for tired, dull skin','White truffle night repair while you sleep','Mild remover that melts makeup, never strips','Niacinamide serum for a brighter, clearer glow','A gentle, softly scented everyday body wash','SPF 50+ daily shield, light and invisible','Brightens and smooths delicate underarm skin'];
+  var DESCS_KM=['គ្របដណ្តប់ស្តើងប្រចាំថ្ងៃ ធ្វើឱ្យសម្បុរស្មើ ព្រមទាំងថែស្បែក','ពពុះក្រែម សម្អាតដោយមិនដកសំណើម','ធ្វើឱ្យសក់មិនជាប់គ្នា ទន់រលោង','ពង្រឹងឫសសក់ ឱ្យរឹងមាំ ភ្លឺថ្លា','ស្តារស្បែកអស់កម្លាំង ១០ នាទី ប្រចាំសប្តាហ៍','ជួសជុលពេលយប់ ជាមួយ White Truffle ពេលអ្នកគេង','លុបម៉េកអាប់ស្រាល មិនធ្វើឱ្យស្បែកស្ងួត','សេរ៉ូម Niacinamide សម្រាប់ស្បែកភ្លឺថ្លា','ទឹកងូតទន់ភ្លន់ ក្លិនក្រអូបស្រាល ប្រចាំថ្ងៃ','ការពារ SPF 50+ ប្រចាំថ្ងៃ ស្រាល មើលមិនឃើញ','បំភ្លឺ និងធ្វើឱ្យរលោង ស្បែកក្លៀកដ៏ទន់'];
+  var DESCS=KM?DESCS_KM:DESCS_EN;
+  var SHOP_NOW=KM?'ទិញឥឡូវ':'Shop now';
 
   var touch=false;
   if(window.matchMedia('(pointer:coarse)').matches){touch=true;}
@@ -373,7 +394,7 @@
           card.appendChild(ds);
           var bu=document.createElement('div');
           bu.className='bp-buy';
-          bu.textContent='Shop now';
+          bu.textContent=SHOP_NOW;
           card.appendChild(bu);
           cell.appendChild(card);
         }

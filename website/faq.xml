@@ -100,18 +100,19 @@ html.abj-km .le{display:none !important}
 
 <script>
 (function(){
-  function apply(l){
+  function apply(l, store){
     document.documentElement.classList.toggle('abj-km', l==='km');
     var bs=document.querySelectorAll('.abj-langswitch button');
     for(var i=0;i&lt;bs.length;i++){bs[i].classList.toggle('active', bs[i].getAttribute('data-lang')===l);}
-    try{localStorage.setItem('abjLang', l);}catch(e){}
+    if(store){try{localStorage.setItem('abjLang', l);}catch(e){}}
   }
-  var saved='en';
-  try{saved=localStorage.getItem('abjLang')||'en';}catch(e){}
-  apply(saved);
+  var chosen=null;
+  try{chosen=localStorage.getItem('abjLang');}catch(e){}
+  var docKm=((document.documentElement.getAttribute('lang')||'').toLowerCase().indexOf('km')===0)||(window.location.pathname.indexOf('/km')===0);
+  apply(chosen||(docKm?'km':'en'), false);
   var bs=document.querySelectorAll('.abj-langswitch button');
   for(var i=0;i&lt;bs.length;i++){
-    bs[i].addEventListener('click', function(){apply(this.getAttribute('data-lang'));});
+    bs[i].addEventListener('click', function(){apply(this.getAttribute('data-lang'), true);});
   }
 })();
 </script>
