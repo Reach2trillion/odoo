@@ -77,6 +77,45 @@
       });
     }
 
+    /* --- checkout: don't ask for email (phone-first customers) ---
+       The Odoo address form requires an email server-side. We hide the field
+       and fill a per-phone placeholder (…@no-email.abjskincare.com) so the
+       customer is never asked for one. A real email already saved on the
+       partner is left untouched. */
+    (function () {
+      var email = document.querySelector(
+        'form[action^="/shop/address"] input[name="email"], ' +
+        '#address_form input[name="email"], ' +
+        '.checkout_autoformat input[name="email"]'
+      );
+      if (!email) return;
+      var form = email.form || email.closest('form');
+
+      var wrap = email.closest('.col-lg-6, .col-md-6, .col-sm-6, .mb-3, .mb-2, .form-group') || email.parentElement;
+      if (wrap) wrap.style.display = 'none';
+      var label = email.id && document.querySelector('label[for="' + email.id + '"]');
+      if (label && (!wrap || !wrap.contains(label))) label.style.display = 'none';
+      email.removeAttribute('required');
+
+      var phone = form ? form.querySelector('input[name="phone"], input[name="mobile"]') : null;
+      function fill() {
+        if (email.value && email.dataset.abjAuto !== '1') return; /* keep a real email */
+        var digits = ((phone && phone.value) || '').replace(/\D/g, '');
+        if (!digits) digits = 'kh' + String(Date.now()).slice(-8);
+        email.value = digits + '@no-email.abjskincare.com';
+        email.dataset.abjAuto = '1';
+      }
+      fill();
+      if (phone) phone.addEventListener('input', fill);
+      if (form) form.addEventListener('submit', fill, true);
+      /* newer Odoo posts the form via fetch from the save button, so also
+         refresh the value on any submit-ish click before that handler runs */
+      document.addEventListener('click', function (ev) {
+        var t = ev.target;
+        if (t && t.closest && t.closest('[name="website_sale_main_button"], .a-submit, button[type="submit"]')) fill();
+      }, true);
+    })();
+
     /* --- magnetic hero figure --- */
     var magnet = document.querySelector('.abj-magnet');
     if (magnet && !reduced && window.matchMedia('(pointer: fine)').matches) {
