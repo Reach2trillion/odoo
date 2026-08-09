@@ -8,8 +8,9 @@ Odoo instance at https://odoo2.yifu.io (website_sale / eCommerce).
 | File | Odoo target |
 |------|-------------|
 | `homepage.xml` | Home page QWeb view (`website.homepage`, view id 2854) |
-| `about.xml`    | `/about-us` page view |
-| `faq.xml`      | `/faq` page view |
+| `about.xml`    | `/about-us` page view (bilingual EN/ខ្មែរ) |
+| `faq.xml`      | `/faq` page view (bilingual EN/ខ្មែរ) |
+| `policy.xml`   | `/policy` page view — shipping, returns, privacy, terms (bilingual EN/ខ្មែរ) |
 | `abj_brand.css`| Brand styles injected via **Website → Settings → Custom `<head>` code** |
 
 ## Notes

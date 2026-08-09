@@ -2,11 +2,32 @@
   <t t-call="website.layout">
     <div id="wrap" class="oe_structure oe_empty">
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&amp;display=swap');
+.lk{display:none !important;font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;line-height:1.75;letter-spacing:0}
+html.abj-km .lk{display:revert !important}
+html.abj-km .le{display:none !important}
+.abj-langswitch{display:inline-flex;gap:4px;background:rgba(255,255,255,.75);border:1px solid rgba(30,127,192,.25);border-radius:999px;padding:4px;box-shadow:0 4px 14px rgba(9,42,63,.08)}
+.abj-langswitch button{border:0;background:transparent;border-radius:999px;padding:4px 14px;font-size:13px;font-weight:600;color:#1E7FC0;cursor:pointer}
+.abj-langswitch button.active{background:#1E7FC0;color:#fff}
+.abj-serieslist{list-style:none;padding:0;margin:0}
+.abj-serieslist li{padding:.45rem 0;border-bottom:1px dashed rgba(30,127,192,.2)}
+.abj-serieslist li:last-child{border-bottom:0}
+.abj-serieslist a{text-decoration:none;color:inherit}
+.abj-serieslist a:hover{color:#1E7FC0}
+.abj-contactcard{background:#fff;border:1px solid rgba(30,127,192,.18);border-radius:16px;padding:2rem;height:100%}
+.abj-contactcard .big{font-size:1.5rem;font-weight:700;color:#1E7FC0}
+</style>
+
       <section class="abj-hero" style="padding:4.5rem 0 3.5rem;">
         <div class="container text-center">
-          <div class="abj-eyebrow mb-3">Our story</div>
-          <h1>Soft care for skin,<br/>hair and body</h1>
-          <p class="lead mx-auto mt-3" style="max-width:40rem;">ABJ brings the complete daily ritual to Cambodia &#8212; a blue-and-white Skin Care Series for your face and a Wash Care Series for hair and body.</p>
+          <div class="mb-4"><span class="abj-langswitch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" class="active">EN</button>
+            <button type="button" data-lang="km">ខ្មែរ</button>
+          </span></div>
+          <div class="abj-eyebrow mb-3"><span class="le">Our story</span><span class="lk">រឿងរ៉ាវរបស់យើង</span></div>
+          <h1><span class="le">Soft care for skin,<br/>hair and body</span><span class="lk">ការថែទាំដ៏ទន់ភ្លន់ សម្រាប់ស្បែក<br/>សក់ និងរាងកាយ</span></h1>
+          <p class="lead mx-auto mt-3" style="max-width:42rem;"><span class="le">ABJ &#8212; AIBAOJI &#8212; brings the complete daily ritual to Cambodia: a blue-and-white Skin Care Series for your face and a Wash Care Series for hair and body.</span><span class="lk">ABJ &#8212; AIBAOJI &#8212; នាំមកនូវទម្លាប់ថែទាំប្រចាំថ្ងៃពេញលេញ ដល់កម្ពុជា៖ Skin Care Series ពណ៌ខៀវ-ស សម្រាប់ផ្ទៃមុខ និង Wash Care Series សម្រាប់សក់ និងរាងកាយ។</span></p>
         </div>
       </section>
 
@@ -19,10 +40,50 @@
               </div>
             </div>
             <div class="col-lg-6">
-              <h2 class="h1">Why we started</h2>
+              <h2 class="h1"><span class="le">Why we started</span><span class="lk">ហេតុអ្វីយើងចាប់ផ្តើម</span></h2>
               <hr class="abj-rule my-3"/>
-              <p>Everyday care shouldn't be complicated or harsh. Too many products strip moisture, irritate the skin barrier, or ask for a 12-step routine that no one keeps up with in 35&#176; heat.</p>
-              <p>ABJ was built around one idea: <strong>gentle, matched products that simply work together.</strong> Cleanse without taking away water, brighten with proven niacinamide, protect with SPF 50+, and finish with nourishing hair and body care. Today the ritual is loved by more than 2,000 customers across Cambodia.</p>
+              <p><span class="le">Everyday care shouldn't be complicated or harsh. Too many products strip moisture, irritate the skin barrier, or ask for a 12-step routine that no one keeps up with in 35&#176; heat.</span><span class="lk">ការថែទាំប្រចាំថ្ងៃ មិនគួរស្មុគស្មាញ ឬធ្ងន់ធ្ងរពេកទេ។ ផលិតផលជាច្រើន ដកសំណើមចេញពីស្បែក ធ្វើឱ្យរបាំងការពារស្បែករលាក ឬទាមទារទម្លាប់ ១២ ជំហាន ដែលគ្មាននរណាធ្វើបានទៀងទាត់ ក្នុងអាកាសធាតុក្តៅ ៣៥ អង្សា។</span></p>
+              <p><span class="le">ABJ was built around one idea: <strong>gentle, matched products that simply work together.</strong> Cleanse without taking away water, brighten with proven niacinamide, protect with SPF 50+, and finish with nourishing hair and body care. Today the ritual is loved by more than 2,000 customers across Cambodia.</span><span class="lk">ABJ កើតឡើងពីគំនិតតែមួយ៖ <strong>ផលិតផលទន់ភ្លន់ ដែលរចនាឡើងឱ្យដំណើរការជាមួយគ្នា។</strong> សម្អាតដោយមិនដកសំណើម បំភ្លឺស្បែកជាមួយ Niacinamide ការពារជាមួយ SPF 50+ ហើយបញ្ចប់ដោយការថែទាំសក់ និងរាងកាយដ៏ចិញ្ចឹមបំប៉ន។ សព្វថ្ងៃ ទម្លាប់នេះ ត្រូវបានស្រឡាញ់ដោយអតិថិជនជាង ២,០០០ នាក់ ទូទាំងកម្ពុជា។</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt48 pb48" style="background:var(--abj-bg);">
+        <div class="container">
+          <div class="text-center mb-5">
+            <div class="abj-eyebrow mb-2"><span class="le">The collection</span><span class="lk">បណ្តុំផលិតផល</span></div>
+            <h2 class="h1 mb-3"><span class="le">Two series, eleven essentials</span><span class="lk">ពីរស៊េរី ១១ ផលិតផលចាំបាច់</span></h2>
+            <hr class="abj-rule mx-auto"/>
+          </div>
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <div class="abj-contactcard">
+                <h3 class="h3 mb-1"><span class="le">Skin Care Series</span><span class="lk">Skin Care Series &#8212; ថែទាំស្បែក</span></h3>
+                <p class="abj-soft"><span class="le">The blue-and-white face ritual &#8212; cleanse, treat, protect.</span><span class="lk">ទម្លាប់ថែផ្ទៃមុខ ពណ៌ខៀវ-ស &#8212; សម្អាត ព្យាបាល ការពារ។</span></p>
+                <ul class="abj-serieslist">
+                  <li><a href="/shop"><span class="le">Gently Clean Skin Cleanser &#8212; wash away dirt without taking away water</span><span class="lk">Gently Clean Skin Cleanser &#8212; សម្អាតភាពកខ្វក់ ដោយមិនដកសំណើម</span></a></li>
+                  <li><a href="/shop"><span class="le">Mild Non-irritating Makeup Remover &#8212; melts makeup, protects the barrier</span><span class="lk">Mild Non-irritating Makeup Remover &#8212; លុបម៉េកអាប់ ការពាររបាំងស្បែក</span></a></li>
+                  <li><a href="/shop"><span class="le">Elastic Rejuvenating Essence &#8212; niacinamide serum for a clear glow</span><span class="lk">Elastic Rejuvenating Essence &#8212; សេរ៉ូម Niacinamide សម្រាប់ស្បែកភ្លឺថ្លា</span></a></li>
+                  <li><a href="/shop"><span class="le">Nicotinamide Brightening Face Mask &#8212; a 10-minute weekly reset</span><span class="lk">Nicotinamide Brightening Face Mask &#8212; ម៉ាស់ ១០ នាទី ប្រចាំសប្តាហ៍</span></a></li>
+                  <li><a href="/shop"><span class="le">Night Moisturizing Repair Night Cream &#8212; repair while you sleep</span><span class="lk">Night Moisturizing Repair Night Cream &#8212; ជួសជុលស្បែក ពេលអ្នកគេង</span></a></li>
+                  <li><a href="/shop"><span class="le">Brighten Sunscreen SPF 50+ &#8212; light, invisible daily shield</span><span class="lk">Brighten Sunscreen SPF 50+ &#8212; ការពារពន្លឺថ្ងៃ ស្រាល និងមើលមិនឃើញ</span></a></li>
+                  <li><a href="/shop"><span class="le">Blush Coverage BB Cream &#8212; natural coverage that cares</span><span class="lk">Blush Coverage BB Cream &#8212; គ្របដណ្តប់ធម្មជាតិ ព្រមទាំងថែស្បែក</span></a></li>
+                  <li><a href="/shop"><span class="le">Soothing Underarm Care Cream &#8212; brightens delicate skin</span><span class="lk">Soothing Underarm Care Cream &#8212; បំភ្លឺស្បែកក្លៀកដ៏ទន់</span></a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="abj-contactcard">
+                <h3 class="h3 mb-1"><span class="le">Wash Care Series</span><span class="lk">Wash Care Series &#8212; ថែសក់ និងរាងកាយ</span></h3>
+                <p class="abj-soft"><span class="le">Soft, fragrant care for hair and body.</span><span class="lk">ការថែទាំទន់ល្មើយ ក្រអូប សម្រាប់សក់ និងរាងកាយ។</span></p>
+                <ul class="abj-serieslist">
+                  <li><a href="/shop"><span class="le">Nourishing Soft Fragrance Shampoo &#8212; strengthens roots, smooth and shiny</span><span class="lk">Nourishing Soft Fragrance Shampoo &#8212; ពង្រឹងឫសសក់ ទន់រលោង ភ្លឺថ្លា</span></a></li>
+                  <li><a href="/shop"><span class="le">White Truffle Creamy Hair Conditioner &#8212; deep moisture, no more tangles</span><span class="lk">White Truffle Creamy Hair Conditioner &#8212; សំណើមជ្រៅ គ្មានសក់ជាប់គ្នា</span></a></li>
+                  <li><a href="/shop"><span class="le">Soft Fragrant Skin Shower Gel &#8212; a gentle everyday body wash</span><span class="lk">Soft Fragrant Skin Shower Gel &#8212; ទឹកងូតទន់ភ្លន់ ប្រចាំថ្ងៃ</span></a></li>
+                </ul>
+                <div class="mt-4"><a href="/shop" class="btn btn-primary"><span class="le">Shop all products</span><span class="lk">ទិញផលិតផលទាំងអស់</span></a></div>
+              </div>
             </div>
           </div>
         </div>
@@ -31,30 +92,64 @@
       <section class="pt48 pb64" style="background:var(--abj-bg);">
         <div class="container">
           <div class="text-center mb-5">
-            <div class="abj-eyebrow mb-2">What we believe</div>
-            <h2 class="h1 mb-3">Three promises, every bottle</h2>
+            <div class="abj-eyebrow mb-2"><span class="le">What we believe</span><span class="lk">អ្វីដែលយើងជឿ</span></div>
+            <h2 class="h1 mb-3"><span class="le">Three promises, every bottle</span><span class="lk">ការសន្យាបី ក្នុងគ្រប់ដប</span></h2>
             <hr class="abj-rule mx-auto"/>
           </div>
           <div class="row g-4">
             <div class="col-md-4">
               <div class="abj-value">
                 <div class="ico"><i class="fa fa-heart-o"></i></div>
-                <h3 class="h4">Gentle first</h3>
-                <p class="abj-soft mb-0">Mild, non-irritating formulas &#8212; soothing gentle skin care that never damages the skin barrier.</p>
+                <h3 class="h4"><span class="le">Gentle first</span><span class="lk">ទន់ភ្លន់ជាមុនសិន</span></h3>
+                <p class="abj-soft mb-0"><span class="le">Mild, non-irritating formulas &#8212; soothing gentle skin care that never damages the skin barrier.</span><span class="lk">រូបមន្តស្រាល មិនរលាក &#8212; ថែទាំស្បែកយ៉ាងទន់ភ្លន់ ដោយមិនប៉ះពាល់របាំងការពារស្បែក។</span></p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-value">
                 <div class="ico"><i class="fa fa-flask"></i></div>
-                <h3 class="h4">Proven ingredients</h3>
-                <p class="abj-soft mb-0">Niacinamide brightening, SPF 50+ photoaging protection and white truffle deep moisture &#8212; ingredients chosen to do something.</p>
+                <h3 class="h4"><span class="le">Proven ingredients</span><span class="lk">គ្រឿងផ្សំបញ្ជាក់ប្រសិទ្ធភាព</span></h3>
+                <p class="abj-soft mb-0"><span class="le">Niacinamide brightening, SPF 50+ photoaging protection and white truffle deep moisture &#8212; ingredients chosen to do something.</span><span class="lk">Niacinamide បំភ្លឺស្បែក SPF 50+ ការពារភាពចាស់ពីពន្លឺថ្ងៃ និង White Truffle ផ្តល់សំណើមជ្រៅ &#8212; គ្រឿងផ្សំដែលជ្រើសរើស ដើម្បីផ្តល់លទ្ធផលពិត។</span></p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="abj-value">
                 <div class="ico"><i class="fa fa-tint"></i></div>
-                <h3 class="h4">One matched ritual</h3>
-                <p class="abj-soft mb-0">Skin Care Series and Wash Care Series designed as one system &#8212; from the first cleanse to soft, fragrant skin and hair.</p>
+                <h3 class="h4"><span class="le">One matched ritual</span><span class="lk">ទម្លាប់តែមួយ ត្រូវគ្នា</span></h3>
+                <p class="abj-soft mb-0"><span class="le">Skin Care Series and Wash Care Series designed as one system &#8212; from the first cleanse to soft, fragrant skin and hair.</span><span class="lk">Skin Care Series និង Wash Care Series រចនាជាប្រព័ន្ធតែមួយ &#8212; ពីការសម្អាតដំបូង ដល់ស្បែក និងសក់ទន់ល្មើយ ក្រអូប។</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt32 pb48" style="background:var(--abj-ice);">
+        <div class="container">
+          <div class="text-center mb-5">
+            <div class="abj-eyebrow mb-2"><span class="le">Here for you</span><span class="lk">នៅទីនេះសម្រាប់អ្នក</span></div>
+            <h2 class="h1 mb-3"><span class="le">Talk to us</span><span class="lk">ទាក់ទងមកយើង</span></h2>
+            <hr class="abj-rule mx-auto"/>
+          </div>
+          <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+              <div class="abj-contactcard text-center">
+                <h3 class="h5 mb-2"><span class="le">Customer care</span><span class="lk">ផ្នែកបម្រើអតិថិជន</span></h3>
+                <p class="big mb-1"><a href="tel:+855312663333" style="text-decoration:none;color:inherit;">031 266 3333</a></p>
+                <p class="abj-soft mb-0"><span class="le">7 days a week, 8:00&#8211;20:00.</span><span class="lk">៧ ថ្ងៃក្នុងមួយសប្តាហ៍ ម៉ោង ៨:០០&#8211;២០:០០។</span></p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="abj-contactcard text-center">
+                <h3 class="h5 mb-2"><span class="le">Write to us</span><span class="lk">សរសេរមកយើង</span></h3>
+                <p class="mb-2"><span class="le">Questions, feedback or wholesale &#8212; we answer within one working day.</span><span class="lk">សំណួរ មតិយោបល់ ឬលក់ដុំ &#8212; យើងឆ្លើយតបក្នុងមួយថ្ងៃធ្វើការ។</span></p>
+                <a href="/contactus" class="btn btn-primary btn-sm"><span class="le">Contact page</span><span class="lk">ទំព័រទំនាក់ទំនង</span></a>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="abj-contactcard text-center">
+                <h3 class="h5 mb-2"><span class="le">Good to know</span><span class="lk">គួរដឹង</span></h3>
+                <p class="mb-2"><span class="le">Delivery times, returns and how we protect your data.</span><span class="lk">រយៈពេលដឹកជញ្ជូន ការប្រគល់វិញ និងរបៀបយើងការពារទិន្នន័យអ្នក។</span></p>
+                <a href="/faq" class="btn btn-outline-primary btn-sm me-1"><span class="le">FAQ</span><span class="lk">សំណួរញឹកញាប់</span></a>
+                <a href="/policy" class="btn btn-outline-primary btn-sm"><span class="le">Policies</span><span class="lk">គោលការណ៍</span></a>
               </div>
             </div>
           </div>
@@ -64,12 +159,30 @@
       <section class="pt32 pb64" style="background:var(--abj-ice);">
         <div class="container">
           <div class="abj-band p-5 text-center">
-            <h2 class="h1 mb-2">Meet the ritual</h2>
-            <p class="mb-4" style="opacity:.85">Cleanse &#183; brighten &#183; protect &#183; nourish &#8212; every step, softly.</p>
-            <a href="/shop" class="btn btn-primary btn-lg">Shop all products</a>
+            <h2 class="h1 mb-2"><span class="le">Meet the ritual</span><span class="lk">ស្គាល់ទម្លាប់ថែទាំ</span></h2>
+            <p class="mb-4" style="opacity:.85"><span class="le">Cleanse &#183; brighten &#183; protect &#183; nourish &#8212; every step, softly.</span><span class="lk">សម្អាត &#183; បំភ្លឺ &#183; ការពារ &#183; ចិញ្ចឹមបំប៉ន &#8212; គ្រប់ជំហាន ដោយទន់ភ្លន់។</span></p>
+            <a href="/shop" class="btn btn-primary btn-lg"><span class="le">Shop all products</span><span class="lk">ទិញផលិតផលទាំងអស់</span></a>
           </div>
         </div>
       </section>
+
+<script>
+(function(){
+  function apply(l){
+    document.documentElement.classList.toggle('abj-km', l==='km');
+    var bs=document.querySelectorAll('.abj-langswitch button');
+    for(var i=0;i&lt;bs.length;i++){bs[i].classList.toggle('active', bs[i].getAttribute('data-lang')===l);}
+    try{localStorage.setItem('abjLang', l);}catch(e){}
+  }
+  var saved='en';
+  try{saved=localStorage.getItem('abjLang')||'en';}catch(e){}
+  apply(saved);
+  var bs=document.querySelectorAll('.abj-langswitch button');
+  for(var i=0;i&lt;bs.length;i++){
+    bs[i].addEventListener('click', function(){apply(this.getAttribute('data-lang'));});
+  }
+})();
+</script>
 
     </div>
   </t>

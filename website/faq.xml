@@ -2,67 +2,86 @@
   <t t-call="website.layout">
     <div id="wrap" class="oe_structure oe_empty">
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&amp;display=swap');
+.lk{display:none !important;font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;line-height:1.75;letter-spacing:0}
+html.abj-km .lk{display:revert !important}
+html.abj-km .le{display:none !important}
+.abj-langswitch{display:inline-flex;gap:4px;background:rgba(255,255,255,.75);border:1px solid rgba(30,127,192,.25);border-radius:999px;padding:4px;box-shadow:0 4px 14px rgba(9,42,63,.08)}
+.abj-langswitch button{border:0;background:transparent;border-radius:999px;padding:4px 14px;font-size:13px;font-weight:600;color:#1E7FC0;cursor:pointer}
+.abj-langswitch button.active{background:#1E7FC0;color:#fff}
+</style>
+
       <section class="abj-hero" style="padding:4rem 0 3rem;">
         <div class="container text-center">
-          <div class="abj-eyebrow mb-3">Help centre</div>
-          <h1>Delivery, returns &amp; FAQ</h1>
-          <p class="lead mx-auto mt-3" style="max-width:38rem;">Everything you need to know about ordering from ABJ.</p>
+          <div class="mb-4"><span class="abj-langswitch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" class="active">EN</button>
+            <button type="button" data-lang="km">ខ្មែរ</button>
+          </span></div>
+          <div class="abj-eyebrow mb-3"><span class="le">Help centre</span><span class="lk">មជ្ឈមណ្ឌលជំនួយ</span></div>
+          <h1><span class="le">Delivery, returns &amp; FAQ</span><span class="lk">ការដឹកជញ្ជូន ការប្រគល់វិញ និងសំណួរញឹកញាប់</span></h1>
+          <p class="lead mx-auto mt-3" style="max-width:38rem;"><span class="le">Everything you need to know about ordering from ABJ.</span><span class="lk">អ្វីៗទាំងអស់ដែលអ្នកត្រូវដឹង អំពីការបញ្ជាទិញពី ABJ។</span></p>
         </div>
       </section>
 
       <section class="pt64 pb64" style="background:var(--abj-bg);">
         <div class="container" style="max-width:860px;">
 
-          <h2 class="h2">Delivery</h2>
+          <h2 class="h2"><span class="le">Delivery</span><span class="lk">ការដឹកជញ្ជូន</span></h2>
           <hr class="abj-rule my-3"/>
           <div class="accordion mb-5" id="faqDelivery">
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">How long does delivery take?</button></h3>
-              <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqDelivery"><div class="accordion-body">Phnom Penh and Ta Khmau: same or next day. Provinces: 2&#8211;4 working days via VET or J&amp;T Express. You'll receive a tracking message as soon as your parcel ships.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1"><span class="le">How long does delivery take?</span><span class="lk">ការដឹកជញ្ជូនប្រើពេលប៉ុន្មាន?</span></button></h3>
+              <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqDelivery"><div class="accordion-body"><span class="le">Phnom Penh and Ta Khmau: same or next day. Provinces: 2&#8211;4 working days via VET or J&amp;T Express. You'll receive a tracking message as soon as your parcel ships.</span><span class="lk">ភ្នំពេញ និងតាខ្មៅ៖ ថ្ងៃដដែល ឬថ្ងៃបន្ទាប់។ បណ្តាខេត្ត៖ ២&#8211;៤ ថ្ងៃធ្វើការ តាមរយៈ VET ឬ J&amp;T Express។ អ្នកនឹងទទួលបានសារតាមដាន ភ្លាមៗពេលកញ្ចប់របស់អ្នកចេញដំណើរ។</span></div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">How much does shipping cost?</button></h3>
-              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqDelivery"><div class="accordion-body">Flat $1.50 in Phnom Penh, $2.50 to provinces &#8212; and <strong>free on all orders over $35</strong>.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2"><span class="le">How much does shipping cost?</span><span class="lk">តម្លៃដឹកជញ្ជូនប៉ុន្មាន?</span></button></h3>
+              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqDelivery"><div class="accordion-body"><span class="le">Flat $1.50 in Phnom Penh, $2.50 to provinces &#8212; and <strong>free on all orders over $35</strong>.</span><span class="lk">ភ្នំពេញ $1.50 បណ្តាខេត្ត $2.50 &#8212; ហើយ <strong>ឥតគិតថ្លៃ សម្រាប់ការបញ្ជាទិញលើស $35</strong>។</span></div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">Can I pay on delivery?</button></h3>
-              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqDelivery"><div class="accordion-body">Yes &#8212; cash on delivery is available nationwide, or pay online securely by ABA PayWay and bank transfer at checkout.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3"><span class="le">Can I pay on delivery?</span><span class="lk">អាចបង់ប្រាក់ពេលទទួលទំនិញបានទេ?</span></button></h3>
+              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqDelivery"><div class="accordion-body"><span class="le">Yes &#8212; cash on delivery is available nationwide, or pay online securely by ABA PayWay and bank transfer at checkout.</span><span class="lk">បាន &#8212; ការបង់ប្រាក់ពេលទទួលទំនិញ (COD) មានទូទាំងប្រទេស ឬបង់តាមអនឡាញដោយសុវត្ថិភាព តាម ABA PayWay និងការផ្ទេរប្រាក់តាមធនាគារ នៅពេលបញ្ជាទិញ។</span></div></div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9"><span class="le">How do I track my order?</span><span class="lk">តើតាមដានការបញ្ជាទិញរបស់ខ្ញុំយ៉ាងដូចម្តេច?</span></button></h3>
+              <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqDelivery"><div class="accordion-body"><span class="le">As soon as your parcel ships we send the tracking number by SMS or Telegram. You can also call <a href="tel:+855312663333">031 266 3333</a> with your order number any day of the week.</span><span class="lk">ភ្លាមៗពេលកញ្ចប់ចេញដំណើរ យើងផ្ញើលេខតាមដាន តាម SMS ឬ Telegram។ អ្នកក៏អាចទូរស័ព្ទមក <a href="tel:+855312663333">031 266 3333</a> ជាមួយលេខបញ្ជាទិញរបស់អ្នក បានគ្រប់ថ្ងៃ។</span></div></div>
             </div>
           </div>
 
-          <h2 class="h2">Returns &amp; quality</h2>
+          <h2 class="h2"><span class="le">Returns &amp; quality</span><span class="lk">ការប្រគល់វិញ និងគុណភាព</span></h2>
           <hr class="abj-rule my-3"/>
           <div class="accordion mb-5" id="faqReturns">
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">What is your return policy?</button></h3>
-              <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Unopened products can be returned within 14 days for a full refund. If a product arrives damaged, send us a photo within 48 hours and we'll replace it free of charge.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4"><span class="le">What is your return policy?</span><span class="lk">គោលការណ៍ប្រគល់ទំនិញវិញ ជាយ៉ាងណា?</span></button></h3>
+              <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body"><span class="le">Unopened products can be returned within 14 days for a full refund. If a product arrives damaged, send us a photo within 48 hours and we'll replace it free of charge. Full details on the <a href="/policy">policy page</a>.</span><span class="lk">ផលិតផលមិនទាន់បើក អាចប្រគល់វិញក្នុងរយៈពេល ១៤ ថ្ងៃ ដើម្បីទទួលប្រាក់វិញពេញ។ បើទំនិញខូចពេលមកដល់ សូមផ្ញើរូបភាពមកយើងក្នុង ៤៨ ម៉ោង យើងនឹងផ្លាស់ជូនថ្មី ដោយឥតគិតថ្លៃ។ ព័ត៌មានលម្អិត នៅ<a href="/policy">ទំព័រគោលការណ៍</a>។</span></div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">Are your products suitable for sensitive skin?</button></h3>
-              <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Our formulas are mild and non-irritating, designed to protect the skin barrier. As with any skincare, patch-test on your inner arm for 24 hours before first use.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5"><span class="le">Are your products suitable for sensitive skin?</span><span class="lk">ផលិតផលសមរម្យសម្រាប់ស្បែកងាយរលាកទេ?</span></button></h3>
+              <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body"><span class="le">Our formulas are mild and non-irritating, designed to protect the skin barrier. As with any skincare, patch-test on your inner arm for 24 hours before first use.</span><span class="lk">រូបមន្តរបស់យើងស្រាល និងមិនរលាក រចនាឡើងដើម្បីការពាររបាំងស្បែក។ ដូចផលិតផលថែស្បែកទាំងអស់ សូមសាកល្បងលើស្បែកដៃខាងក្នុង ២៤ ម៉ោង មុនប្រើលើកដំបូង។</span></div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">Are ABJ products cruelty-free?</button></h3>
-              <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body">Always. We never test on animals.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6"><span class="le">Are ABJ products cruelty-free?</span><span class="lk">ABJ សាកល្បងលើសត្វទេ?</span></button></h3>
+              <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqReturns"><div class="accordion-body"><span class="le">Always. We never test on animals.</span><span class="lk">មិនដែលទេ &#8212; យើងមិនសាកល្បងលើសត្វជាដាច់ខាត។</span></div></div>
             </div>
           </div>
 
-          <h2 class="h2">Using the products</h2>
+          <h2 class="h2"><span class="le">Using the products</span><span class="lk">របៀបប្រើផលិតផល</span></h2>
           <hr class="abj-rule my-3"/>
           <div class="accordion mb-4" id="faqUse">
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">What order should I apply my routine in?</button></h3>
-              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Thinnest to thickest: Facial Foam &#8594; Serum &#8594; Night Cream (evenings) &#8594; Sunscreen (mornings). Add the Face Mask 2&#8211;3 times a week.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7"><span class="le">What order should I apply my routine in?</span><span class="lk">គួរប្រើតាមលំដាប់ណា?</span></button></h3>
+              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body"><span class="le">Thinnest to thickest: Facial Foam &#8594; Serum &#8594; Night Cream (evenings) &#8594; Sunscreen (mornings). Add the Face Mask 2&#8211;3 times a week.</span><span class="lk">ពីស្តើងបំផុតទៅក្រាស់បំផុត៖ Facial Foam &#8594; Serum &#8594; Night Cream (ពេលល្ងាច) &#8594; Sunscreen (ពេលព្រឹក)។ បន្ថែម Face Mask ២&#8211;៣ ដងក្នុងមួយសប្តាហ៍។</span></div></div>
             </div>
             <div class="accordion-item">
-              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">Can I use the serum and the face masks together?</button></h3>
-              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body">Yes &#8212; they're designed to work together. Use the Serum daily and the Face Mask 2&#8211;3 evenings a week, applying the serum after you remove the mask.</div></div>
+              <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8"><span class="le">Can I use the serum and the face masks together?</span><span class="lk">អាចប្រើ Serum និង Face Mask ជាមួយគ្នាបានទេ?</span></button></h3>
+              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqUse"><div class="accordion-body"><span class="le">Yes &#8212; they're designed to work together. Use the Serum daily and the Face Mask 2&#8211;3 evenings a week, applying the serum after you remove the mask.</span><span class="lk">បាន &#8212; ពួកវារចនាឡើងឱ្យប្រើជាមួយគ្នា។ ប្រើ Serum រាល់ថ្ងៃ និង Face Mask ២&#8211;៣ ល្ងាចក្នុងមួយសប្តាហ៍ ដោយលាប Serum បន្ទាប់ពីដក Mask ចេញ។</span></div></div>
             </div>
           </div>
 
           <div class="text-center pt-4">
-            <p class="abj-soft">Still have a question?</p>
-            <a href="/contactus" class="btn btn-primary">Contact us</a>
+            <p class="abj-soft"><span class="le">Still have a question?</span><span class="lk">នៅមានសំណួរទៀត?</span></p>
+            <a href="/contactus" class="btn btn-primary"><span class="le">Contact us</span><span class="lk">ទាក់ទងយើង</span></a>
+            <a href="/policy" class="btn btn-outline-primary ms-2"><span class="le">Store policies</span><span class="lk">គោលការណ៍ហាង</span></a>
           </div>
         </div>
       </section>
@@ -73,10 +92,29 @@
         "mainEntity": [
           {"@type": "Question", "name": "How long does delivery take?", "acceptedAnswer": {"@type": "Answer", "text": "Phnom Penh and Ta Khmau: same or next day. Provinces: 2-4 working days via VET or J&amp;T Express."}},
           {"@type": "Question", "name": "How much does shipping cost?", "acceptedAnswer": {"@type": "Answer", "text": "Flat $1.50 in Phnom Penh, $2.50 to provinces, free on orders over $35."}},
+          {"@type": "Question", "name": "How do I track my order?", "acceptedAnswer": {"@type": "Answer", "text": "Tracking numbers are sent by SMS or Telegram as soon as the parcel ships; customer care is available at 031 266 3333."}},
           {"@type": "Question", "name": "What is your return policy?", "acceptedAnswer": {"@type": "Answer", "text": "Unopened products can be returned within 14 days for a full refund. Damaged items are replaced free within 48 hours of delivery."}},
           {"@type": "Question", "name": "Are ABJ products cruelty-free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, ABJ products are never tested on animals."}}
         ]
       }</script>
+
+<script>
+(function(){
+  function apply(l){
+    document.documentElement.classList.toggle('abj-km', l==='km');
+    var bs=document.querySelectorAll('.abj-langswitch button');
+    for(var i=0;i&lt;bs.length;i++){bs[i].classList.toggle('active', bs[i].getAttribute('data-lang')===l);}
+    try{localStorage.setItem('abjLang', l);}catch(e){}
+  }
+  var saved='en';
+  try{saved=localStorage.getItem('abjLang')||'en';}catch(e){}
+  apply(saved);
+  var bs=document.querySelectorAll('.abj-langswitch button');
+  for(var i=0;i&lt;bs.length;i++){
+    bs[i].addEventListener('click', function(){apply(this.getAttribute('data-lang'));});
+  }
+})();
+</script>
 
     </div>
   </t>
