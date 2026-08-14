@@ -1,7 +1,7 @@
 # ABJ Skincare — Odoo Website Source
 
 Source templates and styles for the ABJ / AIBAOJI online store, deployed to the
-Odoo instance at https://odoo2.yifu.io (website_sale / eCommerce).
+Odoo instance at https://abjskincare.com (website_sale / eCommerce).
 
 ## Files
 
