@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your cart — ABJ Shop</title>
+<meta name="description" content="Review your ABJ order and send it to our team on Telegram. Cash on delivery available nationwide.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23c8607a'/><text x='50' y='68' font-size='46' font-family='Georgia' font-weight='bold' fill='white' text-anchor='middle'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html" data-i18n="nav.home"></a> / <span data-i18n="cart.title"></span></p>
+      <h1 data-i18n="cart.title"></h1>
+      <p data-i18n="cart.lead"></p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container" id="cartRoot"></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const FREE_DELIVERY_OVER = 25;
+const DELIVERY_FEE = 1.5;
+
+function orderText(items, subtotal, delivery) {
+  const head = LANG === 'km' ? 'សួស្តី! ខ្ញុំចង់កម្មង់៖' : 'Hello! I would like to order:';
+  const lines = items.map((i) => {
+    const p = findProduct(i.slug);
+    return `• ${tv(p.name)}${i.size ? ' (' + i.size + ')' : ''} x${i.qty} — ${money(p.price * i.qty)}`;
+  });
+  const foot = [
+    `${t('cart.subtotal')}: ${money(subtotal)}`,
+    `${t('cart.delivery')}: ${delivery ? money(delivery) : t('cart.free')}`,
+    `${t('cart.total')}: ${money(subtotal + delivery)}`
+  ];
+  return [head, ...lines, '', ...foot].join('\n');
+}
+
+function emptyMarkup() {
+  return `<div class="empty-state">
+    ${ICON.cart}
+    <h2 data-i18n="cart.empty"></h2>
+    <p data-i18n="cart.empty.text"></p>
+    <a class="btn btn--primary" href="shop.html" data-i18n="btn.continue"></a>
+  </div>`;
+}
+
+function cartMarkup(items) {
+  const subtotal = Cart.subtotal();
+  const delivery = subtotal >= FREE_DELIVERY_OVER || subtotal === 0 ? 0 : DELIVERY_FEE;
+  return `
+  <div class="cart-layout">
+    <div class="cart-list">
+      ${items.map((i, index) => {
+        const p = findProduct(i.slug);
+        if (!p) return '';
+        return `
+        <div class="cart-item">
+          <a href="product.html?slug=${p.slug}"><img src="${productImage(p)}" alt="${tv(p.name)}" width="90" height="90"></a>
+          <div>
+            <h3><a href="product.html?slug=${p.slug}">${tv(p.name)}</a></h3>
+            <p class="meta">${i.size || ''} · ${money(p.price)}</p>
+            <div class="qty" style="margin-top:.5rem">
+              <button type="button" data-dec="${index}" aria-label="-">−</button>
+              <input type="number" value="${i.qty}" min="1" max="99" data-qty="${index}">
+              <button type="button" data-inc="${index}" aria-label="+">+</button>
+            </div>
+            <button class="link-danger" data-remove="${index}" data-i18n="cart.remove"></button>
+          </div>
+          <div class="line-price">${money(p.price * i.qty)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <aside class="summary">
+      <div class="summary-row">
+        <span data-i18n="cart.subtotal"></span><span>${money(subtotal)}</span>
+      </div>
+      <div class="summary-row">
+        <span data-i18n="cart.delivery"></span>
+        <span>${delivery ? money(delivery) : t('cart.free')}</span>
+      </div>
+      <div class="summary-row summary-row--total">
+        <span data-i18n="cart.total"></span><b>${money(subtotal + delivery)}</b>
+      </div>
+      <p class="price-riel" style="text-align:right;margin:-.4rem 0 1rem">${riel(subtotal + delivery)}</p>
+      <a class="btn btn--primary btn--block" id="checkoutBtn" target="_blank" rel="noopener" data-i18n="btn.checkout"></a>
+      <a class="btn btn--ghost btn--block" style="margin-top:.6rem" href="shop.html" data-i18n="btn.continue"></a>
+      <p class="cta-note" style="color:var(--muted);margin-top:1rem" data-i18n="cart.note"></p>
+    </aside>
+  </div>`;
+}
+
+function initCart() {
+  const items = Cart.read().filter((i) => findProduct(i.slug));
+  const root = document.getElementById('cartRoot');
+
+  if (!items.length) {
+    root.innerHTML = emptyMarkup();
+    return;
+  }
+
+  root.innerHTML = cartMarkup(items);
+
+  const subtotal = Cart.subtotal();
+  const delivery = subtotal >= FREE_DELIVERY_OVER ? 0 : DELIVERY_FEE;
+  document.getElementById('checkoutBtn').href =
+    `${SHOP.contact.telegram}?text=${encodeURIComponent(orderText(items, subtotal, delivery))}`;
+
+  root.querySelectorAll('[data-inc]').forEach((b) => b.onclick = () => {
+    Cart.setQty(+b.dataset.inc, items[+b.dataset.inc].qty + 1); rerender();
+  });
+  root.querySelectorAll('[data-dec]').forEach((b) => b.onclick = () => {
+    Cart.setQty(+b.dataset.dec, items[+b.dataset.dec].qty - 1); rerender();
+  });
+  root.querySelectorAll('[data-qty]').forEach((inp) => inp.onchange = () => {
+    Cart.setQty(+inp.dataset.qty, parseInt(inp.value, 10) || 0); rerender();
+  });
+  root.querySelectorAll('[data-remove]').forEach((b) => b.onclick = () => {
+    Cart.remove(+b.dataset.remove);
+    toast(t('cart.removed'));
+    rerender();
+  });
+}
+
+function rerender() {
+  initCart();
+  applyI18n();
+  syncCartCount();
+}
+
+boot('cart', initCart);
+</script>
+</body>
+</html>

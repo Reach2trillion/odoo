@@ -13,5 +13,16 @@ services:
       - audio-cache:/data/audio
     restart: unless-stopped
 
+  # Static ABJ storefront (website/). Nothing to build — nginx serves the files
+  # directly, so edits to website/ show up on refresh.
+  website:
+    image: nginx:alpine
+    container_name: abj-website
+    ports:
+      - "8080:80"
+    volumes:
+      - ./website:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
 volumes:
   audio-cache:

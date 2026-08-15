@@ -1,0 +1,22 @@
+<svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="rose-water-toner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdeef1"/><stop offset="1" stop-color="#f7d3dc"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="38%" r="52%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="300" r="210" fill="url(#glow)"/>
+  <ellipse cx="300" cy="486" rx="132" ry="22" fill="#3f2029" opacity=".10"/>
+  <g>
+    <rect x="252" y="176" width="96" height="288" rx="18" fill="#f9dbe3"/>
+    <rect x="276" y="132" width="48" height="52" rx="10" fill="#c8607a"/>
+    <rect x="264" y="252" width="72" height="120" rx="8" fill="#fff" opacity=".5"/>
+    <text x="300" y="322" text-anchor="middle" font-family="Helvetica,Arial" font-size="20"
+          font-weight="700" letter-spacing="2" fill="#c8607a">TONER</text></g>
+  <path d="M92 508c40-14 62-44 66-88 26 34 58 46 96 40-22 34-56 52-102 54z" fill="#6f9c7e" opacity=".30"/>
+  <path d="M508 118c-34 8-54 30-60 62-20-26-46-36-78-32 18-26 46-40 84-42z" fill="#e2a3b1" opacity=".35"/>
+</svg>

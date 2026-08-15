@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop — ABJ Skincare & Cosmetics</title>
+<meta name="description" content="Browse all ABJ products: sunscreen, serums, creams, body care, hair care and cosmetics, delivered across Cambodia.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23c8607a'/><text x='50' y='68' font-size='46' font-family='Georgia' font-weight='bold' fill='white' text-anchor='middle'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html" data-i18n="nav.home"></a> / <span id="crumb"></span></p>
+      <h1 id="shopTitle"></h1>
+      <p data-i18n="shop.lead"></p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container shop-layout">
+      <aside class="filters">
+        <h4 data-i18n="shop.filters"></h4>
+        <ul class="filter-list" id="filterList"></ul>
+        <h4 data-i18n="shop.sort"></h4>
+        <select class="field" id="sortSelect" style="width:100%">
+          <option value="featured" data-i18n="shop.sort.featured"></option>
+          <option value="priceAsc" data-i18n="shop.sort.priceAsc"></option>
+          <option value="priceDesc" data-i18n="shop.sort.priceDesc"></option>
+          <option value="rating" data-i18n="shop.sort.rating"></option>
+        </select>
+      </aside>
+
+      <div>
+        <div class="shop-toolbar">
+          <span class="count" id="resultCount"></span>
+          <input class="field search-field" type="search" id="searchInput"
+                 data-i18n-attr="placeholder:shop.search,aria-label:aria.search">
+        </div>
+        <div class="product-grid" id="grid"></div>
+        <p id="emptyMsg" class="empty-state" hidden data-i18n="shop.empty"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const state = {
+  cat: params.get('cat') || 'all',
+  sort: 'featured',
+  q: ''
+};
+
+function visibleProducts() {
+  let list = SHOP.products.slice();
+  if (state.cat !== 'all') list = list.filter((p) => p.category === state.cat);
+  if (state.q) {
+    const q = state.q.toLowerCase();
+    list = list.filter((p) =>
+      (tv(p.name) + ' ' + tv(p.short) + ' ' + p.slug).toLowerCase().includes(q));
+  }
+  if (state.sort === 'priceAsc') list.sort((a, b) => a.price - b.price);
+  if (state.sort === 'priceDesc') list.sort((a, b) => b.price - a.price);
+  if (state.sort === 'rating') list.sort((a, b) => b.rating - a.rating);
+  return list;
+}
+
+function renderGrid() {
+  const list = visibleProducts();
+  document.getElementById('grid').innerHTML = list.map(productCard).join('');
+  document.getElementById('emptyMsg').hidden = list.length > 0;
+  document.getElementById('resultCount').textContent = `${list.length} ${t('shop.count')}`;
+  applyI18n();
+  bindAddButtons();
+}
+
+function renderFilters() {
+  const cats = [{ slug: 'all', name: { en: t('shop.all'), km: t('shop.all') } }].concat(SHOP.categories);
+  document.getElementById('filterList').innerHTML = cats.map((c) => `
+    <li><button type="button" data-cat="${c.slug}"
+        class="${state.cat === c.slug ? 'is-active' : ''}">${tv(c.name)}</button></li>`).join('');
+  document.querySelectorAll('#filterList button').forEach((b) => {
+    b.addEventListener('click', () => {
+      state.cat = b.dataset.cat;
+      history.replaceState({}, '', state.cat === 'all' ? 'shop.html' : `shop.html?cat=${state.cat}`);
+      renderFilters();
+      renderHead();
+      renderGrid();
+    });
+  });
+}
+
+function renderHead() {
+  const cat = SHOP.categories.find((c) => c.slug === state.cat);
+  const title = cat ? tv(cat.name) : t('shop.title');
+  document.getElementById('shopTitle').textContent = title;
+  document.getElementById('crumb').textContent = title;
+  document.title = `${title} — ABJ Shop`;
+}
+
+function initShop() {
+  renderFilters();
+  renderHead();
+  renderGrid();
+
+  const search = document.getElementById('searchInput');
+  search.value = state.q;
+  search.oninput = () => { state.q = search.value.trim(); renderGrid(); };
+
+  const sort = document.getElementById('sortSelect');
+  sort.value = state.sort;
+  sort.onchange = () => { state.sort = sort.value; renderGrid(); };
+}
+boot('shop', initShop);
+</script>
+</body>
+</html>

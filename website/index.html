@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ABJ Shop — Skincare & Cosmetics Made in Cambodia</title>
+<meta name="description" content="ABJ formulates skincare and cosmetics for tropical heat, humidity and warm Khmer skin tones. Delivered across Cambodia in 1–3 days.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23c8607a'/><text x='50' y='68' font-size='46' font-family='Georgia' font-weight='bold' fill='white' text-anchor='middle'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <!-- ------------------------------------------------------------- hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <p class="eyebrow" data-i18n="hero.eyebrow"></p>
+        <h1 data-i18n-html="hero.title"></h1>
+        <p class="lead" data-i18n="hero.lead"></p>
+        <div class="hero-cta">
+          <a class="btn btn--primary" href="shop.html" data-i18n="btn.shopNow"></a>
+          <a class="btn btn--ghost" href="#bestsellers" data-i18n="btn.bestSellers"></a>
+        </div>
+        <div class="hero-stats">
+          <div><b>12k+</b><span data-i18n="hero.stat1"></span></div>
+          <div><b>12</b><span data-i18n="hero.stat2"></span></div>
+          <div><b>4.8★</b><span data-i18n="hero.stat3"></span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card"><img src="assets/img/hero.svg" alt="" width="800" height="900"></div>
+        <div class="hero-badge">
+          <span class="hero-badge__icon" id="heroBadgeIcon"></span>
+          <span>
+            <strong data-i18n="hero.badge.title"></strong>
+            <span data-i18n="hero.badge.text"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" id="marquee"></div>
+  </div>
+
+  <!-- ------------------------------------------------------- categories -->
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="cats.eyebrow"></p>
+        <h2 data-i18n="cats.title"></h2>
+        <p data-i18n="cats.lead"></p>
+      </div>
+      <div class="cat-grid reveal" id="catGrid"></div>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------- best sellers -->
+  <section class="section section--sand" id="bestsellers">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="best.eyebrow"></p>
+        <h2 data-i18n="best.title"></h2>
+        <p data-i18n="best.lead"></p>
+      </div>
+      <div class="product-grid reveal" id="bestGrid"></div>
+      <div style="text-align:center;margin-top:2.5rem">
+        <a class="btn btn--ghost" href="shop.html" data-i18n="btn.viewAll"></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------------- values -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="values.eyebrow"></p>
+        <h2 data-i18n="values.title"></h2>
+      </div>
+      <div class="value-grid reveal" id="valueGrid"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ story -->
+  <section class="section section--white">
+    <div class="container split reveal">
+      <img src="assets/img/story.svg" alt="" width="800" height="900">
+      <div>
+        <p class="eyebrow" data-i18n="story.eyebrow"></p>
+        <h2 data-i18n="story.title"></h2>
+        <p class="lead" data-i18n="story.p1"></p>
+        <ul class="checklist">
+          <li data-i18n="story.li1"></li>
+          <li data-i18n="story.li2"></li>
+          <li data-i18n="story.li3"></li>
+          <li data-i18n="story.li4"></li>
+        </ul>
+        <p style="margin-top:1.8rem">
+          <a class="btn btn--primary" href="about.html" data-i18n="nav.about"></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- reviews -->
+  <section class="section section--sand">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="reviews.eyebrow"></p>
+        <h2 data-i18n="reviews.title"></h2>
+      </div>
+      <div class="review-grid reveal" id="reviewGrid"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------- newsletter -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2 data-i18n="news.title"></h2>
+        <p data-i18n="news.text"></p>
+        <form class="cta-form" id="newsForm">
+          <input type="text" required data-i18n-attr="placeholder:news.placeholder" aria-label="Email">
+          <button class="btn btn--light" type="submit" data-i18n="btn.subscribe"></button>
+        </form>
+        <p class="cta-note" data-i18n="news.note"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function initHome() {
+  document.getElementById('heroBadgeIcon').innerHTML = ICON.truck;
+
+  const items = [1, 2, 3, 4, 5].map((n) => t('marquee.' + n));
+  document.getElementById('marquee').innerHTML =
+    `<span>${items.join('</span><span>')}</span>`.repeat(2);
+
+  document.getElementById('catGrid').innerHTML = SHOP.categories.map((c) => `
+    <a class="cat-card" href="shop.html?cat=${c.slug}">
+      <img src="assets/img/${c.img}" alt="${tv(c.name)}" loading="lazy" width="400" height="400">
+      <div class="cat-card__body">
+        <h3>${tv(c.name)}</h3>
+        <span>${tv(c.tagline)}</span>
+      </div>
+    </a>`).join('');
+
+  const best = SHOP.products.filter((p) => p.badge).slice(0, 8);
+  document.getElementById('bestGrid').innerHTML = best.map(productCard).join('');
+
+  const values = [
+    [ICON.sun, 'values.1'], [ICON.leaf, 'values.2'],
+    [ICON.tag, 'values.3'], [ICON.chat, 'values.4']
+  ];
+  document.getElementById('valueGrid').innerHTML = values.map(([icon, key]) => `
+    <div class="value-card">
+      <div class="value-card__icon">${icon}</div>
+      <h3>${t(key + '.title')}</h3>
+      <p>${t(key + '.text')}</p>
+    </div>`).join('');
+
+  document.getElementById('reviewGrid').innerHTML = SHOP.reviews.map((r) => `
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p>“${tv(r.text)}”</p>
+      <div class="review-author">
+        <span class="avatar">${r.name.charAt(0)}</span>
+        <span><b>${r.name}</b><span>${tv(r.city)}</span></span>
+      </div>
+    </div>`).join('');
+
+  const form = document.getElementById('newsForm');
+  form.onsubmit = (e) => { e.preventDefault(); form.reset(); toast(t('news.thanks')); };
+}
+boot('home', initHome);
+</script>
+</body>
+</html>

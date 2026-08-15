@@ -1,0 +1,20 @@
+<svg width="800" height="900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" role="img" aria-label="about">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef3f0"/><stop offset="1" stop-color="#dfe9e3"/></linearGradient>
+    <radialGradient id="s" cx="52%" cy="34%" r="56%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="800" height="900" fill="url(#g)"/>
+  <circle cx="410" cy="320" r="300" fill="url(#s)"/>
+  <ellipse cx="400" cy="742" rx="230" ry="34" fill="#3f2029" opacity=".10"/>
+  <rect x="238" y="352" width="120" height="376" rx="26" fill="#fff"/>
+  <rect x="268" y="284" width="60" height="76" rx="14" fill="#3d8168"/>
+  <rect x="404" y="430" width="150" height="298" rx="34" fill="#fff" opacity=".92"/>
+  <rect x="440" y="472" width="78" height="6" rx="3" fill="#3d8168" opacity=".8"/>
+  <rect x="440" y="492" width="52" height="6" rx="3" fill="#3d8168" opacity=".5"/>
+  <circle cx="479" cy="406" r="34" fill="#3d8168" opacity=".85"/>
+  <path d="M120 760c56-22 88-64 94-128 36 50 82 68 138 58-32 50-80 76-146 80z" fill="#6f9c7e" opacity=".32"/>
+  <path d="M700 210c-46 12-74 42-82 86-28-36-64-50-108-44 24-36 64-56 116-58z" fill="#e2a3b1" opacity=".40"/>
+</svg>

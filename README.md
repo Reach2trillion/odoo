@@ -20,6 +20,18 @@ Facebook user ──▶ Facebook webhook ──▶ this bot (Flask, port 8000)
 Voice files are cached and each unique reply is uploaded to Facebook only once
 (the reusable `attachment_id` is stored in a Docker volume), so repeated replies are fast.
 
+## Storefront website
+
+This repo also contains the **ABJ storefront** in [`website/`](website/) — a
+bilingual (English / ខ្មែរ) shop site with product pages, cart and Telegram
+checkout. It is static, so it runs on its own:
+
+```bash
+docker compose up -d website   # → http://localhost:8080
+```
+
+See [`website/README.md`](website/README.md) for how to edit products and copy.
+
 ## 1. Prerequisites
 
 - Docker + Docker Compose

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Product — ABJ Shop</title>
+<meta name="description" content="ABJ product details, ingredients, how to use and delivery information.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23c8607a'/><text x='50' y='68' font-size='46' font-family='Georgia' font-weight='bold' fill='white' text-anchor='middle'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <section class="section section--tight">
+    <div class="container" id="pdp"></div>
+  </section>
+
+  <section class="section section--sand" id="relatedSection" hidden>
+    <div class="container">
+      <div class="section-head">
+        <h2 data-i18n="pdp.related"></h2>
+      </div>
+      <div class="product-grid" id="relatedGrid"></div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const slug = new URLSearchParams(location.search).get('slug');
+const ui = { size: null, qty: 1, image: 0, tab: 'desc' };
+
+function pdpMarkup(p) {
+  const cat = SHOP.categories.find((c) => c.slug === p.category);
+  const images = [productImage(p), productImage(p, true)];
+  return `
+  <p class="breadcrumb">
+    <a href="index.html" data-i18n="nav.home"></a> /
+    <a href="shop.html?cat=${p.category}">${cat ? tv(cat.name) : ''}</a> /
+    <span>${tv(p.name)}</span>
+  </p>
+
+  <div class="product-detail">
+    <div class="gallery">
+      <div class="gallery__main">
+        <img id="mainImg" src="${images[ui.image]}" alt="${tv(p.name)}" width="600" height="600">
+      </div>
+      <div class="gallery__thumbs">
+        ${images.map((src, i) => `
+          <button type="button" data-img="${i}" class="${i === ui.image ? 'is-active' : ''}">
+            <img src="${src}" alt="" width="150" height="150">
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="product-info">
+      <p class="product-card__cat">${cat ? tv(cat.name) : ''}</p>
+      <h1>${tv(p.name)}</h1>
+      <div class="stars">${'★'.repeat(Math.round(p.rating))}
+        <small>${p.rating.toFixed(1)} · ${p.reviews} ${t('pdp.reviews')}</small></div>
+
+      <div class="product-price">
+        <span class="price">${money(p.price)}</span>
+        ${p.oldPrice ? `<span class="price--old">${money(p.oldPrice)}</span>` : ''}
+        <span class="price-riel">${riel(p.price)}</span>
+      </div>
+
+      <p class="lead">${tv(p.short)}</p>
+
+      <div class="option-group">
+        <span data-i18n="pdp.size"></span>
+        <div class="chips" id="sizeChips">
+          ${p.sizes.map((s) => `
+            <button type="button" class="chip ${s === ui.size ? 'is-active' : ''}" data-size="${s}">${s}</button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span data-i18n="pdp.qty"></span>
+        <div class="qty">
+          <button type="button" id="qtyMinus" aria-label="-">−</button>
+          <input type="number" id="qtyInput" value="${ui.qty}" min="1" max="99">
+          <button type="button" id="qtyPlus" aria-label="+">+</button>
+        </div>
+      </div>
+
+      <div class="buy-row">
+        <button class="btn btn--primary" id="addBtn" data-i18n="btn.addToCart"></button>
+        <a class="btn btn--ghost" id="orderBtn" target="_blank" rel="noopener" data-i18n="btn.buyNow"></a>
+      </div>
+
+      <ul class="assurances">
+        <li>${ICON.check}<span data-i18n="pdp.assure1"></span></li>
+        <li>${ICON.check}<span data-i18n="pdp.assure2"></span></li>
+        <li>${ICON.check}<span data-i18n="pdp.assure3"></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:3.5rem">
+    <div class="tabs" id="tabs">
+      <button type="button" data-tab="desc" data-i18n="pdp.tab.desc"></button>
+      <button type="button" data-tab="how" data-i18n="pdp.tab.how"></button>
+      <button type="button" data-tab="ing" data-i18n="pdp.tab.ing"></button>
+      <button type="button" data-tab="ship" data-i18n="pdp.tab.ship"></button>
+    </div>
+    <div class="tab-panel" data-panel="desc"><p>${tv(p.desc)}</p></div>
+    <div class="tab-panel" data-panel="how"><p>${tv(p.howto)}</p></div>
+    <div class="tab-panel" data-panel="ing"><p>${tv(p.ingredients)}</p></div>
+    <div class="tab-panel" data-panel="ship"><p data-i18n="pdp.ship.text"></p></div>
+  </div>`;
+}
+
+function notFoundMarkup() {
+  return `<div class="empty-state">
+    <h1 data-i18n="pdp.notfound"></h1>
+    <p data-i18n="pdp.notfound.text"></p>
+    <a class="btn btn--primary" href="shop.html" data-i18n="btn.viewAll"></a>
+  </div>`;
+}
+
+function orderLink(p) {
+  const line = `${tv(p.name)}${ui.size ? ' (' + ui.size + ')' : ''} x${ui.qty} — ${money(p.price * ui.qty)}`;
+  const text = `${LANG === 'km' ? 'សួស្តី! ខ្ញុំចង់កម្មង់៖' : 'Hello! I would like to order:'}\n${line}`;
+  return `${SHOP.contact.telegram}?text=${encodeURIComponent(text)}`;
+}
+
+function setTab(name) {
+  ui.tab = name;
+  document.querySelectorAll('#tabs button').forEach((b) =>
+    b.classList.toggle('is-active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach((p) =>
+    p.classList.toggle('is-active', p.dataset.panel === name));
+}
+
+function initPdp() {
+  const p = findProduct(slug);
+  const root = document.getElementById('pdp');
+
+  if (!p) {
+    root.innerHTML = notFoundMarkup();
+    document.getElementById('relatedSection').hidden = true;
+    return;
+  }
+
+  if (!ui.size || !p.sizes.includes(ui.size)) ui.size = p.sizes[0];
+  document.title = `${tv(p.name)} — ABJ Shop`;
+  root.innerHTML = pdpMarkup(p);
+  setTab(ui.tab);
+
+  root.querySelectorAll('#sizeChips .chip').forEach((c) => {
+    c.addEventListener('click', () => {
+      ui.size = c.dataset.size;
+      root.querySelectorAll('#sizeChips .chip').forEach((x) => x.classList.remove('is-active'));
+      c.classList.add('is-active');
+      document.getElementById('orderBtn').href = orderLink(p);
+    });
+  });
+
+  root.querySelectorAll('.gallery__thumbs button').forEach((b) => {
+    b.addEventListener('click', () => {
+      ui.image = Number(b.dataset.img);
+      document.getElementById('mainImg').src = [productImage(p), productImage(p, true)][ui.image];
+      root.querySelectorAll('.gallery__thumbs button').forEach((x) => x.classList.remove('is-active'));
+      b.classList.add('is-active');
+    });
+  });
+
+  const qtyInput = document.getElementById('qtyInput');
+  const syncQty = (v) => {
+    ui.qty = Math.min(99, Math.max(1, v || 1));
+    qtyInput.value = ui.qty;
+    document.getElementById('orderBtn').href = orderLink(p);
+  };
+  document.getElementById('qtyMinus').onclick = () => syncQty(ui.qty - 1);
+  document.getElementById('qtyPlus').onclick = () => syncQty(ui.qty + 1);
+  qtyInput.oninput = () => syncQty(parseInt(qtyInput.value, 10));
+
+  document.getElementById('addBtn').onclick = () => {
+    Cart.add(p.slug, ui.size, ui.qty);
+    toast(`${t('cart.added')} · ${tv(p.name)}`);
+  };
+  document.getElementById('orderBtn').href = orderLink(p);
+
+  document.querySelectorAll('#tabs button').forEach((b) => {
+    b.addEventListener('click', () => setTab(b.dataset.tab));
+  });
+
+  const related = SHOP.products
+    .filter((x) => x.slug !== p.slug && x.category === p.category)
+    .concat(SHOP.products.filter((x) => x.slug !== p.slug && x.category !== p.category))
+    .slice(0, 4);
+  document.getElementById('relatedSection').hidden = false;
+  document.getElementById('relatedGrid').innerHTML = related.map(productCard).join('');
+}
+boot('shop', initPdp);
+</script>
+</body>
+</html>

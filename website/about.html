@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — ABJ Shop</title>
+<meta name="description" content="ABJ is a Cambodian beauty brand formulating skincare and cosmetics for tropical heat, humidity and warm Khmer skin tones.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23c8607a'/><text x='50' y='68' font-size='46' font-family='Georgia' font-weight='bold' fill='white' text-anchor='middle'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html" data-i18n="nav.home"></a> / <span data-i18n="nav.about"></span></p>
+      <h1 data-i18n="about.title"></h1>
+      <p data-i18n="about.lead"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split reveal">
+      <img src="assets/img/about.svg" alt="" width="800" height="900">
+      <div>
+        <p class="eyebrow" data-i18n="story.eyebrow"></p>
+        <h2 data-i18n="about.h1"></h2>
+        <p class="lead" data-i18n="about.p1"></p>
+        <p data-i18n="about.p2"></p>
+        <ul class="checklist">
+          <li data-i18n="story.li1"></li>
+          <li data-i18n="story.li2"></li>
+          <li data-i18n="story.li3"></li>
+          <li data-i18n="story.li4"></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="values.eyebrow"></p>
+        <h2 data-i18n="about.h2"></h2>
+      </div>
+      <div class="value-grid reveal" id="promiseGrid"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="best.eyebrow"></p>
+        <h2 data-i18n="best.title"></h2>
+      </div>
+      <div class="product-grid reveal" id="aboutGrid"></div>
+      <div style="text-align:center;margin-top:2.5rem">
+        <a class="btn btn--primary" href="shop.html" data-i18n="btn.viewAll"></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function initAbout() {
+  const promises = [
+    [ICON.leaf, 'about.promise1'],
+    [ICON.check, 'about.promise2'],
+    [ICON.chat, 'about.promise3']
+  ];
+  document.getElementById('promiseGrid').innerHTML = promises.map(([icon, key]) => `
+    <div class="value-card">
+      <div class="value-card__icon">${icon}</div>
+      <p>${t(key)}</p>
+    </div>`).join('');
+
+  document.getElementById('aboutGrid').innerHTML =
+    SHOP.products.filter((p) => p.badge === 'best').slice(0, 4).map(productCard).join('');
+}
+boot('about', initAbout);
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="underarm-brightening">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0f4fb"/><stop offset="1" stop-color="#d6e2f4"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="38%" r="52%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="300" r="210" fill="url(#glow)"/>
+  <ellipse cx="300" cy="486" rx="132" ry="22" fill="#3f2029" opacity=".10"/>
+  <g>
+    <rect x="238" y="185" width="124" height="270" rx="26" fill="#ffffff"/>
+    <path d="M238 185h124v22c0 8-56 12-62 12s-62-4-62-12z" fill="#000" opacity=".05"/>
+    <rect x="268" y="140" width="64" height="52" rx="12" fill="#5b7fb5"/>
+    <rect x="258" y="262" width="84" height="4" rx="2" fill="#5b7fb5" opacity=".7"/>
+    <text x="300" y="330" text-anchor="middle" font-family="Helvetica,Arial" font-size="26"
+          font-weight="700" letter-spacing="2" fill="#5b7fb5">BRIGHT</text></g>
+  <path d="M92 508c40-14 62-44 66-88 26 34 58 46 96 40-22 34-56 52-102 54z" fill="#6f9c7e" opacity=".30"/>
+  <path d="M508 118c-34 8-54 30-60 62-20-26-46-36-78-32 18-26 46-40 84-42z" fill="#e2a3b1" opacity=".35"/>
+</svg>
