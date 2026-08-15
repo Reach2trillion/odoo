@@ -1,0 +1,124 @@
+<t name="Store Policies">
+  <t t-call="website.layout">
+    <div id="wrap" class="oe_structure oe_empty">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&amp;display=swap');
+.lk{display:none !important;font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;line-height:1.75;letter-spacing:0}
+html.abj-km .lk{display:revert !important}
+html.abj-km .le{display:none !important}
+.abj-langswitch{display:inline-flex;gap:4px;background:rgba(255,255,255,.75);border:1px solid rgba(30,127,192,.25);border-radius:999px;padding:4px;box-shadow:0 4px 14px rgba(9,42,63,.08)}
+.abj-langswitch button{border:0;background:transparent;border-radius:999px;padding:4px 14px;font-size:13px;font-weight:600;color:#1E7FC0;cursor:pointer}
+.abj-langswitch button.active{background:#1E7FC0;color:#fff}
+.abj-polnav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.abj-polnav a{text-decoration:none;font-size:13px;font-weight:600;color:#1E7FC0;border:1px solid rgba(30,127,192,.3);border-radius:999px;padding:6px 16px;background:#fff}
+.abj-polnav a:hover{background:#1E7FC0;color:#fff}
+.abj-polsec{scroll-margin-top:90px}
+.abj-polsec ul{padding-left:1.2rem}
+.abj-polsec li{margin-bottom:.4rem}
+</style>
+
+      <section class="abj-hero" style="padding:4rem 0 3rem;">
+        <div class="container text-center">
+          <div class="mb-4"><span class="abj-langswitch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" class="active">EN</button>
+            <button type="button" data-lang="km">ខ្មែរ</button>
+          </span></div>
+          <div class="abj-eyebrow mb-3"><span class="le">The fine print, kept simple</span><span class="lk">លក្ខខណ្ឌសំខាន់ៗ សរសេរឱ្យងាយយល់</span></div>
+          <h1><span class="le">Store policies</span><span class="lk">គោលការណ៍ហាង</span></h1>
+          <p class="lead mx-auto mt-3" style="max-width:40rem;"><span class="le">How we ship, how returns work, and how we look after your data.</span><span class="lk">របៀបយើងដឹកជញ្ជូន របៀបប្រគល់ទំនិញវិញ និងរបៀបយើងថែរក្សាទិន្នន័យរបស់អ្នក។</span></p>
+          <div class="abj-polnav mt-4">
+            <a href="#shipping"><span class="le">Shipping</span><span class="lk">ដឹកជញ្ជូន</span></a>
+            <a href="#returns"><span class="le">Returns &amp; refunds</span><span class="lk">ប្រគល់វិញ &amp; បង្វិលប្រាក់</span></a>
+            <a href="#privacy"><span class="le">Privacy</span><span class="lk">ឯកជនភាព</span></a>
+            <a href="#terms"><span class="le">Terms</span><span class="lk">លក្ខខណ្ឌ</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt64 pb64" style="background:var(--abj-bg);">
+        <div class="container" style="max-width:860px;">
+
+          <div id="shipping" class="abj-polsec mb-5">
+            <h2 class="h2"><span class="le">Shipping policy</span><span class="lk">គោលការណ៍ដឹកជញ្ជូន</span></h2>
+            <hr class="abj-rule my-3"/>
+            <p><span class="le">We ship nationwide across Cambodia, every working day.</span><span class="lk">យើងដឹកជញ្ជូនទូទាំងប្រទេសកម្ពុជា រាល់ថ្ងៃធ្វើការ។</span></p>
+            <ul>
+              <li><span class="le"><strong>Phnom Penh &amp; Ta Khmau:</strong> same-day or next-day delivery, flat $1.50.</span><span class="lk"><strong>ភ្នំពេញ និងតាខ្មៅ៖</strong> ដឹកជូនថ្ងៃដដែល ឬថ្ងៃបន្ទាប់ តម្លៃ $1.50។</span></li>
+              <li><span class="le"><strong>Provinces:</strong> 2&#8211;4 working days via VET or J&amp;T Express, flat $2.50.</span><span class="lk"><strong>បណ្តាខេត្ត៖</strong> ២&#8211;៤ ថ្ងៃធ្វើការ តាមរយៈ VET ឬ J&amp;T Express តម្លៃ $2.50។</span></li>
+              <li><span class="le"><strong>Free shipping</strong> on all orders over $35.</span><span class="lk"><strong>ដឹកជញ្ជូនឥតគិតថ្លៃ</strong> សម្រាប់ការបញ្ជាទិញលើស $35។</span></li>
+              <li><span class="le">A tracking number is sent by SMS or Telegram as soon as your parcel ships.</span><span class="lk">លេខតាមដាន ត្រូវផ្ញើតាម SMS ឬ Telegram ភ្លាមៗពេលកញ្ចប់របស់អ្នកចេញដំណើរ។</span></li>
+              <li><span class="le">If a parcel is delayed more than 2 days past the estimate, contact us and we'll chase the courier for you.</span><span class="lk">បើកញ្ចប់យឺតជាង ២ ថ្ងៃ លើសពីការប៉ាន់ស្មាន សូមទាក់ទងមកយើង យើងនឹងតាមសួរក្រុមហ៊ុនដឹកជញ្ជូនជូនអ្នក។</span></li>
+            </ul>
+          </div>
+
+          <div id="returns" class="abj-polsec mb-5">
+            <h2 class="h2"><span class="le">Returns &amp; refunds</span><span class="lk">ការប្រគល់វិញ និងការបង្វិលប្រាក់</span></h2>
+            <hr class="abj-rule my-3"/>
+            <ul>
+              <li><span class="le"><strong>14-day returns:</strong> unopened, unused products in their original packaging can be returned within 14 days of delivery for a full refund.</span><span class="lk"><strong>ប្រគល់វិញក្នុង ១៤ ថ្ងៃ៖</strong> ផលិតផលមិនទាន់បើក មិនទាន់ប្រើ ក្នុងកញ្ចប់ដើម អាចប្រគល់វិញក្នុង ១៤ ថ្ងៃ បន្ទាប់ពីទទួល ដើម្បីទទួលប្រាក់វិញពេញ។</span></li>
+              <li><span class="le"><strong>Damaged on arrival:</strong> send a photo within 48 hours of delivery and we replace the product free of charge &#8212; no need to return the damaged item.</span><span class="lk"><strong>ខូចពេលមកដល់៖</strong> ផ្ញើរូបភាពក្នុង ៤៨ ម៉ោង បន្ទាប់ពីទទួល យើងផ្លាស់ជូនថ្មី ដោយឥតគិតថ្លៃ &#8212; មិនចាំបាច់ប្រគល់ទំនិញខូចវិញទេ។</span></li>
+              <li><span class="le"><strong>Hygiene:</strong> opened products cannot be returned, except for genuine quality defects.</span><span class="lk"><strong>អនាម័យ៖</strong> ផលិតផលដែលបើករួច មិនអាចប្រគល់វិញបានទេ លើកលែងតែមានបញ្ហាគុណភាពពិតប្រាកដ។</span></li>
+              <li><span class="le"><strong>How to start a return:</strong> call <a href="tel:+855312663333">031 266 3333</a> or use the <a href="/contactus">contact page</a> with your order number. Refunds go back to your original payment method within 5&#8211;7 working days after we receive the product.</span><span class="lk"><strong>របៀបស្នើប្រគល់វិញ៖</strong> ទូរស័ព្ទមក <a href="tel:+855312663333">031 266 3333</a> ឬប្រើ<a href="/contactus">ទំព័រទំនាក់ទំនង</a> ជាមួយលេខបញ្ជាទិញរបស់អ្នក។ ប្រាក់នឹងបង្វិលទៅវិធីបង់ប្រាក់ដើមរបស់អ្នក ក្នុង ៥&#8211;៧ ថ្ងៃធ្វើការ បន្ទាប់ពីយើងទទួលផលិតផលវិញ។</span></li>
+              <li><span class="le">Return shipping is paid by the customer, unless the return is our mistake (wrong or defective item) &#8212; then we cover it.</span><span class="lk">ថ្លៃដឹកសម្រាប់ការប្រគល់វិញ ជាបន្ទុករបស់អតិថិជន លើកលែងតែជាកំហុសរបស់យើង (ទំនិញខុស ឬខូច) &#8212; ក្នុងករណីនោះ យើងជាអ្នកចេញ។</span></li>
+            </ul>
+          </div>
+
+          <div id="privacy" class="abj-polsec mb-5">
+            <h2 class="h2"><span class="le">Privacy policy</span><span class="lk">គោលការណ៍ឯកជនភាព</span></h2>
+            <hr class="abj-rule my-3"/>
+            <p><span class="le">We collect only what we need to get your order to your door.</span><span class="lk">យើងប្រមូលតែព័ត៌មានដែលចាំបាច់ ដើម្បីដឹកទំនិញដល់ផ្ទះអ្នកប៉ុណ្ណោះ។</span></p>
+            <ul>
+              <li><span class="le"><strong>What we collect:</strong> your name, phone number, delivery address and order history.</span><span class="lk"><strong>អ្វីដែលយើងប្រមូល៖</strong> ឈ្មោះ លេខទូរស័ព្ទ អាសយដ្ឋានដឹកជញ្ជូន និងប្រវត្តិបញ្ជាទិញរបស់អ្នក។</span></li>
+              <li><span class="le"><strong>Why:</strong> to fulfil orders, send delivery updates and answer support requests. Nothing else.</span><span class="lk"><strong>ហេតុអ្វី៖</strong> ដើម្បីបំពេញការបញ្ជាទិញ ផ្ញើព័ត៌មានដឹកជញ្ជូន និងឆ្លើយតបសំណើជំនួយ។ គ្មានអ្វីផ្សេងទៀតទេ។</span></li>
+              <li><span class="le"><strong>Never sold:</strong> we never sell or rent your personal data to anyone. It is shared only with the courier delivering your parcel.</span><span class="lk"><strong>មិនលក់ជាដាច់ខាត៖</strong> យើងមិនលក់ ឬជួលទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នក ទៅនរណាម្នាក់ឡើយ។ វាចែករំលែកតែជាមួយក្រុមហ៊ុនដឹកជញ្ជូន ដែលដឹកកញ្ចប់របស់អ្នកប៉ុណ្ណោះ។</span></li>
+              <li><span class="le"><strong>Payments:</strong> card and PayWay payments are processed securely by ABA &#8212; we never see or store your card details.</span><span class="lk"><strong>ការបង់ប្រាក់៖</strong> ការបង់ប្រាក់តាមកាត និង PayWay ដំណើរការដោយសុវត្ថិភាព ដោយ ABA &#8212; យើងមិនដែលឃើញ ឬរក្សាទុកព័ត៌មានកាតរបស់អ្នកឡើយ។</span></li>
+              <li><span class="le"><strong>Cookies:</strong> we use cookies only to keep your cart and your language choice. No advertising trackers.</span><span class="lk"><strong>Cookies៖</strong> យើងប្រើ cookies តែដើម្បីរក្សាកន្ត្រកទំនិញ និងជម្រើសភាសារបស់អ្នកប៉ុណ្ណោះ។ គ្មាន tracker ផ្សាយពាណិជ្ជកម្មទេ។</span></li>
+              <li><span class="le"><strong>Your rights:</strong> ask us any time to see or delete the data we hold about you &#8212; one message to the <a href="/contactus">contact page</a> is enough.</span><span class="lk"><strong>សិទ្ធិរបស់អ្នក៖</strong> អ្នកអាចស្នើមើល ឬលុបទិន្នន័យរបស់អ្នក ដែលយើងរក្សាទុក បានគ្រប់ពេល &#8212; គ្រាន់តែផ្ញើសារមួយ តាម<a href="/contactus">ទំព័រទំនាក់ទំនង</a>។</span></li>
+            </ul>
+          </div>
+
+          <div id="terms" class="abj-polsec mb-4">
+            <h2 class="h2"><span class="le">Terms of service</span><span class="lk">លក្ខខណ្ឌនៃការប្រើប្រាស់</span></h2>
+            <hr class="abj-rule my-3"/>
+            <ul>
+              <li><span class="le">All prices are in US dollars. An order is confirmed when we message you to confirm stock and delivery time.</span><span class="lk">តម្លៃទាំងអស់ គិតជាដុល្លារអាមេរិក។ ការបញ្ជាទិញ ត្រូវបានបញ្ជាក់ នៅពេលយើងផ្ញើសារបញ្ជាក់ស្តុក និងពេលវេលាដឹកជញ្ជូន។</span></li>
+              <li><span class="le">If a product is out of stock or listed at an incorrect price, we will contact you to adjust or cancel with a full refund.</span><span class="lk">បើផលិតផលអស់ស្តុក ឬតម្លៃដាក់បង្ហាញខុស យើងនឹងទាក់ទងអ្នក ដើម្បីកែសម្រួល ឬបោះបង់ ជាមួយការបង្វិលប្រាក់ពេញ។</span></li>
+              <li><span class="le">Our products are cosmetics for external use only. Patch-test before first use and stop using a product if irritation occurs. They are not a substitute for medical treatment.</span><span class="lk">ផលិតផលរបស់យើង ជាគ្រឿងសម្អាង សម្រាប់ប្រើខាងក្រៅតែប៉ុណ្ណោះ។ សូមសាកល្បងលើស្បែកមុនប្រើលើកដំបូង ហើយឈប់ប្រើ បើមានការរលាក។ វាមិនមែនជាការជំនួសការព្យាបាលវេជ្ជសាស្ត្រទេ។</span></li>
+              <li><span class="le">All text, photos and branding on this site belong to ABJ / AIBAOJI and may not be reused without permission.</span><span class="lk">អត្ថបទ រូបភាព និងម៉ាកយីហោទាំងអស់ លើគេហទំព័រនេះ ជាកម្មសិទ្ធិរបស់ ABJ / AIBAOJI ហើយមិនអាចយកទៅប្រើឡើងវិញ ដោយគ្មានការអនុញ្ញាតឡើយ។</span></li>
+              <li><span class="le">These terms are governed by the laws of the Kingdom of Cambodia.</span><span class="lk">លក្ខខណ្ឌទាំងនេះ ស្ថិតក្រោមច្បាប់ នៃព្រះរាជាណាចក្រកម្ពុជា។</span></li>
+            </ul>
+            <p class="abj-soft mt-4"><span class="le">Last updated: 9 August 2026.</span><span class="lk">ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ ថ្ងៃទី ៩ ខែសីហា ឆ្នាំ ២០២៦។</span></p>
+          </div>
+
+          <div class="text-center pt-4">
+            <p class="abj-soft"><span class="le">Questions about any of this?</span><span class="lk">មានសំណួរអំពីចំណុចណាមួយ?</span></p>
+            <a href="/contactus" class="btn btn-primary"><span class="le">Contact us</span><span class="lk">ទាក់ទងយើង</span></a>
+            <a href="/faq" class="btn btn-outline-primary ms-2"><span class="le">Read the FAQ</span><span class="lk">អានសំណួរញឹកញាប់</span></a>
+          </div>
+
+        </div>
+      </section>
+
+<script>
+(function(){
+  function apply(l, store){
+    document.documentElement.classList.toggle('abj-km', l==='km');
+    var bs=document.querySelectorAll('.abj-langswitch button');
+    for(var i=0;i&lt;bs.length;i++){bs[i].classList.toggle('active', bs[i].getAttribute('data-lang')===l);}
+    if(store){try{localStorage.setItem('abjLang', l);}catch(e){}}
+  }
+  var chosen=null;
+  try{chosen=localStorage.getItem('abjLang');}catch(e){}
+  var docKm=((document.documentElement.getAttribute('lang')||'').toLowerCase().indexOf('km')===0)||(window.location.pathname.indexOf('/km')===0);
+  apply(chosen||(docKm?'km':'en'), false);
+  var bs=document.querySelectorAll('.abj-langswitch button');
+  for(var i=0;i&lt;bs.length;i++){
+    bs[i].addEventListener('click', function(){apply(this.getAttribute('data-lang'), true);});
+  }
+})();
+</script>
+
+    </div>
+  </t>
+</t>

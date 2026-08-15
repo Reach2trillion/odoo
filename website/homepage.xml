@@ -1,0 +1,411 @@
+<t name="Home">
+  <t t-call="website.layout">
+    <div id="wrap" class="oe_structure oe_empty">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400..700');
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&amp;display=swap');
+
+:root{
+  --abj-blue:#2E86C8;
+  --abj-blue-2:#3FA7E0;
+  --abj-deep:#0B3D5C;
+  --abj-bg:#F4FAFE;
+  --abj-ink:#12303F;
+  --abj-line:#DCEFFA;
+}
+#wrapwrap > main{background:var(--abj-bg)}
+#abj-home{font-family:'Inter Tight','Inter',system-ui,sans-serif;color:var(--abj-ink);overflow-x:clip}
+#abj-home img{max-width:100%}
+#abj-home .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+#abj-home h1,#abj-home h2,#abj-home h3{color:var(--abj-deep);font-family:inherit}
+#abj-home .btn-abj{display:inline-flex;align-items:center;gap:8px;background:var(--abj-blue);color:#fff;border:0;border-radius:999px;padding:13px 26px;font-weight:600;font-size:15px;text-decoration:none;transition:background .2s ease,transform .2s ease}
+#abj-home .btn-abj:hover{background:var(--abj-deep);color:#fff;transform:translateY(-1px)}
+#abj-home .btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);color:var(--abj-deep);border:1px solid var(--abj-line);border-radius:999px;padding:13px 26px;font-weight:600;font-size:15px;text-decoration:none;transition:background .2s ease}
+#abj-home .btn-ghost:hover{background:#fff;color:var(--abj-blue)}
+
+/* reveal on scroll */
+#abj-home .rv{opacity:0;transform:translateY(18px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+#abj-home .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){#abj-home .rv{opacity:1;transform:none;transition:none}}
+
+/* promo bar */
+#abj-promo{background:var(--abj-deep);color:#fff;font-size:13px}
+#abj-promo .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:8px;padding-bottom:8px}
+#abj-promo .msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#abj-promo a{color:#fff;text-decoration:none;font-weight:600}
+#abj-lang{display:flex;gap:4px;flex:none}
+#abj-lang button{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;font-size:11px;padding:2px 10px;cursor:pointer}
+#abj-lang button.on{background:#fff;color:var(--abj-deep);border-color:#fff}
+
+/* hero */
+#abj-hero{position:relative;overflow:hidden;background:var(--abj-deep)}
+#abj-hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
+#abj-hero .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,36,54,.82) 0%,rgba(6,36,54,.55) 45%,rgba(6,36,54,.15) 100%)}
+#abj-hero .wrap{position:relative;z-index:2;padding-top:88px;padding-bottom:88px}
+@media (min-width:768px){#abj-hero .wrap{padding-top:130px;padding-bottom:130px}}
+#abj-hero .eyebrow{color:#BFE3F7;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+#abj-hero h1{color:#fff;font-size:clamp(34px,6vw,62px);line-height:1.06;letter-spacing:-.02em;font-weight:700;margin:0 0 16px;max-width:14ch}
+#abj-hero p.sub{color:#DCEFFA;font-size:clamp(15px,2vw,18px);line-height:1.6;max-width:46ch;margin:0 0 26px}
+#abj-hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:30px}
+#abj-hero .marks{display:flex;flex-wrap:wrap;gap:10px 22px;color:#BFE3F7;font-size:12.5px;font-weight:600;letter-spacing:.04em}
+#abj-hero .marks span{display:inline-flex;align-items:center;gap:7px}
+#abj-hero .marks svg{flex:none}
+
+/* trust strip */
+#abj-trust{background:#fff;border-bottom:1px solid var(--abj-line)}
+#abj-trust .wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding-top:22px;padding-bottom:22px}
+@media (min-width:900px){#abj-trust .wrap{grid-template-columns:repeat(4,1fr)}}
+.tr-item{display:flex;align-items:center;gap:12px}
+.tr-item svg{flex:none;color:var(--abj-blue)}
+.tr-item b{display:block;font-size:14px;color:var(--abj-deep)}
+.tr-item small{font-size:12.5px;color:#5B7A8C}
+
+/* section heads */
+.sec{padding:56px 0 8px}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:26px}
+.sec-head .eyebrow{color:var(--abj-blue);font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.sec-head h2{font-size:clamp(24px,3.6vw,36px);font-weight:700;letter-spacing:-.02em;margin:0}
+.sec-head .more{flex:none;color:var(--abj-blue);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.sec-head .more:hover{color:var(--abj-deep)}
+
+/* category tiles */
+#abj-cats .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding-bottom:26px}
+@media (min-width:640px){#abj-cats .grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:1024px){#abj-cats .grid{grid-template-columns:repeat(6,1fr)}}
+.cat-tile{background:#fff;border:1px solid var(--abj-line);border-radius:18px;padding:18px 12px 16px;text-align:center;text-decoration:none;transition:box-shadow .2s ease,transform .2s ease;display:block}
+.cat-tile:hover{box-shadow:0 12px 30px rgba(46,134,200,.16);transform:translateY(-3px)}
+.cat-tile .im{height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.cat-tile img{max-height:100%;object-fit:contain}
+.cat-tile b{display:block;color:var(--abj-deep);font-size:14px;font-weight:600}
+.cat-tile small{color:var(--abj-blue);font-size:12px;font-weight:600}
+
+/* product cards */
+#abj-best .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding-bottom:30px}
+@media (min-width:768px){#abj-best .grid{grid-template-columns:repeat(3,1fr);gap:18px}}
+@media (min-width:1100px){#abj-best .grid{grid-template-columns:repeat(4,1fr)}}
+.p-card{position:relative;background:#fff;border:1px solid var(--abj-line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:box-shadow .2s ease,transform .2s ease}
+.p-card:hover{box-shadow:0 16px 38px rgba(46,134,200,.18);transform:translateY(-4px)}
+.p-badge{position:absolute;top:12px;left:12px;z-index:2;background:var(--abj-blue);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;border-radius:999px;padding:4px 10px}
+.p-badge.hot{background:#E5327E}
+.p-im{background:linear-gradient(180deg,#EAF6FE 0%,#fff 100%);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:14%}
+.p-im img{max-height:100%;object-fit:contain;transition:transform .3s ease}
+.p-card:hover .p-im img{transform:scale(1.05)}
+.p-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.p-name{color:var(--abj-deep);font-weight:600;font-size:15px;line-height:1.3}
+.p-desc{color:#5B7A8C;font-size:12.5px;line-height:1.5;flex:1}
+.p-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.p-price{color:var(--abj-deep);font-weight:700;font-size:17px}
+.p-buy{background:var(--abj-blue);color:#fff;font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 16px;transition:background .2s ease}
+.p-card:hover .p-buy{background:var(--abj-deep)}
+
+/* promo band */
+#abj-band{background:linear-gradient(120deg,var(--abj-blue) 0%,var(--abj-blue-2) 100%);color:#fff;margin:48px 0 0}
+#abj-band .wrap{display:grid;gap:34px;padding-top:56px;padding-bottom:56px}
+@media (min-width:900px){#abj-band .wrap{grid-template-columns:1.2fr 1fr;align-items:center}}
+#abj-band h2{color:#fff;font-size:clamp(26px,3.6vw,40px);font-weight:700;letter-spacing:-.02em;margin:0 0 12px}
+#abj-band p{color:#EAF6FE;font-size:15.5px;line-height:1.65;max-width:52ch;margin:0 0 22px}
+#abj-band .btn-abj{background:#fff;color:var(--abj-deep)}
+#abj-band .btn-abj:hover{background:var(--abj-deep);color:#fff}
+.band-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.band-stats div{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:18px 14px;text-align:center}
+.band-stats b{display:block;font-size:clamp(22px,3vw,30px);font-weight:700}
+.band-stats span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+
+/* testimonials */
+#abj-quotes .grid{display:grid;gap:14px;padding-bottom:30px}
+@media (min-width:900px){#abj-quotes .grid{grid-template-columns:repeat(3,1fr);gap:18px}}
+.q-card{background:#fff;border:1px solid var(--abj-line);border-radius:20px;padding:22px 20px}
+.q-stars{color:#F5A623;letter-spacing:2px;font-size:14px;margin-bottom:10px}
+.q-card p{color:var(--abj-ink);font-size:14px;line-height:1.65;margin:0 0 14px}
+.q-card b{color:var(--abj-deep);font-size:13px;font-weight:600}
+.q-card small{display:block;color:#5B7A8C;font-size:12px}
+
+/* outro CTA */
+#abj-outro{padding:26px 0 70px}
+#abj-outro .card{background:#fff;border:1px solid var(--abj-line);border-radius:24px;padding:38px 26px;text-align:center}
+#abj-outro h2{font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
+#abj-outro p{color:#5B7A8C;font-size:15px;max-width:52ch;margin:0 auto 22px;line-height:1.6}
+#abj-outro .ctas{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+
+/* floating call button */
+#abj-call{position:fixed;right:18px;bottom:18px;z-index:60;width:54px;height:54px;border-radius:50%;background:var(--abj-blue);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(11,61,92,.35);transition:transform .2s ease,background .2s ease}
+#abj-call:hover{transform:scale(1.07);background:var(--abj-deep);color:#fff}
+
+/* --- Khmer language (auto on /km routes) --- */
+.lk{display:none !important;font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;letter-spacing:0}
+html.abj-km .lk{display:revert !important}
+html.abj-km .le{display:none !important}
+html.abj-km #abj-home .p-desc,html.abj-km #abj-home .p-name,html.abj-km #abj-home p,html.abj-km #abj-home h1,html.abj-km #abj-home h2,html.abj-km #abj-home h3,html.abj-km #abj-home b,html.abj-km #abj-home small{font-family:'Kantumruy Pro','Noto Sans Khmer',system-ui,sans-serif;letter-spacing:.01em}
+html.abj-km #abj-hero h1{line-height:1.25;max-width:none}
+html.abj-km #abj-hero p.sub{line-height:1.8}
+</style>
+
+<div id="abj-home">
+
+  <!-- promo bar -->
+  <div id="abj-promo">
+    <div class="wrap">
+      <div class="msg">
+        <span class="le">Free delivery in Phnom Penh &#8226; Cash on delivery &#8226; Hotline <a href="tel:+855312663333">031 266 3333</a></span>
+        <span class="lk">&#x178A;&#x17B9;&#x1780;&#x1787;&#x1789;&#x17D2;&#x1787;&#x17BC;&#x1793;&#x17A5;&#x178F;&#x1782;&#x17B7;&#x178F;&#x1790;&#x17D2;&#x179B;&#x17C3; &#x1780;&#x17D2;&#x1793;&#x17BB;&#x1784;&#x1797;&#x17D2;&#x1793;&#x17C6;&#x1796;&#x17C1;&#x1789; &#8226; &#x1794;&#x1784;&#x17CB;&#x1794;&#x17D2;&#x179A;&#x17B6;&#x1780;&#x17CB;&#x1796;&#x17C1;&#x179B;&#x1791;&#x1791;&#x17BD;&#x179B; &#8226; <a href="tel:+855312663333">031 266 3333</a></span>
+      </div>
+      <div id="abj-lang">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="km">&#x1781;&#x17D2;&#x1798;&#x17C2;&#x179A;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- hero -->
+  <section id="abj-hero">
+    <video id="abj-hero-vid" autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline" preload="auto" src="/web/content/2800/Skincare_commercial.mp4" data-fallback="https://raw.githubusercontent.com/Reach2trillion/odoo/6ec30dd9d9582741e9e15a562fc740d22fa4b667/website/video/nv-skincare.mp4" aria-hidden="true"></video>
+    <div class="shade" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="eyebrow rv">ABJ &#8212; AIBAOJI SKINCARE</div>
+      <h1 class="rv"><span class="le">Healthy, glowing skin every day</span><span class="lk">&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x179F;&#x17D2;&#x179A;&#x179F;&#x17CB;&#x179F;&#x17D2;&#x17A2;&#x17B6;&#x178F; &#x1797;&#x17D2;&#x179B;&#x17BA;&#x179A;&#x179F;&#x17D2;&#x1798;&#x17B8; &#x179A;&#x17B6;&#x179B;&#x17CB;&#x1790;&#x17D2;&#x1784;&#x17C3;</span></h1>
+      <p class="sub rv"><span class="le">Gentle, science-backed essentials for skin, hair and body &#8212; 11 daily products, honest prices, delivered across Cambodia.</span><span class="lk">&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B;&#x1790;&#x17C2;&#x1791;&#x17B6;&#x17C6;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780; &#x179F;&#x1780;&#x17CB; &#x1793;&#x17B7;&#x1784;&#x179A;&#x17B6;&#x1784;&#x1780;&#x17B6;&#x1799; &#x1791;&#x1793;&#x17CB;&#x1797;&#x17D2;&#x179B;&#x1793;&#x17CB; &#x1795;&#x17D2;&#x17A2;&#x17C2;&#x1780;&#x179B;&#x17BE;&#x179C;&#x17B7;&#x1791;&#x17D2;&#x1799;&#x17B6;&#x179F;&#x17B6;&#x179F;&#x17D2;&#x178F;&#x17D2;&#x179A; &#8212; &#x17E1;&#x17E1; &#x1798;&#x17BB;&#x1781; &#x178F;&#x1798;&#x17D2;&#x179B;&#x17C3;&#x179F;&#x1798;&#x179A;&#x1798;&#x17D2;&#x1799; &#x178A;&#x17B9;&#x1780;&#x1787;&#x1789;&#x17D2;&#x1787;&#x17BC;&#x1793;&#x1791;&#x17BC;&#x1791;&#x17B6;&#x17C6;&#x1784;&#x1780;&#x1798;&#x17D2;&#x1796;&#x17BB;&#x1787;&#x17B6;&#x17D4;</span></p>
+      <div class="ctas rv">
+        <a class="btn-abj" href="/shop"><span class="le">Shop now</span><span class="lk">&#x1791;&#x17B7;&#x1789;&#x17A5;&#x17A1;&#x17BC;&#x179C;</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>
+        <a class="btn-ghost" href="tel:+855312663333"><span class="le">Call 031 266 3333</span><span class="lk">&#x17A0;&#x17C5; 031 266 3333</span></a>
+      </div>
+      <div class="marks rv">
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> SPF 50+</span>
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> <span class="le">Gentle formulas</span><span class="lk">&#x179A;&#x17BC;&#x1794;&#x1798;&#x1793;&#x17D2;&#x178F;&#x1791;&#x1793;&#x17CB;&#x1797;&#x17D2;&#x179B;&#x1793;&#x17CB;</span></span>
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> <span class="le">2,000+ happy customers</span><span class="lk">&#x17A2;&#x178F;&#x17B7;&#x1790;&#x17B7;&#x1787;&#x1793; &#x17E2;,&#x17E0;&#x17E0;&#x17E0;+</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- trust strip -->
+  <div id="abj-trust">
+    <div class="wrap">
+      <div class="tr-item rv"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="1.5"/><path d="M15 10h4l3 4v4h-7"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="18" cy="18.5" r="1.8"/></svg><div><b><span class="le">Fast delivery</span><span class="lk">&#x178A;&#x17B9;&#x1780;&#x1787;&#x1789;&#x17D2;&#x1787;&#x17BC;&#x1793;&#x179B;&#x17BF;&#x1793;</span></b><small><span class="le">Free in Phnom Penh</span><span class="lk">&#x17A5;&#x178F;&#x1782;&#x17B7;&#x178F;&#x1790;&#x17D2;&#x179B;&#x17C3; &#x1780;&#x17D2;&#x1793;&#x17BB;&#x1784;&#x1797;&#x17D2;&#x1793;&#x17C6;&#x1796;&#x17C1;&#x1789;</span></small></div></div>
+      <div class="tr-item rv"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><b><span class="le">100% genuine</span><span class="lk">&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B;&#x1796;&#x17B7;&#x178F; &#x17E1;&#x17E0;&#x17E0;%</span></b><small><span class="le">Official ABJ products</span><span class="lk">&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B; ABJ &#x1795;&#x17D2;&#x179B;&#x17BC;&#x179C;&#x1780;&#x17B6;&#x179A;</span></small></div></div>
+      <div class="tr-item rv"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><div><b><span class="le">Cash on delivery</span><span class="lk">&#x1794;&#x1784;&#x17CB;&#x1794;&#x17D2;&#x179A;&#x17B6;&#x1780;&#x17CB;&#x1796;&#x17C1;&#x179B;&#x1791;&#x1791;&#x17BD;&#x179B;</span></b><small><span class="le">Pay when it arrives</span><span class="lk">&#x1791;&#x17BC;&#x1791;&#x17B6;&#x178F;&#x17CB;&#x1796;&#x17C1;&#x179B;&#x1791;&#x17C6;&#x1793;&#x17B7;&#x1789;&#x1798;&#x1780;&#x178A;&#x179B;&#x17CB;</span></small></div></div>
+      <div class="tr-item rv"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg><div><b><span class="le">Support 7 days</span><span class="lk">&#x1787;&#x17C6;&#x1793;&#x17BD;&#x1799; &#x17E7; &#x1790;&#x17D2;&#x1784;&#x17C3;</span></b><small><span class="le">Call or Telegram us</span><span class="lk">&#x17A0;&#x17C5;&#x1791;&#x17BC;&#x179A;&#x179F;&#x1796;&#x17D2;&#x1791; &#x17AC; Telegram</span></small></div></div>
+    </div>
+  </div>
+
+  <!-- categories -->
+  <section id="abj-cats" class="sec">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div>
+          <div class="eyebrow"><span class="le">Categories</span><span class="lk">&#x1794;&#x17D2;&#x179A;&#x1797;&#x17C1;&#x1791;</span></div>
+          <h2><span class="le">Shop by category</span><span class="lk">&#x1791;&#x17B7;&#x1789;&#x178F;&#x17B6;&#x1798;&#x1794;&#x17D2;&#x179A;&#x1797;&#x17C1;&#x1791;</span></h2>
+        </div>
+        <a class="more" href="/shop"><span class="le">View all &#8594;</span><span class="lk">&#x1798;&#x17BE;&#x179B;&#x1791;&#x17B6;&#x17C6;&#x1784;&#x17A2;&#x179F;&#x17CB; &#8594;</span></a>
+      </div>
+      <div class="grid">
+        <a class="cat-tile rv" href="/shop?search=foam"><span class="im"><img src="/web/image/product.template/3/image_512" alt="ABJ Cleansers" loading="lazy"/></span><b><span class="le">Cleansers</span><span class="lk">&#x179F;&#x1798;&#x17D2;&#x17A2;&#x17B6;&#x178F;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+        <a class="cat-tile rv" href="/shop?search=sunscreen"><span class="im"><img src="/web/image/product.template/11/image_512" alt="ABJ Sun care" loading="lazy"/></span><b><span class="le">Sun care</span><span class="lk">&#x1780;&#x17B6;&#x179A;&#x1796;&#x17B6;&#x179A;&#x1780;&#x1798;&#x17D2;&#x178F;&#x17C5;&#x1790;&#x17D2;&#x1784;&#x17C3;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+        <a class="cat-tile rv" href="/shop?search=mask"><span class="im"><img src="/web/image/product.template/6/image_512" alt="ABJ Face masks" loading="lazy"/></span><b><span class="le">Face masks</span><span class="lk">&#x1798;&#x17C9;&#x17B6;&#x179F;&#x1794;&#x17B7;&#x1791;&#x1798;&#x17BB;&#x1781;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+        <a class="cat-tile rv" href="/shop?search=cream"><span class="im"><img src="/web/image/product.template/7/image_512" alt="ABJ Creams" loading="lazy"/></span><b><span class="le">Creams</span><span class="lk">&#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+        <a class="cat-tile rv" href="/shop?search=shampoo"><span class="im"><img src="/web/image/product.template/5/image_512" alt="ABJ Hair care" loading="lazy"/></span><b><span class="le">Hair care</span><span class="lk">&#x1790;&#x17C2;&#x1791;&#x17B6;&#x17C6;&#x179F;&#x1780;&#x17CB;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+        <a class="cat-tile rv" href="/shop?search=gel"><span class="im"><img src="/web/image/product.template/10/image_512" alt="ABJ Body care" loading="lazy"/></span><b><span class="le">Body care</span><span class="lk">&#x1790;&#x17C2;&#x1791;&#x17B6;&#x17C6;&#x179A;&#x17B6;&#x1784;&#x1780;&#x17B6;&#x1799;</span></b><small><span class="le">Shop &#8594;</span><span class="lk">&#x1791;&#x17B7;&#x1789; &#8594;</span></small></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- best sellers -->
+  <section id="abj-best" class="sec">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div>
+          <div class="eyebrow"><span class="le">Our products</span><span class="lk">&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B;&#x179A;&#x1794;&#x179F;&#x17CB;&#x1799;&#x17BE;&#x1784;</span></div>
+          <h2><span class="le">Best sellers</span><span class="lk">&#x179B;&#x1780;&#x17CB;&#x178A;&#x17B6;&#x1785;&#x17CB;&#x1794;&#x17C6;&#x1795;&#x17BB;&#x178F;</span></h2>
+        </div>
+        <a class="more" href="/shop"><span class="le">View all products &#8594;</span><span class="lk">&#x1798;&#x17BE;&#x179B;&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B;&#x1791;&#x17B6;&#x17C6;&#x1784;&#x17A2;&#x179F;&#x17CB; &#8594;</span></a>
+      </div>
+      <div class="grid" id="abj-pgrid"></div>
+    </div>
+  </section>
+
+  <!-- promo band -->
+  <section id="abj-band">
+    <div class="wrap">
+      <div class="rv">
+        <h2><span class="le">Trusted by 2,000+ customers across Cambodia</span><span class="lk">&#x1791;&#x1791;&#x17BD;&#x179B;&#x1780;&#x17B6;&#x179A;&#x1791;&#x17BB;&#x1780;&#x1785;&#x17B7;&#x178F;&#x17D2;&#x178F;&#x1796;&#x17B8;&#x17A2;&#x178F;&#x17B7;&#x1790;&#x17B7;&#x1787;&#x1793; &#x17E2;,&#x17E0;&#x17E0;&#x17E0;+ &#x1791;&#x17BC;&#x1791;&#x17B6;&#x17C6;&#x1784;&#x1780;&#x1798;&#x17D2;&#x1796;&#x17BB;&#x1787;&#x17B6;</span></h2>
+        <p><span class="le">From the first cleanse to the final SPF, ABJ turns a simple daily routine into results you can see &#8212; gently, every day. Order online, by phone or on Telegram.</span><span class="lk">&#x1796;&#x17B8;&#x1780;&#x17B6;&#x179A;&#x179F;&#x1798;&#x17D2;&#x17A2;&#x17B6;&#x178F;&#x178A;&#x17C6;&#x1794;&#x17BC;&#x1784; &#x178A;&#x179B;&#x17CB; SPF &#x1785;&#x17BB;&#x1784;&#x1780;&#x17D2;&#x179A;&#x17C4;&#x1799; ABJ &#x1794;&#x17D2;&#x179A;&#x17C2;&#x1780;&#x17D2;&#x179B;&#x17B6;&#x1799;&#x1791;&#x1798;&#x17D2;&#x179B;&#x17B6;&#x1794;&#x17CB;&#x1794;&#x17D2;&#x179A;&#x1785;&#x17B6;&#x17C6;&#x1790;&#x17D2;&#x1784;&#x17C3; &#x1791;&#x17C5;&#x1787;&#x17B6;&#x179B;&#x1791;&#x17D2;&#x1792;&#x1795;&#x179B;&#x178A;&#x17C2;&#x179B;&#x1798;&#x17BE;&#x179B;&#x1783;&#x17BE;&#x1789;&#x17D4; &#x1780;&#x1798;&#x17D2;&#x1798;&#x1784;&#x17CB;&#x178F;&#x17B6;&#x1798;&#x17A2;&#x1793;&#x17A1;&#x17B6;&#x1789; &#x1791;&#x17BC;&#x179A;&#x179F;&#x1796;&#x17D2;&#x1791; &#x17AC; Telegram&#x17D4;</span></p>
+        <a class="btn-abj" href="/shop"><span class="le">Start shopping</span><span class="lk">&#x1785;&#x17B6;&#x1794;&#x17CB;&#x1795;&#x17D2;&#x178F;&#x17BE;&#x1798;&#x1791;&#x17B7;&#x1789;</span></a>
+      </div>
+      <div class="band-stats rv">
+        <div><b>11</b><span class="le">Daily essentials</span><span class="lk">&#x1795;&#x179B;&#x17B7;&#x178F;&#x1795;&#x179B;&#x1785;&#x17B6;&#x17C6;&#x1794;&#x17B6;&#x1785;&#x17CB;</span></div>
+        <div><b>SPF 50+</b><span class="le">Sun protection</span><span class="lk">&#x1780;&#x17B6;&#x179A;&#x1796;&#x17B6;&#x179A;&#x1780;&#x1798;&#x17D2;&#x178F;&#x17C5;&#x1790;&#x17D2;&#x1784;&#x17C3;</span></div>
+        <div><b>2,000+</b><span class="le">Happy customers</span><span class="lk">&#x17A2;&#x178F;&#x17B7;&#x1790;&#x17B7;&#x1787;&#x1793;&#x179A;&#x17B8;&#x1780;&#x179A;&#x17B6;&#x1799;</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- testimonials -->
+  <section id="abj-quotes" class="sec">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div>
+          <div class="eyebrow"><span class="le">Reviews</span><span class="lk">&#x1798;&#x178F;&#x17B7;&#x17A2;&#x178F;&#x17B7;&#x1790;&#x17B7;&#x1787;&#x1793;</span></div>
+          <h2><span class="le">What customers say</span><span class="lk">&#x17A2;&#x178F;&#x17B7;&#x1790;&#x17B7;&#x1787;&#x1793;&#x1793;&#x17B7;&#x1799;&#x17B6;&#x1799;&#x17A2;&#x17D2;&#x179C;&#x17B8;&#x1781;&#x17D2;&#x179B;&#x17C7;</span></h2>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="q-card rv">
+          <div class="q-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p><span class="le">&#8220;My skin feels calmer after two weeks with the cleanser and serum. Delivery in Phnom Penh was same-day.&#8221;</span><span class="lk">&#x00AB;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x1781;&#x17D2;&#x1789;&#x17BB;&#x17C6;&#x179F;&#x17D2;&#x1784;&#x1794;&#x17CB;&#x1787;&#x17B6;&#x1784;&#x1798;&#x17BB;&#x1793; &#x1780;&#x17D2;&#x179A;&#x17C4;&#x1799;&#x1794;&#x17D2;&#x179A;&#x17BE;&#x1791;&#x17B9;&#x1780;&#x179B;&#x17B6;&#x1784;&#x1798;&#x17BB;&#x1781; &#x1793;&#x17B7;&#x1784;&#x179F;&#x17C1;&#x179A;&#x17C9;&#x17BC;&#x1798; &#x17E2; &#x179F;&#x1794;&#x17D2;&#x178F;&#x17B6;&#x17A0;&#x17CD;&#x17D4; &#x178A;&#x17B9;&#x1780;&#x1787;&#x1789;&#x17D2;&#x1787;&#x17BC;&#x1793;&#x1780;&#x17D2;&#x1793;&#x17BB;&#x1784;&#x1797;&#x17D2;&#x1793;&#x17C6;&#x1796;&#x17C1;&#x1789; &#x179B;&#x17BF;&#x1793;&#x178E;&#x17B6;&#x179F;&#x17CB;&#x17D4;&#x00BB;</span></p>
+          <b>&#x179F;&#x17D2;&#x179A;&#x17B8;&#x1793;&#x17B6;&#x1784; / Sreyneang</b>
+          <small><span class="le">Phnom Penh</span><span class="lk">&#x1797;&#x17D2;&#x1793;&#x17C6;&#x1796;&#x17C1;&#x1789;</span></small>
+        </div>
+        <div class="q-card rv">
+          <div class="q-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p><span class="le">&#8220;The sunscreen is light and never sticky &#8212; perfect for riding to work every morning.&#8221;</span><span class="lk">&#x00AB;&#x17A1;&#x17C1;&#x1780;&#x17B6;&#x179A;&#x1796;&#x17B6;&#x179A;&#x1780;&#x1798;&#x17D2;&#x178F;&#x17C5;&#x1790;&#x17D2;&#x1784;&#x17C3; &#x179F;&#x17D2;&#x179A;&#x17B6;&#x179B; &#x1798;&#x17B7;&#x1793;&#x179F;&#x17D2;&#x17A2;&#x17B7;&#x178F; &#8212; &#x179B;&#x17D2;&#x17A2;&#x179F;&#x1798;&#x17D2;&#x179A;&#x17B6;&#x1794;&#x17CB;&#x1787;&#x17B7;&#x17C7;&#x1798;&#x17C9;&#x17BC;&#x178F;&#x17BC;&#x1791;&#x17C5;&#x1792;&#x17D2;&#x179C;&#x17BE;&#x1780;&#x17B6;&#x179A;&#x17D4;&#x00BB;</span></p>
+          <b>&#x178A;&#x17B6;&#x179A;&#x17C9;&#x17B6; / Dara</b>
+          <small><span class="le">Siem Reap</span><span class="lk">&#x179F;&#x17C0;&#x1798;&#x179A;&#x17B6;&#x1794;</span></small>
+        </div>
+        <div class="q-card rv">
+          <div class="q-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p><span class="le">&#8220;Ordered by phone, paid on delivery. The night cream smells amazing and my skin loves it.&#8221;</span><span class="lk">&#x00AB;&#x1780;&#x1798;&#x17D2;&#x1798;&#x1784;&#x17CB;&#x178F;&#x17B6;&#x1798;&#x1791;&#x17BC;&#x179A;&#x179F;&#x1796;&#x17D2;&#x1791; &#x1794;&#x1784;&#x17CB;&#x1794;&#x17D2;&#x179A;&#x17B6;&#x1780;&#x17CB;&#x1796;&#x17C1;&#x179B;&#x1791;&#x1791;&#x17BD;&#x179B;&#x17D4; &#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;&#x1799;&#x1794;&#x17CB;&#x1780;&#x17D2;&#x179B;&#x17B7;&#x1793;&#x1780;&#x17D2;&#x179A;&#x17A2;&#x17BC;&#x1794;&#x178E;&#x17B6;&#x179F;&#x17CB;&#x17D4;&#x00BB;</span></p>
+          <b>&#x1794;&#x17BB;&#x1794;&#x17D2;&#x1795;&#x17B6; / Bopha</b>
+          <small><span class="le">Battambang</span><span class="lk">&#x1794;&#x17B6;&#x178F;&#x17CB;&#x178A;&#x17C6;&#x1794;&#x1784;</span></small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- outro CTA -->
+  <section id="abj-outro">
+    <div class="wrap">
+      <div class="card rv">
+        <h2><span class="le">Not sure what your skin needs?</span><span class="lk">&#x1798;&#x17B7;&#x1793;&#x1794;&#x17D2;&#x179A;&#x17B6;&#x1780;&#x178A;&#x1790;&#x17B6; &#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x17A2;&#x17D2;&#x1793;&#x1780;&#x178F;&#x17D2;&#x179A;&#x17BC;&#x179C;&#x1780;&#x17B6;&#x179A;&#x17A2;&#x17D2;&#x179C;&#x17B8;?</span></h2>
+        <p><span class="le">Talk to our team for a free skincare consultation &#8212; we&#8217;ll help you build a simple routine that works for your skin and budget.</span><span class="lk">&#x1793;&#x17B7;&#x1799;&#x17B6;&#x1799;&#x1787;&#x17B6;&#x1798;&#x17BD;&#x1799;&#x1780;&#x17D2;&#x179A;&#x17BB;&#x1798;&#x1780;&#x17B6;&#x179A;&#x1784;&#x17B6;&#x179A;&#x1799;&#x17BE;&#x1784; &#x178A;&#x17BE;&#x1798;&#x17D2;&#x1794;&#x17B8;&#x1791;&#x1791;&#x17BD;&#x179B;&#x1780;&#x17B6;&#x179A;&#x1794;&#x17D2;&#x179A;&#x17B9;&#x1780;&#x17D2;&#x179F;&#x17B6;&#x17A5;&#x178F;&#x1782;&#x17B7;&#x178F;&#x1790;&#x17D2;&#x179B;&#x17C3; &#8212; &#x1799;&#x17BE;&#x1784;&#x1793;&#x17B9;&#x1784;&#x1787;&#x17BD;&#x1799;&#x17A2;&#x17D2;&#x1793;&#x1780;&#x179A;&#x17C0;&#x1794;&#x1785;&#x17C6;&#x1791;&#x1798;&#x17D2;&#x179B;&#x17B6;&#x1794;&#x17CB;&#x179F;&#x17B6;&#x1798;&#x1789;&#x17D2;&#x1789; &#x178A;&#x17C2;&#x179B;&#x179F;&#x1780;&#x17D2;&#x178F;&#x17B7;&#x179F;&#x1798;&#x1793;&#x17B9;&#x1784;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780; &#x1793;&#x17B7;&#x1784;&#x1790;&#x179C;&#x17B7;&#x1780;&#x17B6;&#x179A;&#x1794;&#x179F;&#x17CB;&#x17A2;&#x17D2;&#x1793;&#x1780;&#x17D4;</span></p>
+        <div class="ctas">
+          <a class="btn-abj" href="tel:+855312663333"><span class="le">Call now</span><span class="lk">&#x17A0;&#x17C5;&#x17A5;&#x17A1;&#x17BC;&#x179C;</span></a>
+          <a class="btn-ghost" href="/contactus"><span class="le">Message us</span><span class="lk">&#x1795;&#x17D2;&#x1789;&#x17BE;&#x179F;&#x17B6;&#x179A;</span></a>
+          <a class="btn-ghost" href="/about-us"><span class="le">About ABJ</span><span class="lk">&#x17A2;&#x17C6;&#x1796;&#x17B8; ABJ</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- floating call -->
+  <a id="abj-call" href="tel:+855312663333" aria-label="Call ABJ Skincare">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg>
+  </a>
+
+</div>
+
+<script>
+(function(){
+  var home=document.getElementById('abj-home'); if(!home){return;}
+
+  /* --- language --- */
+  var KM=false;
+  function applyLang(){
+    document.documentElement.classList.toggle('abj-km', KM);
+    var btns=document.querySelectorAll('#abj-lang button');
+    Array.prototype.forEach.call(btns,function(b){
+      b.classList.toggle('on', (b.getAttribute('data-lang')==='km')===KM);
+    });
+  }
+  (function(){
+    var chosen=null;
+    try{chosen=localStorage.getItem('abjLang');}catch(e){}
+    var docKm=((document.documentElement.getAttribute('lang')||'').toLowerCase().indexOf('km')===0)||(window.location.pathname.indexOf('/km')===0);
+    KM = chosen ? (chosen==='km') : docKm;
+    applyLang();
+  })();
+  Array.prototype.forEach.call(document.querySelectorAll('#abj-lang button'),function(b){
+    b.addEventListener('click',function(){
+      KM=(b.getAttribute('data-lang')==='km');
+      try{localStorage.setItem('abjLang',KM?'km':'en');}catch(e){}
+      applyLang();
+      buildGrid();
+    });
+  });
+
+  /* --- product grid --- */
+  var IDS=[11,9,7,6,2,3,8,5,4,10,12];
+  var NAMES_EN={2:'BB Cream',3:'Facial Foam',4:'Hair Conditioner',5:'Shampoo',6:'Face Mask',7:'Night Cream',8:'Makeup Remover',9:'Serum',10:'Shower Gel',11:'Sunscreen SPF 50+',12:'Underarm Cream'};
+  var NAMES_KM={2:'BB &#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;',3:'&#x1796;&#x1796;&#x17BB;&#x17C7;&#x179B;&#x17B6;&#x1784;&#x1798;&#x17BB;&#x1781;',4:'&#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;&#x1794;&#x1793;&#x17D2;&#x1791;&#x1793;&#x17CB;&#x179F;&#x1780;&#x17CB;',5:'&#x179F;&#x17B6;&#x1794;&#x17CA;&#x17BC;&#x1780;&#x1780;&#x17CB;&#x179F;&#x1780;&#x17CB;',6:'&#x1798;&#x17C9;&#x17B6;&#x179F;&#x1794;&#x17B7;&#x1791;&#x1798;&#x17BB;&#x1781;',7:'&#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;&#x1799;&#x1794;&#x17CB;',8:'&#x1791;&#x17B9;&#x1780;&#x179B;&#x17BB;&#x1794;&#x1798;&#x17C9;&#x17C1;&#x1780;&#x17A2;&#x17B6;&#x1794;&#x17CB;',9:'&#x179F;&#x17C1;&#x179A;&#x17C9;&#x17BC;&#x1798;',10:'&#x1791;&#x17B9;&#x1780;&#x1784;&#x17BC;&#x178F;',11:'&#x17A1;&#x17C1;&#x1780;&#x17B6;&#x179A;&#x1796;&#x17B6;&#x179A;&#x1780;&#x1798;&#x17D2;&#x178F;&#x17C5;&#x1790;&#x17D2;&#x1784;&#x17C3; SPF 50+',12:'&#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798;&#x1790;&#x17C2;&#x1780;&#x17D2;&#x179B;&#x17C0;&#x1780;'};
+  var SLUGS={2:'bb-cream',3:'facial-foam',4:'hair-conditioner',5:'shampoo',6:'face-mask',7:'night-cream',8:'makeup-remover',9:'serum',10:'shower-gel',11:'sunscreen',12:'underarm-cream'};
+  var PRICES={2:'$14.00',3:'$11.00',4:'$18.00',5:'$18.00',6:'$12.00',7:'$24.00',8:'$13.00',9:'$22.00',10:'$16.00',11:'$16.00',12:'$15.00'};
+  var BADGES={11:['BEST',''],9:['HOT','hot'],7:['NEW','']};
+  var DESCS_EN={2:'Sheer daily coverage that evens tone as it cares',3:'Creamy foam that cleanses without taking away water',4:'Detangles and smooths for soft, silky lengths',5:'Strengthens roots for stronger, shinier hair',6:'A 10-minute weekly reset for tired, dull skin',7:'White truffle night repair while you sleep',8:'Mild remover that melts makeup, never strips',9:'Niacinamide serum for a brighter, clearer glow',10:'A gentle, softly scented everyday body wash',11:'SPF 50+ daily shield, light and invisible',12:'Brightens and smooths delicate underarm skin'};
+  var DESCS_KM={2:'&#x1782;&#x17D2;&#x179A;&#x1794;&#x178A;&#x178E;&#x17D2;&#x178F;&#x1794;&#x17CB;&#x179F;&#x17D2;&#x178F;&#x17BE;&#x1784;&#x1794;&#x17D2;&#x179A;&#x1785;&#x17B6;&#x17C6;&#x1790;&#x17D2;&#x1784;&#x17C3; &#x1792;&#x17D2;&#x179C;&#x17BE;&#x17B1;&#x17D2;&#x1799;&#x179F;&#x1798;&#x17D2;&#x1794;&#x17BB;&#x179A;&#x179F;&#x17D2;&#x1798;&#x17BE;',3:'&#x1796;&#x1796;&#x17BB;&#x17C7;&#x1780;&#x17D2;&#x179A;&#x17C2;&#x1798; &#x179F;&#x1798;&#x17D2;&#x17A2;&#x17B6;&#x178F;&#x178A;&#x17C4;&#x1799;&#x1798;&#x17B7;&#x1793;&#x178A;&#x1780;&#x179F;&#x17C6;&#x178E;&#x17BE;&#x1798;',4:'&#x1792;&#x17D2;&#x179C;&#x17BE;&#x17B1;&#x17D2;&#x1799;&#x179F;&#x1780;&#x17CB;&#x1798;&#x17B7;&#x1793;&#x1787;&#x17B6;&#x1794;&#x17CB;&#x1782;&#x17D2;&#x1793;&#x17B6; &#x1791;&#x1793;&#x17CB;&#x179A;&#x179B;&#x17C4;&#x1784;',5:'&#x1796;&#x1784;&#x17D2;&#x179A;&#x17B9;&#x1784;&#x17AB;&#x179F;&#x179F;&#x1780;&#x17CB; &#x17B1;&#x17D2;&#x1799;&#x179A;&#x17B9;&#x1784;&#x1798;&#x17B6;&#x17C6; &#x1797;&#x17D2;&#x179B;&#x17BA;&#x1790;&#x17D2;&#x179B;&#x17B6;',6:'&#x179F;&#x17D2;&#x178F;&#x17B6;&#x179A;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x17A2;&#x179F;&#x17CB;&#x1780;&#x1798;&#x17D2;&#x179B;&#x17B6;&#x17C6;&#x1784; &#x17E1;&#x17E0; &#x1793;&#x17B6;&#x1791;&#x17B8; &#x1794;&#x17D2;&#x179A;&#x1785;&#x17B6;&#x17C6;&#x179F;&#x1794;&#x17D2;&#x178F;&#x17B6;&#x17A0;&#x17CD;',7:'&#x1787;&#x17BD;&#x179F;&#x1787;&#x17BB;&#x179B;&#x1796;&#x17C1;&#x179B;&#x1799;&#x1794;&#x17CB; &#x1787;&#x17B6;&#x1798;&#x17BD;&#x1799; White Truffle &#x1796;&#x17C1;&#x179B;&#x17A2;&#x17D2;&#x1793;&#x1780;&#x1782;&#x17C1;&#x1784;',8:'&#x179B;&#x17BB;&#x1794;&#x1798;&#x17C9;&#x17C1;&#x1780;&#x17A2;&#x17B6;&#x1794;&#x17CB;&#x179F;&#x17D2;&#x179A;&#x17B6;&#x179B; &#x1798;&#x17B7;&#x1793;&#x1792;&#x17D2;&#x179C;&#x17BE;&#x17B1;&#x17D2;&#x1799;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x179F;&#x17D2;&#x1784;&#x17BD;&#x178F;',9:'&#x179F;&#x17C1;&#x179A;&#x17C9;&#x17BC;&#x1798; Niacinamide &#x179F;&#x1798;&#x17D2;&#x179A;&#x17B6;&#x1794;&#x17CB;&#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x1797;&#x17D2;&#x179B;&#x17BA;&#x1790;&#x17D2;&#x179B;&#x17B6;',10:'&#x1791;&#x17B9;&#x1780;&#x1784;&#x17BC;&#x178F;&#x1791;&#x1793;&#x17CB;&#x1797;&#x17D2;&#x179B;&#x1793;&#x17CB; &#x1780;&#x17D2;&#x179B;&#x17B7;&#x1793;&#x1780;&#x17D2;&#x179A;&#x17A2;&#x17BC;&#x1794;&#x179F;&#x17D2;&#x179A;&#x17B6;&#x179B; &#x1794;&#x17D2;&#x179A;&#x1785;&#x17B6;&#x17C6;&#x1790;&#x17D2;&#x1784;&#x17C3;',11:'&#x1780;&#x17B6;&#x179A;&#x1796;&#x17B6;&#x179A; SPF 50+ &#x1794;&#x17D2;&#x179A;&#x1785;&#x17B6;&#x17C6;&#x1790;&#x17D2;&#x1784;&#x17C3; &#x179F;&#x17D2;&#x179A;&#x17B6;&#x179B; &#x1798;&#x17BE;&#x179B;&#x1798;&#x17B7;&#x1793;&#x1783;&#x17BE;&#x1789;',12:'&#x1794;&#x17C6;&#x1797;&#x17D2;&#x179B;&#x17BA; &#x1793;&#x17B7;&#x1784;&#x1792;&#x17D2;&#x179C;&#x17BE;&#x17B1;&#x17D2;&#x1799;&#x179A;&#x179B;&#x17C4;&#x1784; &#x179F;&#x17D2;&#x1794;&#x17C2;&#x1780;&#x1780;&#x17D2;&#x179B;&#x17C0;&#x1780;'};
+
+  function decode(s){var d=document.createElement('textarea');d.innerHTML=s;return d.value;}
+
+  var grid=document.getElementById('abj-pgrid');
+  function buildGrid(){
+    if(!grid){return;}
+    grid.innerHTML='';
+    IDS.forEach(function(id){
+      var a=document.createElement('a');
+      a.className='p-card rv in';
+      a.href='/shop/'+SLUGS[id]+'-'+id;
+      a.setAttribute('aria-label','Buy ABJ '+NAMES_EN[id]);
+      if(BADGES[id]){
+        var bd=document.createElement('span');
+        bd.className='p-badge'+(BADGES[id][1]?' '+BADGES[id][1]:'');
+        bd.textContent=BADGES[id][0];
+        a.appendChild(bd);
+      }
+      var im=document.createElement('span');im.className='p-im';
+      var img=document.createElement('img');
+      img.src='/web/image/product.template/'+id+'/image_512';
+      img.alt='ABJ '+NAMES_EN[id];
+      img.loading='lazy';
+      im.appendChild(img);a.appendChild(im);
+      var body=document.createElement('span');body.className='p-body';
+      var nm=document.createElement('span');nm.className='p-name';
+      nm.textContent=KM?decode(NAMES_KM[id]):NAMES_EN[id];
+      body.appendChild(nm);
+      var ds=document.createElement('span');ds.className='p-desc';
+      ds.textContent=KM?decode(DESCS_KM[id]):DESCS_EN[id];
+      body.appendChild(ds);
+      var row=document.createElement('span');row.className='p-row';
+      var pr=document.createElement('span');pr.className='p-price';pr.textContent=PRICES[id];
+      var bu=document.createElement('span');bu.className='p-buy';bu.textContent=KM?decode('&#x1791;&#x17B7;&#x1789;&#x17A5;&#x17A1;&#x17BC;&#x179C;'):'Buy now';
+      row.appendChild(pr);row.appendChild(bu);
+      body.appendChild(row);
+      a.appendChild(body);
+      grid.appendChild(a);
+    });
+  }
+  buildGrid();
+
+  /* --- hero video fallback --- */
+  var v=document.getElementById('abj-hero-vid');
+  if(v){
+    var swapped=false;
+    function swap(){
+      if(swapped){return;}
+      swapped=true;
+      var fb=v.getAttribute('data-fallback');
+      if(fb){v.src=fb;v.load();var p=v.play();if(p){p.catch(function(){});}}
+    }
+    v.addEventListener('error',swap);
+    setTimeout(function(){if(2>v.readyState){swap();}},4000);
+    var p0=v.play();if(p0){p0.catch(function(){});}
+  }
+
+  /* --- reveal on scroll --- */
+  var rvEls=Array.prototype.slice.call(document.querySelectorAll('#abj-home .rv'));
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}
+      });
+    },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+    rvEls.forEach(function(el){io.observe(el);});
+  }else{
+    rvEls.forEach(function(el){el.classList.add('in');});
+  }
+})();
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"ABJ Skincare","url":"https://abjskincare.com","logo":"https://abjskincare.com/web/image/website/1/logo","telephone":"+855312663333","description":"ABJ gentle science-backed skincare: cleansers, serums, sunscreen, hair and body care. Free delivery in Phnom Penh, cash on delivery across Cambodia."}
+</script>
+
+    </div>
+  </t>
+</t>
