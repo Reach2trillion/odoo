@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- "Log in with Telegram" button on the login page -->
+    <template id="telegram_login_button" inherit_id="web.login" name="Telegram Login Button">
+        <xpath expr="//div[hasclass('o_login_auth')]" position="inside">
+            <t t-if="telegram_bot_username">
+                <em class="d-block text-center text-muted small my-2">- or -</em>
+                <div class="o_auth_telegram d-flex justify-content-center pt-1">
+                    <script async="async"
+                            src="https://telegram.org/js/telegram-widget.js?22"
+                            t-att-data-telegram-login="telegram_bot_username"
+                            data-size="large"
+                            data-userpic="false"
+                            t-att-data-auth-url="telegram_auth_url"
+                            data-request-access="write"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Page where a logged-in user links / unlinks their own Telegram account -->
+    <template id="link_account_page" name="Link Telegram Account">
+        <t t-call="web.login_layout">
+            <div class="text-center">
+                <h5 class="mb-3">Telegram account</h5>
+                <div t-if="link_error == 'taken'" class="alert alert-danger" role="alert">
+                    This Telegram account is already linked to another user.
+                </div>
+                <div t-elif="link_error" class="alert alert-danger" role="alert">
+                    The Telegram data could not be verified. Please try again.
+                </div>
+                <div t-if="link_success == 'linked'" class="alert alert-success" role="status">
+                    Your Telegram account is now linked.
+                </div>
+                <div t-elif="link_success == 'unlinked'" class="alert alert-success" role="status">
+                    Your Telegram account has been unlinked.
+                </div>
+                <t t-if="telegram_uid">
+                    <p>
+                        <b t-esc="user_name"/> is linked to
+                        <t t-if="telegram_username">Telegram account <b t-esc="'@%s' % telegram_username"/>.</t>
+                        <t t-else="">Telegram account ID <b t-esc="telegram_uid"/>.</t>
+                    </p>
+                    <form action="/auth/telegram/unlink" method="post" class="mb-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-secondary">Unlink Telegram account</button>
+                    </form>
+                    <p class="text-muted small">To link a different Telegram account, use the button below.</p>
+                </t>
+                <t t-else="">
+                    <p class="text-muted">
+                        Link a Telegram account to <b t-esc="user_name"/> to sign in with one click.
+                    </p>
+                </t>
+                <div class="d-flex justify-content-center my-3">
+                    <script async="async"
+                            src="https://telegram.org/js/telegram-widget.js?22"
+                            t-att-data-telegram-login="telegram_bot_username"
+                            data-size="large"
+                            data-userpic="true"
+                            t-att-data-auth-url="telegram_auth_url"
+                            data-request-access="write"/>
+                </div>
+                <a t-att-href="home_url" class="btn btn-link btn-sm">Back</a>
+            </div>
+        </t>
+    </template>
+
+</odoo>

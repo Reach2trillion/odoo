@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.auth.telegram</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='access_rights']" position="after">
+                <setting id="auth_telegram" string="Telegram Authentication"
+                         help="Let users sign in (and sign up) with their Telegram account, using the Telegram Login Widget.">
+                    <div class="content-group">
+                        <div class="row mt8">
+                            <label for="auth_telegram_bot_username" string="Bot Username" class="col-lg-3 o_light_label"/>
+                            <field name="auth_telegram_bot_username" placeholder="e.g. my_company_bot"/>
+                        </div>
+                        <div class="row">
+                            <label for="auth_telegram_bot_token" string="Bot Token" class="col-lg-3 o_light_label"/>
+                            <field name="auth_telegram_bot_token" password="True" placeholder="e.g. 123456789:AbCdEfGh..."/>
+                        </div>
+                        <div class="mt8 text-muted">
+                            Create a bot with @BotFather, then send it the /setdomain command
+                            with your website domain so Telegram accepts logins from it.
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

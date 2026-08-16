@@ -1,0 +1,20 @@
+<section style="max-width: 720px; margin: 0 auto; font-family: sans-serif;">
+    <h2>Telegram Login</h2>
+    <p>
+        Let users <b>sign in and sign up with their Telegram account</b>, using the
+        official Telegram Login Widget.
+    </p>
+    <ul>
+        <li>One-click login for users linked to a Telegram account</li>
+        <li>Automatic portal user creation when free sign up is enabled</li>
+        <li>Self-service account linking at <code>/auth/telegram/link</code></li>
+        <li>Cryptographic verification of every Telegram payload (HMAC-SHA256)</li>
+        <li>Single-use, short-lived, hashed login tokens; TOTP 2FA still applies</li>
+    </ul>
+    <h3>Setup</h3>
+    <ol>
+        <li>Create a bot with <b>@BotFather</b> and note its username and token</li>
+        <li>Send <code>/setdomain</code> to @BotFather with your Odoo domain (HTTPS required)</li>
+        <li>Enter both values in Settings &rarr; General Settings &rarr; Telegram Authentication</li>
+    </ol>
+</section>
