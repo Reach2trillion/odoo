@@ -1,7 +1,7 @@
 # Part of the auth_telegram module. License LGPL-3.
 {
     'name': 'Telegram Login',
-    'version': '18.0.2.1.0',
+    'version': '18.0.2.2.0',
     'category': 'Authentication',
     'summary': 'Let users sign in or sign up with their Telegram account',
     'description': """
@@ -20,6 +20,7 @@ official Telegram Login Widget (https://core.telegram.org/widgets/login).
     'website': 'https://github.com/Reach2trillion/odoo',
     'depends': ['web', 'auth_signup', 'base_setup'],
     'data': [
+        'data/auth_telegram_data.xml',
         'views/res_config_settings_views.xml',
         'views/res_users_views.xml',
         'views/auth_telegram_templates.xml',

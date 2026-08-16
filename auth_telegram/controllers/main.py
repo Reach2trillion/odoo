@@ -225,11 +225,14 @@ class TelegramAuthController(http.Controller):
 
     @http.route('/auth/telegram/unlink', type='http', auth='user', methods=['POST'])
     def telegram_unlink(self, **kw):
-        request.env.user.sudo().write({
+        user = request.env.user.sudo()
+        user.write({
             'telegram_uid': False,
             'telegram_username': False,
             'telegram_phone': False,
+            'telegram_photo_url': False,
         })
+        user._auth_telegram_remove_tag()
         return request.redirect('/auth/telegram/link?success=unlinked')
 
     # ------------------------------------------------------------------

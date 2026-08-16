@@ -232,6 +232,7 @@ class ResUsers(models.Model):
         if validation.get('phone') and not user.partner_id.phone:
             user.partner_id.phone = validation['phone']
         user._auth_telegram_apply_photo(validation)
+        user._auth_telegram_apply_tag()
         return user, key
 
     @api.model
@@ -292,7 +293,28 @@ class ResUsers(models.Model):
         if validation.get('phone') and not user.partner_id.phone:
             user.partner_id.phone = validation['phone']
         user._auth_telegram_apply_photo(validation)
+        user._auth_telegram_apply_tag()
         return user
+
+    def _auth_telegram_tag(self):
+        return self.env.ref('auth_telegram.partner_category_telegram', raise_if_not_found=False)
+
+    def _auth_telegram_apply_tag(self):
+        """ Tag the users' contacts with the "Telegram" contact tag. """
+        tag = self._auth_telegram_tag()
+        if not tag:
+            return
+        for user in self:
+            partner = user.partner_id.sudo()
+            if tag not in partner.category_id:
+                partner.category_id = [(4, tag.id)]
+
+    def _auth_telegram_remove_tag(self):
+        tag = self._auth_telegram_tag()
+        if not tag:
+            return
+        for user in self:
+            user.partner_id.sudo().category_id = [(3, tag.id)]
 
     def _auth_telegram_apply_photo(self, validation):
         """ Set the Telegram profile photo as avatar, best effort. A photo
