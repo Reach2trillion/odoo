@@ -8,7 +8,7 @@ from odoo.exceptions import AccessDenied
 from odoo.http import request
 from odoo.modules.registry import Registry
 from odoo.addons.web.controllers.home import Home
-from odoo.addons.web.controllers.utils import ensure_db, login_and_redirect
+from odoo.addons.web.controllers.utils import ensure_db
 
 _logger = logging.getLogger(__name__)
 
@@ -78,7 +78,13 @@ class TelegramAuthController(http.Controller):
             cr.commit()
 
         credential = {'login': login, 'token': key, 'type': 'telegram_token'}
-        return login_and_redirect(dbname, credential, redirect_url=redirect_url)
+        try:
+            # same flow as the standard login: authenticate on the current
+            # session, the http layer rotates it and sets the cookie
+            request.session.authenticate(dbname, credential)
+        except AccessDenied:
+            return request.redirect('/web/login?telegram_error=failed')
+        return request.redirect(redirect_url)
 
     @http.route('/auth/telegram/link', type='http', auth='user', methods=['GET'])
     def telegram_link(self, **kw):

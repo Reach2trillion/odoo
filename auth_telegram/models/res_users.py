@@ -8,7 +8,10 @@ from datetime import timedelta
 
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessDenied, UserError
-from odoo.addons.auth_signup.models.res_users import SignupError
+try:
+    from odoo.addons.auth_signup.models.res_partner import SignupError
+except ImportError:
+    from odoo.addons.auth_signup.models.res_users import SignupError
 
 _logger = logging.getLogger(__name__)
 
