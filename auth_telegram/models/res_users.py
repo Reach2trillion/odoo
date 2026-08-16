@@ -50,6 +50,10 @@ class ResUsers(models.Model):
         string='Telegram Phone', copy=False, readonly=True,
         help="Verified phone number shared by Telegram at login (requires the "
              "user's consent, OpenID Connect flow only).")
+    telegram_photo_url = fields.Char(
+        string='Telegram Photo URL', copy=False, readonly=True,
+        help="Last Telegram profile photo applied as avatar; used to keep the "
+             "avatar in sync without overwriting manually uploaded photos.")
     telegram_token_hash = fields.Char(copy=False, readonly=True, prefetch=False, groups='base.group_system')
     telegram_token_expiration = fields.Datetime(copy=False, readonly=True, groups='base.group_system')
 
@@ -150,6 +154,7 @@ class ResUsers(models.Model):
             'name': claims.get('name') or False,
             'username': claims.get('preferred_username') or False,
             'phone': claims.get('phone_number') or False,
+            'picture': claims.get('picture') or False,
         }
 
     @api.model
@@ -194,6 +199,7 @@ class ResUsers(models.Model):
             'name': name or False,
             'username': data.get('username') or False,
             'phone': False,
+            'picture': data.get('photo_url') or False,
         }
 
     # ------------------------------------------------------------------
@@ -225,6 +231,7 @@ class ResUsers(models.Model):
         user.write(values)
         if validation.get('phone') and not user.partner_id.phone:
             user.partner_id.phone = validation['phone']
+        user._auth_telegram_apply_photo(validation)
         return user, key
 
     @api.model
@@ -284,7 +291,48 @@ class ResUsers(models.Model):
         })
         if validation.get('phone') and not user.partner_id.phone:
             user.partner_id.phone = validation['phone']
+        user._auth_telegram_apply_photo(validation)
         return user
+
+    def _auth_telegram_apply_photo(self, validation):
+        """ Set the Telegram profile photo as avatar, best effort. A photo
+            uploaded manually in Odoo is never overwritten: the avatar is only
+            (re)applied when the partner has no image or when the current one
+            was itself taken from Telegram. """
+        self.ensure_one()
+        url = validation.get('picture')
+        try:
+            if not url or url == self.telegram_photo_url:
+                return
+            if self.partner_id.image_1920 and not self.telegram_photo_url:
+                return  # manually uploaded avatar, leave it alone
+            image = self._auth_telegram_fetch_photo(url)
+            if image:
+                self.partner_id.image_1920 = image
+                self.telegram_photo_url = url
+        except Exception:
+            _logger.warning("Telegram: could not apply profile photo for user %s",
+                            self.id, exc_info=True)
+
+    @api.model
+    def _auth_telegram_fetch_photo(self, url):
+        """ Download a profile photo from Telegram's CDN and return it
+            base64-encoded, or False. Only Telegram-owned hosts are fetched. """
+        host = urlparse(url).hostname or ''
+        if not url.startswith('https://') or not (
+                host in ('t.me', 'telegram.org', 'telesco.pe')
+                or host.endswith(('.t.me', '.telegram.org', '.telesco.pe', '.cdn-telegram.org'))):
+            _logger.info("Telegram: refusing to fetch photo from %s", host)
+            return False
+        try:
+            response = requests.get(url, timeout=TIMEOUT)
+        except requests.RequestException:
+            return False
+        if not response.ok or len(response.content) > 3 * 1024 * 1024:
+            return False
+        if not (response.headers.get('Content-Type') or '').startswith('image/'):
+            return False
+        return base64.b64encode(response.content)
 
     # ------------------------------------------------------------------
     # authentication
