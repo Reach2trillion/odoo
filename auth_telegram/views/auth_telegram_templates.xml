@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- "Log in with Telegram" button on the login page -->
+    <!-- "Log in with Telegram" on the login page -->
     <template id="telegram_login_button" inherit_id="web.login" name="Telegram Login Button">
         <xpath expr="//div[hasclass('o_login_auth')]" position="inside">
-            <t t-if="telegram_bot_username">
+            <t t-if="telegram_login_url or telegram_bot_username">
                 <em class="d-block text-center text-muted small my-2">- or -</em>
+            </t>
+            <!-- OpenID Connect flow: plain server-side redirect -->
+            <t t-if="telegram_login_url">
+                <a t-att-href="telegram_login_url" role="button"
+                   class="btn w-100 text-white fw-bold"
+                   style="background-color: #54a9eb;">
+                    <i class="fa fa-paper-plane me-2" role="img" aria-label="Telegram"/>Log in with Telegram
+                </a>
+            </t>
+            <!-- legacy Login Widget flow -->
+            <t t-elif="telegram_bot_username">
                 <div class="o_auth_telegram d-flex justify-content-center pt-1">
                     <script async="async"
                             src="https://telegram.org/js/telegram-widget.js?22"
@@ -53,16 +64,27 @@
                         Link a Telegram account to <b t-esc="user_name"/> to sign in with one click.
                     </p>
                 </t>
-                <div class="d-flex justify-content-center my-3">
-                    <script async="async"
-                            src="https://telegram.org/js/telegram-widget.js?22"
-                            t-att-data-telegram-login="telegram_bot_username"
-                            data-size="large"
-                            data-userpic="true"
-                            t-att-data-auth-url="telegram_auth_url"
-                            data-request-access="write"/>
+                <t t-if="telegram_login_url">
+                    <a t-att-href="telegram_login_url" role="button"
+                       class="btn text-white fw-bold my-3"
+                       style="background-color: #54a9eb;">
+                        <i class="fa fa-paper-plane me-2" role="img" aria-label="Telegram"/>Link with Telegram
+                    </a>
+                </t>
+                <t t-elif="telegram_bot_username">
+                    <div class="d-flex justify-content-center my-3">
+                        <script async="async"
+                                src="https://telegram.org/js/telegram-widget.js?22"
+                                t-att-data-telegram-login="telegram_bot_username"
+                                data-size="large"
+                                data-userpic="true"
+                                t-att-data-auth-url="telegram_auth_url"
+                                data-request-access="write"/>
+                    </div>
+                </t>
+                <div>
+                    <a t-att-href="home_url" class="btn btn-link btn-sm">Back</a>
                 </div>
-                <a t-att-href="home_url" class="btn btn-link btn-sm">Back</a>
             </div>
         </t>
     </template>

@@ -12,6 +12,7 @@
                         <group>
                             <field name="telegram_uid"/>
                             <field name="telegram_username"/>
+                            <field name="telegram_phone"/>
                         </group>
                     </group>
                     <div class="text-muted">

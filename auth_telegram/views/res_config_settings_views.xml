@@ -9,8 +9,16 @@
         <field name="arch" type="xml">
             <xpath expr="//setting[@id='access_rights']" position="after">
                 <setting id="auth_telegram" string="Telegram Authentication"
-                         help="Let users sign in (and sign up) with their Telegram account, using the Telegram Login Widget.">
+                         help="Let users sign in (and sign up) with their Telegram account.">
                     <div class="content-group">
+                        <div class="row mt8">
+                            <label for="auth_telegram_client_id" string="Client ID" class="col-lg-3 o_light_label"/>
+                            <field name="auth_telegram_client_id" placeholder="e.g. 123456789"/>
+                        </div>
+                        <div class="row">
+                            <label for="auth_telegram_client_secret" string="Client Secret" class="col-lg-3 o_light_label"/>
+                            <field name="auth_telegram_client_secret" password="True"/>
+                        </div>
                         <div class="row mt8">
                             <label for="auth_telegram_bot_username" string="Bot Username" class="col-lg-3 o_light_label"/>
                             <field name="auth_telegram_bot_username" placeholder="e.g. my_company_bot"/>
@@ -20,8 +28,11 @@
                             <field name="auth_telegram_bot_token" password="True" placeholder="e.g. 123456789:AbCdEfGh..."/>
                         </div>
                         <div class="mt8 text-muted">
-                            Create a bot with @BotFather, then send it the /setdomain command
-                            with your website domain so Telegram accepts logins from it.
+                            In @BotFather, open your bot's Web Login settings and switch to
+                            OpenID Connect Login, register your callback URL
+                            (https://yourdomain/auth/telegram/callback) and your domain as
+                            trusted origin, then copy the Client ID and Client Secret here.
+                            The Bot Token is still used for Telegram notifications.
                         </div>
                     </div>
                 </setting>

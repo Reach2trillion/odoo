@@ -1,7 +1,7 @@
 # Part of the auth_telegram module. License LGPL-3.
 {
     'name': 'Telegram Login',
-    'version': '18.0.1.0.1',
+    'version': '18.0.2.0.0',
     'category': 'Authentication',
     'summary': 'Let users sign in or sign up with their Telegram account',
     'description': """
