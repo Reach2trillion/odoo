@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_credit_alert_customer" model="mail.template">
+            <field name="name">Credit Alert: Customer Notification</field>
+            <field name="model_id" ref="partner_credit_alert.model_credit_alert"/>
+            <field name="subject">{{ object.company_id.name }}: your account has reached its credit limit</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted or '') }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="object.partner_id.name or ''">Customer</t>,
+        <br/><br/>
+        Your account with <t t-out="object.company_id.name or ''">Company</t> has reached its credit limit.
+        <br/><br/>
+        <table style="border-collapse: collapse; font-size: 13px;">
+            <tr><td style="padding: 2px 12px 2px 0;">Credit limit</td>
+                <td style="padding: 2px 0;"><b><t t-out="format_amount(object.credit_limit, object.currency_id) or ''">1,000.00</t></b></td></tr>
+            <tr><td style="padding: 2px 12px 2px 0;">Outstanding invoices</td>
+                <td style="padding: 2px 0;"><t t-out="format_amount(object.receivable_amount, object.currency_id) or ''">800.00</t></td></tr>
+            <tr><td style="padding: 2px 12px 2px 0;">Confirmed orders not yet invoiced</td>
+                <td style="padding: 2px 0;"><t t-out="format_amount(object.uninvoiced_amount, object.currency_id) or ''">300.00</t></td></tr>
+            <tr><td style="padding: 2px 12px 2px 0;">Total</td>
+                <td style="padding: 2px 0;"><b><t t-out="format_amount(object.exposure, object.currency_id) or ''">1,100.00</t></b></td></tr>
+        </table>
+        <br/>
+        To keep your orders flowing, please settle your outstanding invoices at your earliest convenience.
+        If you believe this is a mistake or would like to discuss your credit terms, simply reply to this e-mail.
+        <br/><br/>
+        Thank you,
+        <br/>
+        <t t-out="object.company_id.name or ''">Company</t>
+    </p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

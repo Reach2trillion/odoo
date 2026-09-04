@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_credit_alert" model="ir.sequence">
+            <field name="name">Credit Alert</field>
+            <field name="code">credit.alert</field>
+            <field name="prefix">CA/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

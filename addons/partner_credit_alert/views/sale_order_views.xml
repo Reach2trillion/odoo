@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_credit_alert" model="ir.ui.view">
+        <field name="name">sale.order.form.credit.alert</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- The native yellow banner is superseded by the banners below. -->
+            <xpath expr="//field[@name='partner_credit_warning']/.." position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_credit_warning']/.." position="after">
+                <field name="credit_alert_state" invisible="1"/>
+                <field name="credit_alert_blocking" invisible="1"/>
+                <div class="alert alert-danger mb-0" role="alert"
+                     invisible="credit_alert_state not in ('exceeded', 'hold') or state == 'cancel'">
+                    <i class="fa fa-ban me-1" title="Credit"/><field name="credit_alert_message" class="d-inline"/>
+                </div>
+                <div class="alert alert-warning mb-0" role="alert"
+                     invisible="credit_alert_state != 'warning' or state == 'cancel'">
+                    <i class="fa fa-exclamation-triangle me-1" title="Credit"/><field name="credit_alert_message" class="d-inline"/>
+                </div>
+            </xpath>
+            <xpath expr="//group[@name='order_details']//field[@name='payment_term_id']" position="after">
+                <field name="credit_alert_override"
+                       invisible="state not in ('draft', 'sent') or credit_alert_state not in ('exceeded', 'hold')"/>
+                <field name="credit_alert_override_reason"
+                       invisible="state not in ('draft', 'sent') or not credit_alert_override"
+                       required="credit_alert_override and state in ('draft', 'sent')"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

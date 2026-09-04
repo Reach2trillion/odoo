@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="group_credit_alert_manager" model="res.groups">
+            <field name="name">Credit Manager</field>
+            <field name="category_id" ref="base.module_category_accounting_accounting"/>
+            <field name="comment">Can override credit blocks, place customers on credit hold and manage credit alerts.</field>
+        </record>
+
+        <!-- Accounting administrators are credit managers by default. -->
+        <record id="account.group_account_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('partner_credit_alert.group_credit_alert_manager'))]"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <record id="credit_alert_rule_multi_company" model="ir.rule">
+            <field name="name">Credit Alert: multi-company</field>
+            <field name="model_id" ref="model_credit_alert"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

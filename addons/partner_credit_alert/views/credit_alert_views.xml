@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_credit_alert_list" model="ir.ui.view">
+        <field name="name">credit.alert.list</field>
+        <field name="model">credit.alert</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="level == 'exceeded' and state != 'resolved'"
+                  decoration-warning="level == 'warning' and state != 'resolved'"
+                  decoration-muted="state == 'resolved'"
+                  sample="1">
+                <field name="name"/>
+                <field name="date_detected"/>
+                <field name="partner_id"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="level" widget="badge"
+                       decoration-danger="level == 'exceeded'"
+                       decoration-warning="level == 'warning'"/>
+                <field name="credit_limit" sum="Total"/>
+                <field name="exposure" sum="Total"/>
+                <field name="usage_percent" widget="progressbar" optional="show"/>
+                <field name="overrun" sum="Total" optional="show"/>
+                <field name="trigger" optional="hide"/>
+                <field name="date_resolved" optional="hide"/>
+                <field name="snoozed_until" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'open'"
+                       decoration-primary="state == 'acknowledged'"
+                       decoration-success="state == 'resolved'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="activity_exception_decoration" widget="activity_exception"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_credit_alert_form" model="ir.ui.view">
+        <field name="name">credit.alert.form</field>
+        <field name="model">credit.alert</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_acknowledge" type="object" string="Acknowledge"
+                            class="btn-primary" invisible="state != 'open'"/>
+                    <button name="action_resolve" type="object" string="Mark Resolved"
+                            invisible="state == 'resolved'"
+                            confirm="The customer may still be over the threshold. No new alert of the same level will be raised until the snooze date. Continue?"/>
+                    <button name="action_recheck" type="object" string="Re-check Now"
+                            invisible="state == 'resolved'"/>
+                    <button name="action_reopen" type="object" string="Re-open"
+                            invisible="state != 'resolved'"
+                            groups="partner_credit_alert.group_credit_alert_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,acknowledged,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_partner" type="object" class="oe_stat_button" icon="fa-user">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Customer</span>
+                            </div>
+                        </button>
+                        <button name="action_open_source" type="object" class="oe_stat_button"
+                                icon="fa-file-text-o" invisible="not source_ref">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Source</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Resolved" bg_color="text-bg-success" invisible="state != 'resolved'"/>
+                    <widget name="web_ribbon" title="Limit Exceeded" bg_color="text-bg-danger"
+                            invisible="state == 'resolved' or level != 'exceeded'"/>
+                    <widget name="web_ribbon" title="Approaching Limit" bg_color="text-bg-warning"
+                            invisible="state == 'resolved' or level != 'warning'"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group name="customer">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="level" widget="badge"
+                                   decoration-danger="level == 'exceeded'"
+                                   decoration-warning="level == 'warning'"/>
+                            <field name="trigger"/>
+                            <field name="source_ref"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group name="amounts" string="Credit Position">
+                            <field name="credit_limit"/>
+                            <field name="receivable_amount"/>
+                            <field name="uninvoiced_amount"/>
+                            <field name="exposure" class="fw-bold"/>
+                            <field name="overrun" invisible="not overrun"/>
+                            <field name="usage_percent" widget="progressbar" options="{'max_value': 100}"/>
+                        </group>
+                        <group name="dates" string="Timeline">
+                            <field name="date_detected"/>
+                            <field name="date_last_check"/>
+                            <field name="acknowledged_by_id" invisible="not acknowledged_by_id"/>
+                            <field name="acknowledged_date" invisible="not acknowledged_date"/>
+                            <field name="date_resolved" invisible="not date_resolved"/>
+                            <field name="resolution" invisible="not resolution"/>
+                            <field name="snoozed_until"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Agreements with the customer, payment promises, collection steps..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_credit_alert_search" model="ir.ui.view">
+        <field name="name">credit.alert.search</field>
+        <field name="model">credit.alert</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <filter name="filter_open" string="Open" domain="[('state', '=', 'open')]"/>
+                <filter name="filter_acknowledged" string="Acknowledged" domain="[('state', '=', 'acknowledged')]"/>
+                <filter name="filter_unresolved" string="Unresolved" domain="[('state', '!=', 'resolved')]"/>
+                <filter name="filter_resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                <separator/>
+                <filter name="filter_exceeded" string="Limit Exceeded" domain="[('level', '=', 'exceeded')]"/>
+                <filter name="filter_warning" string="Approaching Limit" domain="[('level', '=', 'warning')]"/>
+                <separator/>
+                <filter name="filter_my" string="My Customers" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_date_detected" string="Raised On" date="date_detected"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_level" string="Level" context="{'group_by': 'level'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_user" string="Salesperson" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_trigger" string="Raised By" context="{'group_by': 'trigger'}"/>
+                    <filter name="group_month" string="Month" context="{'group_by': 'date_detected:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_credit_alert_pivot" model="ir.ui.view">
+        <field name="name">credit.alert.pivot</field>
+        <field name="model">credit.alert</field>
+        <field name="arch" type="xml">
+            <pivot sample="1">
+                <field name="partner_id" type="row"/>
+                <field name="level" type="col"/>
+                <field name="exposure" type="measure"/>
+                <field name="overrun" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_credit_alert_graph" model="ir.ui.view">
+        <field name="name">credit.alert.graph</field>
+        <field name="model">credit.alert</field>
+        <field name="arch" type="xml">
+            <graph type="bar" sample="1">
+                <field name="partner_id"/>
+                <field name="overrun" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_credit_alert" model="ir.actions.act_window">
+        <field name="name">Credit Alerts</field>
+        <field name="res_model">credit.alert</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_credit_alert_search"/>
+        <field name="context">{'search_default_filter_unresolved': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No credit alerts</p>
+            <p>
+                Alerts are raised automatically when a customer approaches or exceeds the credit limit
+                set on the customer (Invoicing tab) or in Invoicing &gt; Settings &gt; Sales Credit Limit.
+            </p>
+        </field>
+    </record>
+</odoo>

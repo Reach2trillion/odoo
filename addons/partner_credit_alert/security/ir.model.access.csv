@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_credit_alert_salesman,credit.alert salesman,model_credit_alert,sales_team.group_sale_salesman,1,1,0,0
+access_credit_alert_account_invoice,credit.alert invoicing user,model_credit_alert,account.group_account_invoice,1,1,0,0
+access_credit_alert_account_readonly,credit.alert accounting readonly,model_credit_alert,account.group_account_readonly,1,0,0,0
+access_credit_alert_manager,credit.alert credit manager,model_credit_alert,group_credit_alert_manager,1,1,1,1

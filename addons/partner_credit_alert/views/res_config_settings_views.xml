@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_credit_alert" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.credit.alert</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_use_credit_limit']/.." position="inside">
+                <div class="content-group mt-3" invisible="not account_use_credit_limit" name="credit_alert_settings">
+                    <div class="fw-bold mb-2">Credit Alerts</div>
+                    <div class="row">
+                        <label for="credit_alert_warning_percent" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_warning_percent" class="col-lg-2"/>
+                    </div>
+                    <div class="row">
+                        <label for="credit_alert_policy" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_policy" class="col-lg-7"/>
+                    </div>
+                    <div class="row">
+                        <label for="credit_alert_notify_user_ids" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_notify_user_ids" widget="many2many_tags" class="col-lg-7"/>
+                    </div>
+                    <div class="row">
+                        <label for="credit_alert_notify_salesperson" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_notify_salesperson"/>
+                    </div>
+                    <div class="row">
+                        <label for="credit_alert_email_customer" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_email_customer"/>
+                    </div>
+                    <div class="row" invisible="not credit_alert_email_customer">
+                        <label for="credit_alert_customer_template_id" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_customer_template_id" class="col-lg-7"
+                               placeholder="Default: Credit Alert: Customer Notification"
+                               options="{'no_create': True}"/>
+                    </div>
+                    <div class="row">
+                        <label for="credit_alert_snooze_days" class="col-lg-4 o_light_label"/>
+                        <field name="credit_alert_snooze_days" class="col-lg-2"/>
+                    </div>
+                    <div class="mt-2">
+                        <button name="%(partner_credit_alert.action_credit_alert)d" type="action"
+                                string="View Credit Alerts" icon="oi-arrow-right" class="btn-link p-0"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

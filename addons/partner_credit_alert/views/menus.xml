@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_credit_alert_account"
+              name="Credit Alerts"
+              parent="account.menu_account_customer"
+              action="action_credit_alert"
+              sequence="25"
+              groups="account.group_account_invoice,account.group_account_readonly"/>
+
+    <menuitem id="menu_credit_alert_sale"
+              name="Credit Alerts"
+              parent="sale.sale_order_menu"
+              action="action_credit_alert"
+              sequence="45"
+              groups="sales_team.group_sale_salesman"/>
+</odoo>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_credit_alert" model="ir.ui.view">
+        <field name="name">res.partner.form.credit.alert</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <field name="credit_alert_state" invisible="1"/>
+                <button name="action_view_credit_alerts" type="object" class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        groups="account.group_account_invoice,account.group_account_readonly,sales_team.group_sale_salesman"
+                        invisible="credit_alert_count == 0 and credit_alert_state in ('no_limit', 'ok')">
+                    <div class="o_stat_info">
+                        <field name="credit_alert_count" class="o_stat_value"/>
+                        <span class="o_stat_text">Credit Alerts</span>
+                    </div>
+                </button>
+            </div>
+            <!-- Read-only credit status for salespeople (no accounting access needed). -->
+            <xpath expr="//group[@name='sale']" position="after">
+                <group string="Credit Status" name="credit_status_sales"
+                       groups="sales_team.group_sale_salesman"
+                       invisible="credit_alert_state == 'no_limit' or (not is_company and parent_id)">
+                    <field name="credit_alert_state" widget="badge"
+                           decoration-success="credit_alert_state == 'ok'"
+                           decoration-warning="credit_alert_state == 'warning'"
+                           decoration-danger="credit_alert_state in ('exceeded', 'hold')"/>
+                    <field name="credit_usage_percent" widget="progressbar" options="{'max_value': 100}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_property_form_credit_alert" model="ir.ui.view">
+        <field name="name">res.partner.property.form.credit.alert</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='credit_limits']" position="after">
+                <group string="Credit Alerts" name="credit_alerts"
+                       groups="account.group_account_invoice,account.group_account_readonly"
+                       invisible="not show_credit_limit and not credit_hold">
+                    <field name="credit_alert_is_manager" invisible="1"/>
+                    <field name="credit_alert_state" widget="badge"
+                           decoration-success="credit_alert_state == 'ok'"
+                           decoration-warning="credit_alert_state == 'warning'"
+                           decoration-danger="credit_alert_state in ('exceeded', 'hold')"/>
+                    <field name="credit_to_invoice"/>
+                    <field name="credit_exposure"/>
+                    <field name="credit_available" invisible="credit_alert_state == 'no_limit'"/>
+                    <field name="credit_usage_percent" widget="progressbar" options="{'max_value': 100}"
+                           invisible="credit_alert_state == 'no_limit'"/>
+                    <field name="credit_alert_warning_percent"/>
+                    <field name="credit_alert_policy"/>
+                    <field name="credit_hold" readonly="not credit_alert_is_manager"/>
+                    <field name="credit_hold_reason" invisible="not credit_hold"
+                           readonly="not credit_alert_is_manager"/>
+                    <button name="action_credit_alert_check" type="object" string="Re-check credit now"
+                            class="btn btn-link px-0" icon="fa-refresh" colspan="2"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_list_credit_alert" model="ir.ui.view">
+        <field name="name">res.partner.list.credit.alert</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="before">
+                <field name="credit_alert_state" widget="badge" optional="hide"
+                       decoration-success="credit_alert_state == 'ok'"
+                       decoration-warning="credit_alert_state == 'warning'"
+                       decoration-danger="credit_alert_state in ('exceeded', 'hold')"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_credit_alert" model="ir.ui.view">
+        <field name="name">res.partner.select.credit.alert</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <filter name="inactive" position="before">
+                <separator/>
+                <filter name="filter_credit_warning" string="Approaching Credit Limit"
+                        domain="[('credit_alert_state', '=', 'warning')]"/>
+                <filter name="filter_credit_exceeded" string="Over Credit Limit"
+                        domain="[('credit_alert_state', '=', 'exceeded')]"/>
+                <filter name="filter_credit_hold" string="On Credit Hold"
+                        domain="[('credit_alert_state', '=', 'hold')]"/>
+                <separator/>
+            </filter>
+        </field>
+    </record>
+</odoo>
