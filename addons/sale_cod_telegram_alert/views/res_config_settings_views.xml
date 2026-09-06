@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.cod.telegram.alert</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="COD Delivery Alert" string="COD Delivery Alert" name="sale_cod_telegram_alert">
+                    <block title="Telegram Alert" name="sale_cod_telegram_alert_telegram_block">
+                        <setting id="sale_cod_telegram_alert_chat_id_setting" string="Telegram Chat ID"
+                                 help="Group that receives the COD / PAID / PAY LATER alerts. Leave empty to reuse the Telegram group of the delivery operation type (Delivery Packing Telegram Notification), so the alert lands right next to the packing message.">
+                            <field name="cod_alert_chat_id" placeholder="e.g. -1001234567890"/>
+                        </setting>
+                        <setting id="sale_cod_telegram_alert_bot_token_setting" string="Bot Token"
+                                 help="Optional. Leave empty to reuse the bot configured in the Send by Telegram settings.">
+                            <field name="cod_alert_bot_token" password="True"/>
+                        </setting>
+                        <setting id="sale_cod_telegram_alert_trigger_setting" string="When to send"
+                                 help="The packing message of the Delivery Packing Telegram module is sent when the order is confirmed; sending the COD alert at the same moment keeps both messages together.">
+                            <field name="cod_alert_trigger" widget="radio" class="o_light_label"/>
+                        </setting>
+                        <setting id="sale_cod_telegram_alert_only_cod_setting"
+                                 help="By default every delivery is announced (COD, PAID or PAY LATER) so the driver is never left guessing. Tick this to alert only when cash must be collected.">
+                            <field name="cod_alert_only_cod"/>
+                        </setting>
+                        <setting id="sale_cod_telegram_alert_skip_update_setting"
+                                 help="By default an UPDATED alert is sent when the payment type, the amount to collect or the driver note of an already alerted order changes.">
+                            <field name="cod_alert_skip_update"/>
+                        </setting>
+                    </block>
+                    <block title="Shipping Label (80x100mm)" name="sale_cod_telegram_alert_label_block">
+                        <setting id="sale_cod_telegram_alert_label_hide_setting"
+                                 help="The COD / PAID / PAY LATER block, the amount to collect and the driver note are printed on the Shipping Label report of delivery orders.">
+                            <field name="cod_label_hide_status"/>
+                        </setting>
+                        <setting id="sale_cod_telegram_alert_label_texts_setting" string="Label texts"
+                                 help="Texts printed in the block on the label. Khmer and English by default." invisible="cod_label_hide_status">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="cod_label_cod_text" string="Cash on Delivery" class="col-lg-4 o_light_label"/>
+                                    <field name="cod_label_cod_text"/>
+                                </div>
+                                <div class="row">
+                                    <label for="cod_label_paid_text" string="Already Paid" class="col-lg-4 o_light_label"/>
+                                    <field name="cod_label_paid_text"/>
+                                </div>
+                                <div class="row">
+                                    <label for="cod_label_credit_text" string="Pay Later" class="col-lg-4 o_light_label"/>
+                                    <field name="cod_label_credit_text"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Delivery order form: what the driver must collect -->
+    <record id="view_picking_form_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.sale.cod.telegram.alert</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_cancel']" position="before">
+                <button name="action_send_cod_alert" type="object" string="Telegram COD Alert"
+                        invisible="picking_type_code != 'outgoing' or not sale_id or state == 'cancel'"
+                        help="Send (again) the COD / PAID / PAY LATER alert to the delivery Telegram group."/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="COD" bg_color="text-bg-danger"
+                        invisible="picking_type_code != 'outgoing' or cod_payment_type != 'cod'"/>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="sale_id" invisible="1"/>
+                <field name="cod_currency_id" invisible="1"/>
+                <field name="cod_payment_type" widget="badge"
+                       invisible="picking_type_code != 'outgoing' or not sale_id"
+                       decoration-danger="cod_payment_type == 'cod'"
+                       decoration-success="cod_payment_type == 'paid'"
+                       decoration-warning="cod_payment_type == 'credit'"/>
+                <field name="cod_amount" invisible="picking_type_code != 'outgoing' or cod_payment_type != 'cod'"/>
+                <field name="cod_note" invisible="picking_type_code != 'outgoing' or not cod_note"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Transfers list -->
+    <record id="vpicktree_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">stock.picking.list.inherit.sale.cod.telegram.alert</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="cod_currency_id" column_invisible="True"/>
+                <field name="cod_payment_type" optional="show" widget="badge"
+                       invisible="picking_type_code != 'outgoing'"
+                       decoration-danger="cod_payment_type == 'cod'"
+                       decoration-success="cod_payment_type == 'paid'"
+                       decoration-warning="cod_payment_type == 'credit'"/>
+                <field name="cod_amount" optional="show" sum="Cash to collect"
+                       invisible="picking_type_code != 'outgoing' or cod_payment_type != 'cod'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Transfers search: filters and group by -->
+    <record id="view_picking_internal_search_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">stock.picking.search.inherit.sale.cod.telegram.alert</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='internal']" position="after">
+                <separator/>
+                <filter name="cod_deliveries" string="Cash on Delivery"
+                        domain="[('picking_type_code', '=', 'outgoing'), ('cod_payment_type', '=', 'cod')]"/>
+                <filter name="paid_deliveries" string="Already Paid"
+                        domain="[('picking_type_code', '=', 'outgoing'), ('cod_payment_type', '=', 'paid')]"/>
+                <filter name="credit_deliveries" string="Pay Later / Credit"
+                        domain="[('picking_type_code', '=', 'outgoing'), ('cod_payment_type', '=', 'credit')]"/>
+            </xpath>
+            <xpath expr="//filter[@name='picking_type']" position="after">
+                <filter string="Delivery Payment" name="group_cod_payment_type" domain="[]"
+                        context="{'group_by': 'cod_payment_type'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

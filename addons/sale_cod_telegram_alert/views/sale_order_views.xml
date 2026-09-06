@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sales order form: payment type, amount to collect, driver note -->
+    <record id="view_order_form_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.sale.cod.telegram.alert</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_preview_sale_order']" position="before">
+                <button name="action_send_cod_alert" type="object" string="Telegram COD Alert"
+                        invisible="state != 'sale'"
+                        help="Send (again) the COD / PAID / PAY LATER alert to the delivery Telegram group."/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="COD" bg_color="text-bg-danger" invisible="cod_payment_type != 'cod'"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="cod_alert_sent" invisible="1"/>
+                <field name="cod_payment_type" widget="radio" options="{'horizontal': true}"
+                       readonly="state == 'cancel' or locked"/>
+                <field name="cod_amount" invisible="cod_payment_type != 'cod'"
+                       readonly="state == 'cancel' or locked"/>
+                <field name="cod_note" placeholder="e.g. Customer pays in KHR, call before delivery..."
+                       readonly="state == 'cancel' or locked"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Quotation / sales order lists -->
+    <record id="view_quotation_tree_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">sale.order.list.inherit.sale.cod.telegram.alert</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="cod_payment_type" optional="show" widget="badge"
+                       decoration-danger="cod_payment_type == 'cod'"
+                       decoration-success="cod_payment_type == 'paid'"
+                       decoration-warning="cod_payment_type == 'credit'"/>
+                <field name="cod_amount" optional="hide" sum="Cash to collect" widget="monetary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search: filters and group by -->
+    <record id="view_sales_order_filter_sale_cod_telegram_alert" model="ir.ui.view">
+        <field name="name">sale.order.search.inherit.sale.cod.telegram.alert</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <separator/>
+                <filter name="cod_orders" string="Cash on Delivery" domain="[('cod_payment_type', '=', 'cod')]"/>
+                <filter name="paid_orders" string="Already Paid" domain="[('cod_payment_type', '=', 'paid')]"/>
+                <filter name="credit_orders" string="Pay Later / Credit" domain="[('cod_payment_type', '=', 'credit')]"/>
+            </xpath>
+            <xpath expr="//filter[@name='salesperson']" position="before">
+                <filter string="Delivery Payment" name="group_cod_payment_type" domain="[]"
+                        context="{'group_by': 'cod_payment_type'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

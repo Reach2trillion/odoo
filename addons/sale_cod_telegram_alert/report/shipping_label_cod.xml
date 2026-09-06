@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Adds a COD / PAID / PAY LATER block (amount to collect + driver note)
+        under the address card of the 80x100mm shipping label printed from
+        delivery orders (module stock_shipping_label).
+    -->
+    <template id="report_shipping_label_document_cod"
+              inherit_id="stock_shipping_label.report_shipping_label_document"
+              name="Shipping Label: COD block">
+        <xpath expr="//div[hasclass('address_card')]" position="after">
+            <t t-set="cod" t-value="o._cod_get_label_values()"/>
+            <t t-if="cod">
+                <style>
+                    /* The 80x100mm label is full with a 4-line address, so when the
+                       COD block is printed the surrounding spacing is tightened a bit
+                       to keep the footer on the label (single page). */
+                    .label_page .label_header { padding: 6px 8px; }
+                    .label_page .label_content { padding-top: 6px; }
+                    .label_page .label_body .ship_to_label { margin-bottom: 4px; }
+                    .label_page .label_body .customer_name { margin-bottom: 2px; }
+                    .label_page .label_body .customer_phone { margin-bottom: 5px; }
+                    .label_page .label_body .address_card { padding: 6px 10px; }
+                    .label_page .label_body .customer_address { line-height: 1.45; }
+                    .label_page .label_thanks { padding: 3px 4px; }
+                    .label_page .label_footer_bar { margin-top: 4px; }
+
+                    .cod_box {
+                        margin-top: 5px;
+                        border: 2px solid #1a1a2e;
+                        border-radius: 6px;
+                        padding: 3px 7px;
+                        page-break-inside: avoid;
+                        color: #1a1a2e;
+                        background: #ffffff;
+                        overflow: hidden;
+                    }
+                    .cod_box_cod { border-color: #d63031; background: #fff5f5; color: #c0392b; }
+                    .cod_box_paid { border-color: #00b894; background: #f0fff9; color: #00805f; }
+                    .cod_box_credit { border-color: #e17055; background: #fff8f2; color: #b85c38; }
+                    .cod_box .cod_title {
+                        font-size: 10pt;
+                        font-weight: 800;
+                        line-height: 1.4;
+                        letter-spacing: 0.3px;
+                    }
+                    .cod_box .cod_amount {
+                        float: right;
+                        margin-left: 6px;
+                        font-size: 12pt;
+                        font-weight: 800;
+                        line-height: 1.2;
+                    }
+                    .cod_box .cod_note {
+                        clear: both;
+                        font-size: 7.5pt;
+                        font-weight: 400;
+                        color: #1a1a2e;
+                        line-height: 1.35;
+                        margin-top: 1px;
+                        /* one line max: a long note must never push the label onto a 2nd page */
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                </style>
+                <div t-attf-class="cod_box cod_box_#{cod['type']}">
+                    <div class="cod_line">
+                        <span class="cod_amount" t-if="cod['amount']" t-out="cod['amount']"/>
+                        <span class="cod_title" t-out="cod['title']"/>
+                    </div>
+                    <div class="cod_note" t-if="cod['note']"><span t-out="cod['note']"/></div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>
