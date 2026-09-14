@@ -14,6 +14,13 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='send_by_telegram.bot_token',
         help="Enter your Telegram bot token obtained from @BotFather"
     )
+    telegram_default_group_id = fields.Char(
+        string="Default Telegram Group ID",
+        config_parameter='send_by_telegram.default_group_id',
+        help="Fallback Telegram group/chat ID used when a customer has no "
+             "Telegram Group ID of their own (e.g. website orders). The bot "
+             "must be added to this group as an administrator."
+    )
 
     def action_test_telegram_bot(self):
         """Test the Telegram bot connection."""

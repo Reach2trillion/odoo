@@ -27,13 +27,14 @@ class MailThread(models.AbstractModel):
         if hasattr(self, 'partner_id') and self.partner_id:
             partner = self.partner_id
         
-        if not partner or not partner.telegram_group_id:
+        if not partner or not partner._get_telegram_chat_id():
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': _("Warning"),
-                    'message': _("No Telegram Group ID configured for this record's partner."),
+                    'message': _("No Telegram Group ID configured for this record's "
+                                 "partner, and no default Telegram Group ID is set in Settings."),
                     'type': 'warning',
                     'sticky': False,
                 }

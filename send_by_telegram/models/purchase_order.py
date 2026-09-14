@@ -10,14 +10,15 @@ class PurchaseOrder(models.Model):
         """Open wizard to send RFQ/PO via Telegram."""
         self.ensure_one()
         
-        # Check if partner has Telegram group ID
-        if not self.partner_id.telegram_group_id:
+        # Partner's own group, or the fallback group from Settings
+        if not self.partner_id._get_telegram_chat_id():
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': _("Warning"),
-                    'message': _("Vendor '%s' does not have a Telegram Group ID configured.") 
+                    'message': _("Vendor '%s' has no Telegram Group ID and no "
+                                 "default Telegram Group ID is configured in Settings.")
                                % self.partner_id.name,
                     'type': 'warning',
                     'sticky': False,

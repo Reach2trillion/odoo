@@ -19,11 +19,21 @@
                             <div class="row mt8">
                                 <div class="col-lg-3"/>
                                 <div class="col-lg-6">
-                                    <button name="action_test_telegram_bot" 
-                                            type="object" 
-                                            string="Test Bot" 
+                                    <button name="action_test_telegram_bot"
+                                            type="object"
+                                            string="Test Bot"
                                             class="btn-secondary"
                                             icon="fa-telegram"/>
+                                </div>
+                            </div>
+                            <div class="row mt16">
+                                <label for="telegram_default_group_id" class="col-lg-3"/>
+                                <field name="telegram_default_group_id" class="col-lg-6" placeholder="e.g. -1001234567890"/>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3"/>
+                                <div class="col-lg-6 text-muted">
+                                    Used when a customer has no Telegram Group ID (e.g. website orders).
                                 </div>
                             </div>
                         </div>

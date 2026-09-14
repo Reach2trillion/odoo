@@ -147,15 +147,17 @@ class TelegramMessageWizard(models.TransientModel):
     def action_send(self):
         """Send the message via Telegram."""
         self.ensure_one()
-        
-        # Validate Telegram group ID
-        if not self.partner_id.telegram_group_id:
+
+        # Partner's own group, or the configured fallback group (e.g. for
+        # website customers that never set a Telegram Group ID)
+        chat_id = self.partner_id._get_telegram_chat_id()
+        if not chat_id:
             raise UserError(
-                _("Partner '%s' does not have a Telegram Group ID configured.") 
+                _("Partner '%s' has no Telegram Group ID and no default "
+                  "Telegram Group ID is configured in Settings.")
                 % self.partner_id.name
             )
-        
-        chat_id = self.partner_id.telegram_group_id
+
         service = self._get_telegram_service()
         
         try:
