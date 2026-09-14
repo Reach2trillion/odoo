@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_shipping_label_80x100" model="ir.actions.report">
+        <field name="name">Shipping Label 80x100 (Auto Print)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_auto_print_label.report_shipping_label_80x100</field>
+        <field name="report_file">stock_auto_print_label.report_shipping_label_80x100</field>
+        <field name="print_report_name">'Label - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="stock_auto_print_label.paperformat_label_80x100"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_shipping_label_80x100">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="v" t-value="o.get_shipping_label_values()"/>
+                <t t-set="partner" t-value="o.partner_id"/>
+                <div class="page sal_label">
+                    <style>
+                        .sal_label { font-family: 'Khmer OS Siemreap', 'Khmer OS', 'Noto Sans Khmer', 'DejaVu Sans', sans-serif; color: #000; font-size: 8pt; line-height: 1.3; width: 74mm; }
+                        .sal_label table { border-collapse: collapse; width: 100%; }
+                        .sal_label td { padding: 0; vertical-align: top; }
+                        .sal_header { border-bottom: 1.5px solid #000; padding-bottom: 1.5mm; margin-bottom: 1.5mm; }
+                        .sal_header .sal_logo { width: 14mm; height: 12mm; max-width: 14mm; max-height: 12mm; }
+                        .sal_header .sal_company { font-size: 10pt; font-weight: bold; }
+                        .sal_header .sal_company_meta { font-size: 6.5pt; }
+                        .sal_header .sal_ref { font-size: 9pt; font-weight: bold; text-align: right; white-space: nowrap; }
+                        .sal_header .sal_date { font-size: 6.5pt; text-align: right; }
+                        .sal_tag { display: inline-block; font-size: 6.5pt; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid #000; padding: 0 1.5mm; margin-bottom: 1mm; }
+                        .sal_name { font-size: 12pt; font-weight: bold; line-height: 1.2; }
+                        .sal_phone { font-size: 10pt; font-weight: bold; margin: 0.5mm 0; }
+                        .sal_address { font-size: 8.5pt; line-height: 1.35; }
+                        .sal_meta { border-top: 1px dashed #000; border-bottom: 1px dashed #000; margin: 1.5mm 0; padding: 1mm 0; font-size: 7.5pt; }
+                        .sal_meta td { padding: 0.3mm 0; }
+                        .sal_meta .sal_k { font-weight: bold; white-space: nowrap; padding-right: 2mm; }
+                        .sal_amount { font-size: 10pt; font-weight: bold; }
+                        .sal_items { font-size: 7pt; }
+                        .sal_items td { padding: 0.2mm 0; border-bottom: 0.5px solid #ccc; }
+                        .sal_items .sal_qty { text-align: right; white-space: nowrap; padding-left: 2mm; }
+                        .sal_barcode { text-align: center; margin-top: 1.5mm; }
+                        .sal_barcode img { width: 62mm; height: 11mm; }
+                        .sal_barcode .sal_barcode_text { font-size: 7pt; letter-spacing: 1px; }
+                    </style>
+
+                    <table class="sal_header">
+                        <tr>
+                            <td t-if="o.company_id.logo" style="width: 15mm; padding-right: 1.5mm;">
+                                <img t-att-src="image_data_uri(o.company_id.logo)" class="sal_logo" alt="Logo"/>
+                            </td>
+                            <td>
+                                <div class="sal_company" t-out="o.company_id.name"/>
+                                <div class="sal_company_meta">
+                                    <span t-if="o.company_id.phone" t-out="o.company_id.phone"/>
+                                    <span t-if="o.company_id.phone and o.company_id.website"> | </span>
+                                    <span t-if="o.company_id.website" t-out="o.company_id.website"/>
+                                </div>
+                            </td>
+                            <td style="width: 24mm;">
+                                <div class="sal_ref" t-out="o.name"/>
+                                <div class="sal_date" t-out="o.date_done or o.scheduled_date" t-options="{'widget': 'date'}"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="sal_tag">Deliver To</div>
+                    <div class="sal_name" t-out="partner.name or ''"/>
+                    <div class="sal_phone" t-out="partner.phone or partner.mobile or ''"/>
+                    <div class="sal_address">
+                        <span t-if="partner.street" t-out="partner.street"/><br t-if="partner.street"/>
+                        <span t-if="partner.street2" t-out="partner.street2"/><br t-if="partner.street2"/>
+                        <span t-if="partner.city" t-out="partner.city"/><span t-if="partner.city and partner.state_id">, </span>
+                        <span t-if="partner.state_id" t-out="partner.state_id.name"/>
+                        <span t-if="partner.zip"> <t t-out="partner.zip"/></span>
+                        <br t-if="partner.city or partner.state_id or partner.zip"/>
+                        <span t-if="partner.country_id" t-out="partner.country_id.name"/>
+                    </div>
+
+                    <table class="sal_meta">
+                        <tr t-if="v['order_ref']">
+                            <td class="sal_k">Order</td>
+                            <td t-out="v['order_ref']"/>
+                        </tr>
+                        <tr t-if="v['carrier_name'] or v['tracking_ref']">
+                            <td class="sal_k">Carrier</td>
+                            <td>
+                                <span t-out="v['carrier_name']"/>
+                                <span t-if="v['carrier_name'] and v['tracking_ref']"> - </span>
+                                <span t-if="v['tracking_ref']" t-out="v['tracking_ref']"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="sal_k">Items</td>
+                            <td>
+                                <t t-out="len(v['lines'])"/> line(s),
+                                <t t-out="v['total_qty']" t-options="{'widget': 'float', 'precision': 0}"/> unit(s)
+                                <span t-if="v['weight']"> - <t t-out="v['weight']" t-options="{'widget': 'float', 'precision': 2}"/> <t t-out="v['weight_uom']"/></span>
+                            </td>
+                        </tr>
+                        <tr t-if="v['amount_total']">
+                            <td class="sal_k">Total</td>
+                            <td class="sal_amount" t-out="v['amount_total']" t-options="{'widget': 'monetary', 'display_currency': v['currency']}"/>
+                        </tr>
+                    </table>
+
+                    <table class="sal_items" t-if="v['lines']">
+                        <t t-foreach="v['lines'][:6]" t-as="line">
+                            <tr>
+                                <td t-out="line.product_id.display_name"/>
+                                <td class="sal_qty">
+                                    <t t-out="line.quantity" t-options="{'widget': 'float', 'precision': 0}"/>
+                                    <t t-out="line.product_uom.name"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr t-if="len(v['lines']) > 6">
+                            <td colspan="2">+ <t t-out="len(v['lines']) - 6"/> more line(s), see delivery slip</td>
+                        </tr>
+                    </table>
+
+                    <div class="sal_barcode">
+                        <img t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=%s&amp;width=600&amp;height=100&amp;humanreadable=0' % o.name" alt="Barcode"/>
+                        <div class="sal_barcode_text" t-out="o.name"/>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

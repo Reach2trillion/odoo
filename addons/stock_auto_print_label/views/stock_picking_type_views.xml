@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_type_form_inherit_auto_print_label" model="ir.ui.view">
+        <field name="name">stock.picking.type.form.inherit.auto.print.label</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hardware']//field[@name='auto_print_return_slip']" position="after">
+                <label for="auto_print_shipping_label" string="Shipping Label" invisible="code != 'outgoing'"/>
+                <div class="o_row flex-wrap" invisible="code != 'outgoing'">
+                    <field name="auto_print_shipping_label" string="Shipping Label"/>
+                    <label for="shipping_label_report_id" string="Label:" invisible="not auto_print_shipping_label" class="fw-bold"/>
+                    <field name="shipping_label_report_id" invisible="not auto_print_shipping_label"
+                           required="auto_print_shipping_label" options="{'no_create': True, 'no_open': True}"/>
+                    <label for="shipping_label_print_mode" string="Print via:" invisible="not auto_print_shipping_label" class="fw-bold"/>
+                    <field name="shipping_label_print_mode" invisible="not auto_print_shipping_label"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
