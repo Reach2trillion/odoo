@@ -1,7 +1,7 @@
 # Part of the telegram_notification module. License LGPL-3.
 {
     'name': 'Telegram Notifications',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'category': 'Sales',
     'summary': 'Notify customers on Telegram: quotations, orders, deliveries, invoices',
     'description': """
@@ -23,10 +23,11 @@ Customers receive messages only if they allowed the bot to contact them
 """,
     'author': 'Reach2trillion',
     'website': 'https://github.com/Reach2trillion/odoo',
-    'depends': ['auth_telegram', 'sale_management', 'sale_stock', 'account', 'delivery'],
+    'depends': ['auth_telegram', 'sale_management', 'sale_stock', 'account', 'delivery', 'payment'],
     'data': [
         'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
+        'views/res_users_views.xml',
     ],
     'installable': True,
     'application': False,

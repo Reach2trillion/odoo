@@ -11,9 +11,22 @@ messages to customers whose Odoo account is linked to a Telegram account.
 | Order | Sales order confirmed | ✅ order name, total, portal link |
 | Delivery | Outgoing transfer validated | 📦 order reference + carrier tracking ref/link when available |
 | Invoice | Customer invoice posted | 🧾 invoice name, total, portal link |
+| Payment | Online payment confirmed | ✅ amount, order/invoice, portal link (to the customer) |
+| Payment alert | Online payment confirmed | 💰 amount, customer (name, @telegram, phone), order, provider, backend link (to the director / staff) |
 
 Each event can be switched on/off in Settings → General Settings →
 *Telegram Authentication*.
+
+### Director / staff alerts
+
+Payment alerts are sent to:
+
+- every Odoo user with **Telegram Payment Alerts** ticked on their user form
+  (Settings → Users → *Telegram* tab) — the user must be linked to Telegram and
+  have allowed the bot to message them (or pressed Start on the bot);
+- the **Extra Alert Chat IDs** from the settings: comma-separated Telegram chat
+  IDs, e.g. the director's personal chat or a management group. For a group,
+  add the bot to the group and use the group's (negative) ID.
 
 The customer's Telegram username also appears on the contact form
 (clickable `t.me/...` link) so your team can reach out manually — useful

@@ -26,6 +26,23 @@
                         <field name="telegram_notify_invoice" class="me-2"/>
                         <label for="telegram_notify_invoice"/>
                     </div>
+                    <div class="mt4">
+                        <field name="telegram_notify_payment" class="me-2"/>
+                        <label for="telegram_notify_payment"/>
+                    </div>
+                    <div class="text-muted mt16 mb8">Staff alerts (director / managers):</div>
+                    <div class="mt4">
+                        <field name="telegram_notify_payment_alert" class="me-2"/>
+                        <label for="telegram_notify_payment_alert"/>
+                    </div>
+                    <div class="row mt8">
+                        <label for="telegram_staff_chat_ids" string="Extra Chat IDs" class="col-lg-3 o_light_label"/>
+                        <field name="telegram_staff_chat_ids" placeholder="e.g. 123456789, -1001234567890"/>
+                    </div>
+                    <div class="text-muted mt4">
+                        Alerts go to every user with "Telegram Payment Alerts" enabled on their
+                        user form (Telegram tab), plus the extra chat IDs above.
+                    </div>
                 </div>
             </xpath>
         </field>

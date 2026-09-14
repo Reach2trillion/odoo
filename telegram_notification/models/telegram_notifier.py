@@ -1,4 +1,5 @@
 # Part of the telegram_notification module. License LGPL-3.
+import functools
 import logging
 
 import requests
@@ -10,7 +11,8 @@ _logger = logging.getLogger(__name__)
 TELEGRAM_SEND_URL = 'https://api.telegram.org/bot%s/sendMessage'
 TIMEOUT = 10
 
-NOTIFICATION_EVENTS = ('quotation', 'order', 'delivery', 'invoice')
+# customer-facing events, then staff alerts
+NOTIFICATION_EVENTS = ('quotation', 'order', 'delivery', 'invoice', 'payment', 'payment_alert')
 
 
 class TelegramNotifier(models.AbstractModel):
@@ -48,6 +50,34 @@ class TelegramNotifier(models.AbstractModel):
             _logger.warning("Could not schedule Telegram notification for partner %s",
                             partner and partner.id, exc_info=True)
             return False
+
+    @api.model
+    def _notify_staff(self, body, event):
+        """ Send `body` to the staff alert recipients: every user who opted
+            in to Telegram alerts (and is linked to Telegram), plus the
+            optional extra chat ids from the settings (e.g. a director's
+            private chat or a management group). Best effort, post-commit.
+            :return: number of chats the message was scheduled for
+        """
+        try:
+            if event not in NOTIFICATION_EVENTS or not self._event_enabled(event):
+                return 0
+            ICP = self.env['ir.config_parameter'].sudo()
+            token = ICP.get_param('auth_telegram.bot_token')
+            chat_ids = set()
+            users = self.env['res.users'].sudo().search([
+                ('telegram_payment_alerts', '=', True),
+                ('telegram_uid', '!=', False),
+            ])
+            chat_ids.update(users.mapped('telegram_uid'))
+            extra = ICP.get_param('telegram_notification.staff_chat_ids') or ''
+            chat_ids.update(c.strip() for c in extra.split(',') if c.strip())
+            for chat_id in chat_ids:
+                self.env.cr.postcommit.add(functools.partial(self._send_message, token, chat_id, body))
+            return len(chat_ids)
+        except Exception:
+            _logger.warning("Could not schedule Telegram staff notification", exc_info=True)
+            return 0
 
     @staticmethod
     def _send_message(token, chat_id, body):

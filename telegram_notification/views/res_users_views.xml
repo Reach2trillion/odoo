@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_users_form_telegram_notification" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.telegram.notification</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="auth_telegram.view_users_form_telegram"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='telegram_phone']" position="after">
+                <field name="telegram_payment_alerts"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

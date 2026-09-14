@@ -11,6 +11,16 @@ class ResConfigSettings(models.TransientModel):
     telegram_notify_order = fields.Boolean(string="Order Confirmed", default=True)
     telegram_notify_delivery = fields.Boolean(string="Delivery Shipped", default=True)
     telegram_notify_invoice = fields.Boolean(string="Invoice Posted", default=True)
+    telegram_notify_payment = fields.Boolean(string="Payment Received (customer)", default=True)
+    telegram_notify_payment_alert = fields.Boolean(string="Payment Received (director / staff alert)", default=True)
+    telegram_staff_chat_ids = fields.Char(
+        string="Extra Alert Chat IDs",
+        config_parameter='telegram_notification.staff_chat_ids',
+        help="Comma-separated Telegram chat IDs that also receive staff alerts, "
+             "e.g. the director's private chat or a management group. For a "
+             "person: their Telegram User ID (shown on their Odoo user once "
+             "linked). For a group: add the bot to the group and use the "
+             "group's ID (negative number).")
 
     # stored as explicit '1'/'0' (not config_parameter=) because unchecked
     # booleans would otherwise delete the parameter, which is indistinguishable
