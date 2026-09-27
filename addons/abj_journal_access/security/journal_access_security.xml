@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Global rules: they are AND-ed with every other rule, so group rules such as
+        "All Journal Entries" (Invoicing) or "Readonly Move" cannot re-open access.
+
+        The "journal_id.restricted_user_ids not in [uid]" form keeps the records whose
+        journal does NOT list the user. Do not rewrite it as
+        "journal_id not any [(restricted_user_ids, in, [uid])]": that subquery would run
+        under the journal rule below, return nothing for a restricted user, and hide nothing.
+
+        Bank statement lines inherit account.move (_inherits), so the journal entry rule
+        already covers them.
+    -->
+    <record id="rule_account_journal_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide journals from restricted users</field>
+        <field name="model_id" ref="account.model_account_journal"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else [('restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+
+    <record id="rule_account_move_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide journal entries from restricted users</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else ['|', ('journal_id', '=', False), ('journal_id.restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+
+    <record id="rule_account_move_line_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide journal items from restricted users</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else ['|', ('journal_id', '=', False), ('journal_id.restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+
+    <record id="rule_account_payment_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide payments from restricted users</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else ['|', ('journal_id', '=', False), ('journal_id.restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+
+    <record id="rule_account_bank_statement_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide bank statements from restricted users</field>
+        <field name="model_id" ref="account.model_account_bank_statement"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else ['|', ('journal_id', '=', False), ('journal_id.restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+
+    <record id="rule_account_analytic_line_restricted_users" model="ir.rule">
+        <field name="name">Journal access: hide analytic items from restricted users</field>
+        <field name="model_id" ref="analytic.model_account_analytic_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('account.group_account_manager') else ['|', ('journal_id', '=', False), ('journal_id.restricted_user_ids', 'not in', [user.id])]</field>
+    </record>
+</odoo>
