@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_aba_khqr_request_view_list" model="ir.ui.view">
+        <field name="name">pos.aba.khqr.request.list</field>
+        <field name="model">pos.aba.khqr.request</field>
+        <field name="arch" type="xml">
+            <list create="false" decoration-danger="late_payment or amount_mismatch"
+                  decoration-muted="state in ('cancelled', 'expired')">
+                <field name="create_date" string="Created"/>
+                <field name="tran_id"/>
+                <field name="pos_config_id" optional="show"/>
+                <field name="pos_reference" optional="show"/>
+                <field name="pos_order_id" optional="hide"/>
+                <field name="payment_method_id" optional="hide"/>
+                <field name="mode" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="amount" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'pending'"
+                       decoration-success="state == 'paid'"
+                       decoration-warning="state == 'failed'"/>
+                <field name="payway_apv" optional="show"/>
+                <field name="paid_at" optional="show"/>
+                <field name="confirmed_by_id" optional="hide"/>
+                <field name="late_payment" optional="show"/>
+                <field name="amount_mismatch" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="pos_aba_khqr_request_view_form" model="ir.ui.view">
+        <field name="name">pos.aba.khqr.request.form</field>
+        <field name="model">pos.aba.khqr.request</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <header>
+                    <button name="action_aba_khqr_check" type="object" class="btn-primary"
+                            string="Check with ABA now"
+                            invisible="mode != 'payway' or state == 'paid'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,paid"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="not late_payment">
+                        ABA confirmed this payment after the QR was cancelled or expired,
+                        so the POS did not record it. Refund the customer or register
+                        the payment on the order by hand.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not amount_mismatch">
+                        The amount ABA reports differs from the amount requested.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="tran_id"/></h1>
+                    </div>
+                    <group>
+                        <group string="Payment">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount"/>
+                            <field name="mode"/>
+                            <field name="environment" invisible="mode != 'payway'"/>
+                            <field name="payment_method_id"/>
+                            <field name="pos_config_id"/>
+                            <field name="pos_reference"/>
+                            <field name="pos_order_id"/>
+                            <field name="pos_payment_id"/>
+                            <field name="expires_at"/>
+                            <field name="paid_at"/>
+                            <field name="confirmed_by_id" invisible="not confirmed_by_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="ABA">
+                            <field name="payway_status"/>
+                            <field name="payway_apv"/>
+                            <field name="payway_transaction_id"/>
+                            <field name="paid_amount"/>
+                            <field name="paid_currency"/>
+                            <field name="amount_mismatch"/>
+                            <field name="late_payment"/>
+                            <field name="last_check_at"/>
+                            <field name="last_message"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="KHQR" name="khqr">
+                            <group>
+                                <field name="qr_string"/>
+                                <field name="qr_md5"/>
+                                <field name="deeplink" widget="url"/>
+                            </group>
+                        </page>
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group>
+                                <field name="last_response"/>
+                                <field name="webhook_payload"/>
+                                <field name="pos_order_uuid"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="pos_aba_khqr_request_view_search" model="ir.ui.view">
+        <field name="name">pos.aba.khqr.request.search</field>
+        <field name="model">pos.aba.khqr.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="tran_id"/>
+                <field name="pos_reference"/>
+                <field name="pos_order_id"/>
+                <field name="payway_apv"/>
+                <filter name="needs_attention" string="Needs attention"
+                        domain="['|', ('late_payment', '=', True), ('amount_mismatch', '=', True)]"/>
+                <separator/>
+                <filter name="pending" string="Waiting" domain="[('state', '=', 'pending')]"/>
+                <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                <filter name="not_paid" string="Not paid"
+                        domain="[('state', 'in', ('cancelled', 'expired', 'failed'))]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_config" string="Point of Sale" context="{'group_by': 'pos_config_id'}"/>
+                    <filter name="group_method" string="Payment Method" context="{'group_by': 'payment_method_id'}"/>
+                    <filter name="group_day" string="Day" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pos_aba_khqr_request" model="ir.actions.act_window">
+        <field name="name">ABA KHQR Payments</field>
+        <field name="res_model">pos.aba.khqr.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="pos_aba_khqr_request_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No KHQR payment yet</p>
+            <p>Every KHQR shown at the Point of Sale is logged here with its ABA status.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pos_aba_khqr_request"
+              name="ABA KHQR Payments"
+              parent="point_of_sale.menu_point_of_sale"
+              action="action_pos_aba_khqr_request"
+              groups="point_of_sale.group_pos_manager"
+              sequence="40"/>
+</odoo>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_aba_khqr_request_company_rule" model="ir.rule">
+        <field name="name">ABA KHQR payment request: multi-company</field>
+        <field name="model_id" ref="model_pos_aba_khqr_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

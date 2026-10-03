@@ -1,0 +1,394 @@
+// ABA KHQR popup for the Point of Sale.
+//
+// Odoo compiles SCSS with libsass, which evaluates CSS min()/max() as Sass
+// functions and stops on mixed units ("Incompatible units: 'vw' and 'px'").
+// One such error breaks the whole POS stylesheet, so size things with
+// width + max-width (or calc/clamp) and never with min()/max().
+
+$o-aba-khqr-teal: #005b7f;
+$o-aba-khqr-teal-dark: #003a52;
+$o-aba-khqr-red: #e1232e;
+$o-aba-khqr-ink: #1d2733;
+$o-aba-khqr-muted: #6b7785;
+$o-aba-khqr-line: #d6dde4;
+$o-aba-khqr-stage: #eef2f5;
+$o-aba-khqr-success: #12a05a;
+$o-aba-khqr-card-width: 272px;
+
+.o_aba_khqr_dialog {
+    border: 0;
+    border-radius: 18px;
+    overflow: hidden;
+
+    .modal-footer {
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid $o-aba-khqr-line;
+    }
+}
+
+.o_aba_khqr {
+    color: $o-aba-khqr-ink;
+}
+
+.o_aba_khqr_btn {
+    min-height: 44px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+// ---------------------------------------------------------------- header
+
+.o_aba_khqr_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 14px 18px;
+    color: #fff;
+    background: linear-gradient(135deg, $o-aba-khqr-teal 0%, $o-aba-khqr-teal-dark 100%);
+}
+
+.o_aba_khqr_brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.o_aba_khqr_mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 9px;
+    background: #fff;
+    color: $o-aba-khqr-teal;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+}
+
+.o_aba_khqr_logo {
+    height: 38px;
+    width: auto;
+    padding: 3px;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.o_aba_khqr_title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.o_aba_khqr_subtitle {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.o_aba_khqr_close {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 1.1rem;
+
+    &:hover,
+    &:focus {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+
+// ----------------------------------------------------------------- stage
+
+.o_aba_khqr_stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px 16px;
+    background: $o-aba-khqr-stage;
+}
+
+// KHQR card, after the NBC KHQR guideline: red header with a folded corner,
+// merchant name and amount, dashed separator, QR with the currency mark.
+.o_khqr_card {
+    position: relative;
+    width: 100%;
+    max-width: $o-aba-khqr-card-width;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(10, 35, 55, 0.18);
+    overflow: hidden;
+}
+
+.o_khqr_card_head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    background: $o-aba-khqr-red;
+
+    &::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -18px;
+        border-top: 18px solid $o-aba-khqr-red;
+        border-left: 18px solid transparent;
+    }
+}
+
+.o_khqr_card_logo {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.o_khqr_card_info {
+    padding: 16px 26px 12px;
+}
+
+.o_khqr_card_merchant {
+    overflow: hidden;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.o_khqr_card_amount {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.o_khqr_card_value {
+    color: #000;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_khqr_card_currency {
+    color: $o-aba-khqr-muted;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.o_khqr_card_sep {
+    border-top: 2px dashed $o-aba-khqr-line;
+}
+
+.o_khqr_card_qr {
+    padding: 14px 20px 20px;
+}
+
+.o_khqr_card_qr_box {
+    position: relative;
+    width: 100%;
+}
+
+.o_khqr_card_qr_img {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+
+    &.is-faded {
+        opacity: 0.25;
+        filter: blur(1px);
+    }
+}
+
+// Currency mark in the middle of the QR (QR uses error correction level Q).
+.o_khqr_card_badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: translate(-50%, -50%);
+
+    &.is-khr {
+        font-family: "Khmer OS", "Noto Sans Khmer", "Khmer UI", "Khmer MN", sans-serif;
+        font-size: 1.6rem;
+    }
+}
+
+.o_khqr_card_skeleton {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #eef1f4 25%, #dfe5ea 37%, #eef1f4 63%);
+    background-size: 400% 100%;
+    animation: o_aba_khqr_shimmer 1.3s ease infinite;
+}
+
+.o_khqr_card_overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    text-align: center;
+
+    &.is-error .o_khqr_overlay_icon {
+        color: $o-aba-khqr-red;
+    }
+}
+
+.o_khqr_overlay_icon {
+    color: $o-aba-khqr-muted;
+    font-size: 2.2rem;
+}
+
+.o_khqr_overlay_title {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.o_khqr_overlay_text {
+    max-height: 120px;
+    overflow: auto;
+    font-size: 0.85rem;
+    white-space: pre-line;
+}
+
+.o_khqr_paid_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: $o-aba-khqr-success;
+    color: #fff;
+    font-size: 2.6rem;
+    box-shadow: 0 8px 22px rgba(18, 160, 90, 0.35);
+    animation: o_aba_khqr_pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+// ---------------------------------------------------------------- status
+
+.o_aba_khqr_status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 0.92rem;
+    font-weight: 600;
+
+    &.is-paid {
+        color: $o-aba-khqr-success;
+    }
+
+    &.is-urgent,
+    &.is-error {
+        color: $o-aba-khqr-red;
+    }
+}
+
+.o_aba_khqr_dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: $o-aba-khqr-teal;
+    animation: o_aba_khqr_pulse 1.4s ease-in-out infinite;
+
+    .is-urgent & {
+        background: $o-aba-khqr-red;
+    }
+}
+
+.o_aba_khqr_timer {
+    color: $o-aba-khqr-muted;
+    font-variant-numeric: tabular-nums;
+
+    .is-urgent & {
+        color: $o-aba-khqr-red;
+    }
+}
+
+.o_aba_khqr_warning {
+    color: #a15c00;
+    font-size: 0.85rem;
+}
+
+.o_aba_khqr_ref {
+    color: $o-aba-khqr-muted;
+    font-size: 0.85rem;
+}
+
+.o_aba_khqr_notice {
+    padding: 10px 18px;
+    border-top: 1px solid #f3d9a4;
+    background: #fff8e6;
+    color: #7a5200;
+    font-size: 0.85rem;
+}
+
+.o_aba_khqr_confirm_text {
+    font-size: 0.95rem;
+}
+
+@keyframes o_aba_khqr_pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.35;
+        transform: scale(0.7);
+    }
+}
+
+@keyframes o_aba_khqr_pop {
+    from {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes o_aba_khqr_shimmer {
+    from {
+        background-position: 100% 50%;
+    }
+    to {
+        background-position: 0 50%;
+    }
+}

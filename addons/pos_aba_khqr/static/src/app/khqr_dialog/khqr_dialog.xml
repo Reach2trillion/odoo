@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="pos_aba_khqr.AbaKhqrDialog">
+        <Dialog header="false" size="'md'" contentClass="'o_aba_khqr_dialog'" withBodyPadding="false">
+            <div class="o_aba_khqr">
+                <div class="o_aba_khqr_top">
+                    <div class="o_aba_khqr_brand">
+                        <img t-if="request.logo_url" class="o_aba_khqr_logo" t-att-src="request.logo_url" alt="ABA"/>
+                        <span t-else="" class="o_aba_khqr_mark">ABA</span>
+                        <div>
+                            <div class="o_aba_khqr_title">Scan to pay</div>
+                            <div class="o_aba_khqr_subtitle">ABA Mobile or any KHQR bank app</div>
+                        </div>
+                    </div>
+                    <button type="button" class="o_aba_khqr_close" title="Cancel" aria-label="Cancel"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onCancel()">
+                        <i class="fa fa-times" role="img"/>
+                    </button>
+                </div>
+
+                <div class="o_aba_khqr_stage">
+                    <div class="o_khqr_card">
+                        <div class="o_khqr_card_head">
+                            <span class="o_khqr_card_logo">KHQR</span>
+                        </div>
+                        <div class="o_khqr_card_info">
+                            <div class="o_khqr_card_merchant" t-esc="merchantName"/>
+                            <div class="o_khqr_card_amount">
+                                <span class="o_khqr_card_value" t-esc="amountText"/>
+                                <span class="o_khqr_card_currency" t-esc="currency"/>
+                            </div>
+                        </div>
+                        <div class="o_khqr_card_sep"/>
+                        <div class="o_khqr_card_qr">
+                            <div class="o_khqr_card_qr_box">
+                                <t t-if="request.qr_image">
+                                    <img class="o_khqr_card_qr_img" alt="KHQR"
+                                         t-att-class="{ 'is-faded': isExpired or ui.state !== 'waiting' }"
+                                         t-att-src="request.qr_image"/>
+                                    <span t-if="showTimer" class="o_khqr_card_badge"
+                                          t-att-class="{ 'is-khr': currency === 'KHR' }" t-esc="currencySymbol"/>
+                                </t>
+                                <div t-else="" class="o_khqr_card_skeleton"/>
+
+                                <div t-if="ui.state === 'paid'" class="o_khqr_card_overlay is-paid">
+                                    <div class="o_khqr_paid_icon">
+                                        <i class="fa fa-check" role="img" aria-label="Paid"/>
+                                    </div>
+                                    <div class="o_khqr_overlay_title">Payment received</div>
+                                </div>
+                                <div t-elif="isExpired" class="o_khqr_card_overlay">
+                                    <i class="fa fa-clock-o o_khqr_overlay_icon" role="img"/>
+                                    <div class="o_khqr_overlay_title">QR expired</div>
+                                    <button type="button" class="btn btn-primary o_aba_khqr_btn"
+                                            t-att-disabled="ui.busy" t-on-click="() => this.props.onRetry()">
+                                        <i class="fa fa-refresh me-1" role="img"/>New QR
+                                    </button>
+                                </div>
+                                <div t-elif="['error', 'failed', 'cancelled'].includes(ui.state)"
+                                     class="o_khqr_card_overlay is-error">
+                                    <i class="fa fa-exclamation-triangle o_khqr_overlay_icon" role="img"/>
+                                    <div class="o_khqr_overlay_text" t-esc="errorText"/>
+                                    <button type="button" class="btn btn-primary o_aba_khqr_btn"
+                                            t-att-disabled="ui.busy" t-on-click="() => this.props.onRetry()">
+                                        <i class="fa fa-refresh me-1" role="img"/>Try again
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="o_aba_khqr_status" t-att-class="statusClass">
+                        <i t-if="ui.state === 'loading'" class="fa fa-circle-o-notch fa-spin" role="img"/>
+                        <span t-elif="showTimer" class="o_aba_khqr_dot"/>
+                        <span t-esc="statusText"/>
+                        <span t-if="showTimer" class="o_aba_khqr_timer" t-esc="countdown"/>
+                    </div>
+                    <div t-if="ui.warning" class="o_aba_khqr_warning" t-esc="ui.warning"/>
+                    <div t-if="ui.orderRef" class="o_aba_khqr_ref" t-esc="ui.orderRef"/>
+                </div>
+
+                <div t-if="isOwnKhqr and ui.state !== 'paid'" class="o_aba_khqr_notice">
+                    <i class="fa fa-shield me-2" role="img"/>
+                    Confirm only after the money shows in your ABA app.
+                    Never accept a screenshot on the customer's phone.
+                </div>
+            </div>
+
+            <t t-set-slot="footer">
+                <t t-if="ui.state === 'paid'">
+                    <button type="button" class="btn btn-success o_aba_khqr_btn"
+                            t-on-click="() => this.props.onCancel()">
+                        <i class="fa fa-check me-1" role="img"/>Done
+                    </button>
+                </t>
+                <t t-elif="ui.confirming">
+                    <div class="o_aba_khqr_confirm_text w-100">
+                        Did <b t-esc="amountLabel"/> arrive in your ABA account?
+                    </div>
+                    <button type="button" class="btn btn-secondary o_aba_khqr_btn"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onBackFromConfirm()">
+                        Not yet
+                    </button>
+                    <button type="button" class="btn btn-success o_aba_khqr_btn"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onConfirm()">
+                        <i class="fa fa-check me-1" role="img"/>Yes, received
+                    </button>
+                </t>
+                <t t-else="">
+                    <button type="button" class="btn btn-secondary o_aba_khqr_btn"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onCancel()">
+                        Cancel
+                    </button>
+                    <button t-if="isOwnKhqr and (ui.state === 'waiting' or ui.state === 'expired')"
+                            type="button" class="btn btn-success o_aba_khqr_btn"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onAskConfirm()">
+                        <i class="fa fa-check me-1" role="img"/>Payment received
+                    </button>
+                    <button t-elif="ui.state === 'waiting' and !isExpired"
+                            type="button" class="btn btn-primary o_aba_khqr_btn"
+                            t-att-disabled="ui.busy" t-on-click="() => this.props.onCheck()">
+                        <i class="fa fa-refresh me-1" role="img"/>Check payment
+                    </button>
+                </t>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

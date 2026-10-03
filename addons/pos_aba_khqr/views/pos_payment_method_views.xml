@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_payment_method_view_form_inherit_aba_khqr" model="ir.ui.view">
+        <field name="name">pos.payment.method.form.inherit.aba.khqr</field>
+        <field name="model">pos.payment.method</field>
+        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='use_payment_terminal']" position="after">
+                <field name="aba_khqr_mode" widget="radio"
+                       invisible="use_payment_terminal != 'aba_khqr'"
+                       required="use_payment_terminal == 'aba_khqr'"/>
+                <field name="aba_khqr_provider_id" options="{'no_create': True}"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'payway'"
+                       required="use_payment_terminal == 'aba_khqr' and aba_khqr_mode == 'payway'"/>
+                <field name="aba_khqr_webhook_url" widget="CopyClipboardChar"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'payway'"/>
+                <field name="aba_khqr_template" groups="base.group_no_one"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'payway'"/>
+                <field name="aba_khqr_source" placeholder="00020101021130... or name@bank"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'bakong'"
+                       required="use_payment_terminal == 'aba_khqr' and aba_khqr_mode == 'bakong'"/>
+                <field name="aba_khqr_merchant_name" placeholder="ABJ SkinCare"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'bakong'"/>
+                <field name="aba_khqr_merchant_city"
+                       invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'bakong'"/>
+                <field name="aba_khqr_lifetime"
+                       invisible="use_payment_terminal != 'aba_khqr'"
+                       required="use_payment_terminal == 'aba_khqr'"/>
+                <div colspan="2" class="alert alert-info mb-0" role="status"
+                     invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'payway'">
+                    The customer scans the KHQR with ABA Mobile or any Bakong bank app.
+                    ABA PayWay confirms the payment and the order validates by itself.
+                    Ask ABA to enable the <b>QR API</b> on your PayWay merchant account.
+                </div>
+                <div colspan="2" class="alert alert-warning mb-0" role="status"
+                     invisible="use_payment_terminal != 'aba_khqr' or aba_khqr_mode != 'bakong'">
+                    The cashier presses <b>Payment received</b> only after seeing the money
+                    in the ABA app. Never accept a screenshot on the customer's phone.
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
