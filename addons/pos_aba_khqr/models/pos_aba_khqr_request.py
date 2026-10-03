@@ -151,7 +151,13 @@ class PosAbaKhqrRequest(models.Model):
                 )
             except PayWayError as error:
                 _logger.warning('ABA PayWay generate-qr failed for %s: %s', tran_id, error)
-                raise UserError(_('ABA PayWay could not create the QR code:\n%s', error)) from error
+                hint = ''
+                if 'not enable' in str(error).lower():
+                    hint = _('\n\nABA has not enabled the QR API on this PayWay merchant '
+                             'account. Ask ABA PayWay support to enable it, or set the '
+                             'payment method\'s KHQR source to "My own KHQR".')
+                raise UserError(_('ABA PayWay could not create the QR code:\n%(error)s%(hint)s',
+                                  error=error, hint=hint)) from error
             response.pop('qrImage', None)
             vals.update({
                 'qr_string': response['qrString'],
