@@ -68,6 +68,30 @@ class TestPayWay(BaseCase):
         self.assertTrue(post.call_args.args[0].endswith('/payments/check-transaction-2'))
         self.assertEqual(body['hash'], _expected_hash('20261003120000', MERCHANT, 'K1'))
 
+    @patch.object(payway, 'request_time', return_value='20261003120000')
+    def test_purchase_khqr_signature(self, _mock_time):
+        with patch.object(payway.requests, 'post', return_value=_response({
+            'status': {'code': '00', 'message': 'Success!'},
+            'qr_string': '000201010212',
+            'abapay_deeplink': 'abamobilebank://x',
+        })) as post:
+            result = self.client.purchase_khqr('K1', '6.00', 'USD', 5,
+                                               callback_url='https://a.b/hook')
+        self.assertEqual(result['qrString'], '000201010212')
+        self.assertTrue(post.call_args.args[0].endswith('/payments/purchase'))
+        form = {key: value[1] for key, value in post.call_args.kwargs['files'].items()}
+        callback = base64.b64encode(b'https://a.b/hook').decode()
+        self.assertEqual(form['payment_option'], 'abapay_khqr_deeplink')
+        self.assertEqual(form['return_url'], callback)
+        # req_time, merchant_id, tran_id, amount, items, shipping, firstname, lastname,
+        # email, phone, type, payment_option, return_url, cancel_url,
+        # continue_success_url, return_deeplink, currency, custom_fields,
+        # return_params, payout, lifetime, additional_params, google_pay_token,
+        # skip_success_page
+        self.assertEqual(form['hash'], _expected_hash(
+            '20261003120000', MERCHANT, 'K1', '6.00', '', '', '', '', '', '', 'purchase',
+            'abapay_khqr_deeplink', callback, '', '', '', 'USD', '', '', '', '5', '', '', ''))
+
     def test_refused_request_raises(self):
         with patch.object(payway.requests, 'post', return_value=_response({
             'status': {'code': '5', 'message': 'Wrong hash'},

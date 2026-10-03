@@ -1,6 +1,6 @@
 {
     'name': 'ABA KHQR for Point of Sale',
-    'version': '18.0.2.0.0',
+    'version': '18.0.2.1.0',
     'category': 'Sales/Point of Sale',
     'summary': 'Show a scannable ABA / Bakong KHQR on the POS and confirm '
                'the payment automatically through ABA PayWay.',

@@ -21,6 +21,16 @@ BASE_URLS = {
 GENERATE_QR_PATH = '/api/payment-gateway/v1/payments/generate-qr'
 CHECK_TRANSACTION_PATH = '/api/payment-gateway/v1/payments/check-transaction-2'
 CLOSE_TRANSACTION_PATH = '/api/payment-gateway/v1/payments/close-transaction'
+PURCHASE_PATH = '/api/payment-gateway/v1/payments/purchase'
+
+# Order of the values concatenated before signing a purchase request.
+PURCHASE_HASH_FIELDS = (
+    'req_time', 'merchant_id', 'tran_id', 'amount', 'items', 'shipping',
+    'firstname', 'lastname', 'email', 'phone', 'type', 'payment_option',
+    'return_url', 'cancel_url', 'continue_success_url', 'return_deeplink',
+    'currency', 'custom_fields', 'return_params', 'payout', 'lifetime',
+    'additional_params', 'google_pay_token', 'skip_success_page',
+)
 
 # Order of the values concatenated before signing a generate-qr request.
 QR_HASH_FIELDS = (
@@ -123,6 +133,48 @@ class PayWayClient:
             raise PayWayError('ABA PayWay refused the QR request: %s'
                               % (status.get('message') or data),
                               code=status.get('code'), response=data)
+        return data
+
+    def purchase_khqr(self, tran_id, amount, currency, lifetime, callback_url=None):
+        """KHQR through the Purchase API (``abapay_khqr_deeplink``).
+
+        Works on merchant accounts where ABA has not enabled the QR API: the
+        Purchase API is the one the eCommerce checkout uses. Returns the same
+        keys as :meth:`generate_qr` (``qrString``, ``abapay_deeplink``).
+        """
+        lifetime = int(lifetime or MIN_LIFETIME)
+        values = {
+            'req_time': request_time(),
+            'merchant_id': self.merchant_id,
+            'tran_id': tran_id,
+            'amount': amount,
+            'type': 'purchase',
+            'payment_option': 'abapay_khqr_deeplink',
+            'return_url': b64(callback_url),
+            'currency': currency,
+            'lifetime': lifetime,
+        }
+        values['hash'] = sign(self.api_key, *(values.get(field) for field in PURCHASE_HASH_FIELDS))
+        form = {key: (None, str(value)) for key, value in values.items() if value not in (None, '')}
+        url = BASE_URLS[self.environment] + PURCHASE_PATH
+        try:
+            response = requests.post(url, files=form, timeout=self.timeout,
+                                     headers={'Accept': 'application/json'})
+        except requests.RequestException as error:
+            raise PayWayError('Cannot reach ABA PayWay: %s' % error) from error
+        try:
+            data = response.json()
+        except ValueError:
+            raise PayWayError('ABA PayWay answered HTTP %s without JSON (is the KHQR '
+                              'deeplink option enabled?).' % response.status_code,
+                              code=response.status_code)
+        qr_string = data.get('qr_string') or data.get('qrString')
+        if not is_success(data) or not qr_string:
+            status = data.get('status') or {}
+            raise PayWayError('ABA PayWay refused the KHQR purchase: %s'
+                              % (status.get('message') or data),
+                              code=status.get('code'), response=data)
+        data['qrString'] = qr_string
         return data
 
     def check_transaction(self, tran_id):

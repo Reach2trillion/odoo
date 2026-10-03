@@ -143,21 +143,25 @@ class PosAbaKhqrRequest(models.Model):
         if method.aba_khqr_mode == 'payway':
             client = method._aba_khqr_payway_client()
             webhook = method.aba_khqr_webhook_url or ''
+            callback = webhook if webhook.startswith('https://') else None
             try:
-                response = client.generate_qr(
-                    tran_id, amount_text, currency.name, lifetime,
-                    method.aba_khqr_template or 'template3_color',
-                    callback_url=webhook if webhook.startswith('https://') else None,
-                )
+                try:
+                    response = client.generate_qr(
+                        tran_id, amount_text, currency.name, lifetime,
+                        method.aba_khqr_template or 'template3_color',
+                        callback_url=callback,
+                    )
+                except PayWayError as error:
+                    if 'not enable' not in str(error).lower():
+                        raise
+                    # QR API not activated by ABA: get the KHQR through the
+                    # Purchase API (the one the website checkout uses).
+                    _logger.info('PayWay QR API disabled, using Purchase API for %s', tran_id)
+                    response = client.purchase_khqr(
+                        tran_id, amount_text, currency.name, lifetime, callback_url=callback)
             except PayWayError as error:
-                _logger.warning('ABA PayWay generate-qr failed for %s: %s', tran_id, error)
-                hint = ''
-                if 'not enable' in str(error).lower():
-                    hint = _('\n\nABA has not enabled the QR API on this PayWay merchant '
-                             'account. Ask ABA PayWay support to enable it, or set the '
-                             'payment method\'s KHQR source to "My own KHQR".')
-                raise UserError(_('ABA PayWay could not create the QR code:\n%(error)s%(hint)s',
-                                  error=error, hint=hint)) from error
+                _logger.warning('ABA PayWay KHQR failed for %s: %s', tran_id, error)
+                raise UserError(_('ABA PayWay could not create the QR code:\n%s', error)) from error
             response.pop('qrImage', None)
             vals.update({
                 'qr_string': response['qrString'],
