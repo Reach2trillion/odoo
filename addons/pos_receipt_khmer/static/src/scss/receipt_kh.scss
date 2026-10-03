@@ -1,0 +1,297 @@
+/* ==========================================================================
+   SCSS note: this is the design CSS (SPEC section 9) shipped as SCSS. Odoo compiles SCSS with
+   libsass, which evaluates max() itself and fails on mixed units ("Incompatible units: 'px'
+   and 'em'"), breaking the whole POS stylesheet. The CSS max(2px, <em>) rules are therefore
+   wrapped in a Sass string interpolation: they compile to the identical plain CSS.
+   ========================================================================== */
+/* ==========================================================================
+   ABJ SkinCare - bilingual Khmer/English POS receipt (FINAL)
+   Ships as pos_receipt_khmer/static/src/scss/receipt_kh.scss
+   Root classes (attribute xpaths): OrderReceipt root  -> o_kh_receipt (+ o_kh_unpaid when !finalized)
+                                    CashMoveReceipt root -> o_kh_receipt o_kh_cashmove
+   Every size is em of the receipt root: 27px raster (.pos-receipt-print, 512px)
+   and 14px web print (266px). Font-size em values sit just above an integer px
+   at 27px because Odoo's html-to-image clone floors font sizes and subtracts 0.1:
+     0.7785em = 21.02px -> 20.9   0.815em = 22.005px -> 21.9   0.8895em = 24.02px -> 23.9
+     1em = 27px -> 26.9           1.1115em = 30.01px -> 29.9   1.1855em = 32.01px -> 31.9
+     1.2595em = 34.007px -> 33.9  1.6305em = 44.02px -> 43.9
+   Pure #000 on #fff. Rules: 0.08em (2px raster / 1px web), max(2px,0.115em) (3px / 2px),
+   max(2px,0.15em) (4px / 2px). No letter-spacing, text-transform or italic on Khmer.
+   ========================================================================== */
+@font-face {
+  font-family: 'ABJ Khmer';
+  src: url('/pos_receipt_khmer/static/fonts/KantumruyPro-subset.woff2') format('woff2');
+  font-weight: 100 700;
+  font-display: block;
+}
+
+/* ---------- 1. root ------------------------------------------------------- */
+.pos-receipt.o_kh_receipt {
+  font-family: 'ABJ Khmer', sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #000;
+  background: #fff;
+  text-align: left;
+  padding: 0.2em 0.6em 0.3em !important;          /* beats Bootstrap .p-2 / e-mail .p-3 (rem, do not scale) */
+}
+.pos-receipt.o_kh_receipt,
+.pos-receipt.o_kh_receipt * { letter-spacing: 0; font-style: normal; text-transform: none; }
+.pos-receipt.o_kh_receipt .pos-receipt-right-align { float: none; display: block; white-space: nowrap; }
+.pos-receipt.o_kh_receipt .kh-latin { line-height: 1.35; }   /* Latin-only lines may be tighter than Khmer (1.5) */
+.pos-receipt.o_kh_receipt .kh-nw { white-space: nowrap; }
+.pos-receipt.o_kh_receipt .kh-riel { font-size: 1.2em; font-weight: 700; line-height: 1; }  /* Kantumruy's ៛ is small and thin: one step up so it survives the dither */
+
+/* ---------- 2. hidden core nodes (they stay in the DOM as anchors) ------- */
+.pos-receipt.o_kh_receipt > br,                                                   /* layout <br/> of header, footer, slip */
+.pos-receipt.o_kh_receipt .pos-receipt-contact > div:not([style*="pre-line"]),     /* company name, Tel:, Tax ID, e-mail, web, cashier, tracking no. -> .kh-brand/.kh-contact/.kh-meta */
+.pos-receipt.o_kh_receipt .orderline > .product-order,
+.pos-receipt.o_kh_receipt .info-list > .price-per-unit,                            /* "1.00 x $ 6.00 / Units" -> li.kh-qty */
+.pos-receipt.o_kh_receipt .info-list > li:nth-child(2):not([class]),               /* core "$ 5.00 With a 10% discount" -> li.kh-disc */
+.pos-receipt.o_kh_receipt .info-list > .internal-note-container,
+.pos-receipt.o_kh_receipt .info-list .fa,
+.pos-receipt.o_kh_receipt .before-footer > .loyalty,                               /* pos_loyalty English rows -> .kh-loyalty */
+.pos-receipt.o_kh_receipt .before-footer > br,
+.pos-receipt.o_kh_receipt > .pos-receipt-order-data:empty,
+.pos-receipt.o_kh_receipt > .after-footer:empty,
+.pos-receipt.o_kh_receipt.o_kh_cashmove > .pos-receipt-center-align,              /* slip: "CASH IN" -> .kh-band */
+.pos-receipt.o_kh_receipt.o_kh_cashmove > div:not([class]),                        /* slip: AMOUNT / REASON rows -> .kh-meta */
+.pos-receipt.o_kh_receipt.o_kh_cashmove > .pos-receipt-order-data { display: none !important; }   /* slip: date -> .kh-meta */
+/* :has() hides kept separate: an engine without :has() only falls back to showing core content */
+.pos-receipt.o_kh_receipt .before-footer > div:not([class]):has(> .pos-receipt-right-align) { display: none !important; } /* pos_loyalty "Customer" */
+.pos-receipt.o_kh_receipt > .pos-receipt-order-data:has(> #order-date) { display: none !important; }  /* Powered by Odoo + ref + date: printed once at the top */
+/* safety net: if khLine() ever finds no data for a line (no li.kh-qty), the core qty and discount lines come back */
+.pos-receipt.o_kh_receipt .info-list:not(:has(> .kh-qty)) > .price-per-unit,
+.pos-receipt.o_kh_receipt .info-list:not(:has(> .kh-qty)) > li:nth-child(2):not([class]) { display: block !important; }
+
+/* ---------- 3. header: letterhead (logo left, identity right) ------------ */
+.pos-receipt.o_kh_receipt .pos-receipt-logo:not(#posqrcode) {
+  float: left;
+  width: 44% !important;
+  height: auto;
+  margin: 0 0.35em 0.1em -0.2em !important;      /* the logo file's own white margin meets the paper edge */
+  /* 1-bit prep: hard threshold at luma ~106. Dark logo ink -> solid black, anti-aliased edges snap to
+     black/white (nothing for Floyd-Steinberg to speckle), hairline tagline drops out cleanly. */
+  filter: grayscale(1) brightness(1.2) contrast(50);
+}
+/* print logo (res.company.kh_receipt_logo, 1-bit, 200 px wide, hairlines >= 2 dots): shown 1:1 on the
+   raster (7.4075em x 27px = 200.0px), so no resampling can thin or break a hairline */
+.pos-receipt.o_kh_receipt .pos-receipt-logo.kh-logo-print { width: 7.4075em !important; margin: 0.15em 0.9em 0.1em 0 !important; }
+.pos-receipt.o_kh_receipt .kh-head { display: block !important; }     /* ReceiptHeader wrapper (class added): not flex, so .kh-brand sits beside the float */
+.pos-receipt.o_kh_receipt .kh-brand {
+  display: flow-root;                                                  /* own BFC: a clean column beside the logo */
+  text-align: left;
+  padding-top: 0.15em;
+}
+.pos-receipt.o_kh_receipt .kh-brand-km { font-size: 1.2595em; font-weight: 700; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-brand-en { font-size: 0.8895em; font-weight: 600; line-height: 1.3; letter-spacing: 0.1em; }  /* Latin only */
+.pos-receipt.o_kh_receipt .kh-brand-addr { font-size: 0.815em; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-brand-addr.kh-latin { line-height: 1.35; }
+.pos-receipt.o_kh_receipt .kh-contact {
+  clear: both;
+  text-align: center;
+  font-size: 0.815em;
+  line-height: 1.5;
+  padding-top: 0.25em;
+}
+.pos-receipt.o_kh_receipt .pos-receipt-contact { clear: both; font-size: 1em; text-align: center; }
+.pos-receipt.o_kh_receipt .pos-receipt-contact > div[style*="pre-line"] { font-size: 0.815em; line-height: 1.5; margin-top: 0.15em; } /* config.receipt_header */
+
+/* ---------- 4. document band: reverse on raster, ruled title in web print */
+.pos-receipt.o_kh_receipt .kh-band {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 0.45em;
+  margin-top: 0.4em;
+  padding: 0 0.4em 0.05em;
+  background: #000; color: #fff;
+  border-top: #{'max(2px, 0.115em)'} solid #000;     /* invisible on the fill; they are the rules of the web-print fallback */
+  border-bottom: #{'max(2px, 0.115em)'} solid #000;
+  text-align: center;
+}
+.pos-receipt.o_kh_receipt .kh-band-km { font-size: 1.1855em; font-weight: 700; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-band-en { font-size: 1em; font-weight: 700; line-height: 1.5; letter-spacing: 0.16em; margin-right: -0.16em; } /* reverse type: >= 1em / 700 only */
+/* unpaid pre-receipt: never the solid band - a dashed frame, black on white */
+.pos-receipt.o_kh_receipt .kh-band.kh-band--due {
+  flex-direction: column; align-items: center;
+  background: #fff; color: #000;
+  border: #{'max(2px, 0.115em)'} dashed #000;
+  padding: 0.05em 0.4em 0.2em;
+}
+.pos-receipt.o_kh_receipt .kh-band--due .kh-band-en { font-size: 0.815em; letter-spacing: 0.12em; margin-right: -0.12em; line-height: 1.35; }
+.pos-receipt.o_kh_receipt .kh-band-note { align-self: stretch; font-size: 0.815em; font-weight: 500; line-height: 1.5; margin-top: 0.1em; }
+
+/* ---------- 5. label / value rows (meta, rate, loyalty, slip) ------------ */
+.pos-receipt.o_kh_receipt .kh-meta { margin-top: 0.3em; }
+.pos-receipt.o_kh_receipt .kh-row {
+  display: grid;                               /* grid, not wrapping flex: html-to-image freezes used sizes */
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.8em;
+  align-items: baseline;
+  font-size: 0.815em;
+  line-height: 1.5;
+}
+.pos-receipt.o_kh_receipt .kh-row > span { white-space: nowrap; }
+.pos-receipt.o_kh_receipt .kh-row > b { font-weight: 600; text-align: right; overflow-wrap: break-word; }
+.pos-receipt.o_kh_receipt .kh-row.kh-row--big { font-size: 1em; }
+.pos-receipt.o_kh_receipt .kh-row.kh-row--big > b { font-size: 1.1115em; font-weight: 700; line-height: 1.3; }
+
+/* ---------- 6. item lines (shared Orderline, receipt-scoped) ------------- */
+.pos-receipt.o_kh_receipt > div:has(> .order-container) { border-radius: 0 !important; overflow: visible !important; }  /* OrderWidget wrapper */
+.pos-receipt.o_kh_receipt .order-container {
+  margin-top: 0.4em;
+  border-top: 0.08em solid #000;
+  padding: 0.3em 0 0 !important;
+  gap: 0.4em !important;
+  overflow: visible !important;
+}
+.pos-receipt.o_kh_receipt .orderline {
+  display: block !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+  line-height: 1.5 !important; background: none !important; cursor: default;
+}
+.pos-receipt.o_kh_receipt .orderline::before { display: none; }
+.pos-receipt.o_kh_receipt .orderline.orderline-combo { margin-left: 1em !important; }
+.pos-receipt.o_kh_receipt .orderline > .d-flex.flex-column { gap: 0 !important; }
+.pos-receipt.o_kh_receipt .orderline > .d-flex.flex-column > .d-flex { align-items: baseline; }
+.pos-receipt.o_kh_receipt .orderline .product-name {
+  display: block !important; font-weight: 600 !important; padding-right: 0.8em !important;
+  white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+  -webkit-line-clamp: unset; overflow-wrap: break-word;   /* wrap, never clip; break-word (not anywhere) keeps Khmer clusters whole */
+}
+.pos-receipt.o_kh_receipt .orderline .product-price { font-weight: 600 !important; white-space: nowrap; }
+.pos-receipt.o_kh_receipt .orderline .info-list {
+  margin: 0 !important; padding: 0 !important; gap: 0 !important; list-style: none;
+  font-size: 0.815em; line-height: 1.5;
+}
+.pos-receipt.o_kh_receipt .orderline .info-list > li { list-style: none; }
+.pos-receipt.o_kh_receipt .orderline .info-list > .kh-qty,
+.pos-receipt.o_kh_receipt .orderline .info-list > .kh-disc { order: -1; }       /* info-list is flex-column: ours first, note / SO ref after */
+.pos-receipt.o_kh_receipt .orderline .info-list > .kh-qty { line-height: 1.35; } /* Latin only */
+.pos-receipt.o_kh_receipt .orderline .customer-note {
+  background: none !important; border-radius: 0 !important;
+  border-left: 0.15em solid #000; padding: 0 0 0 0.45em !important; margin: 0.1em 0 0 !important;
+}
+.pos-receipt.o_kh_receipt .orderline .kh-note-lbl { font-weight: 600; }
+.pos-receipt.o_kh_receipt .fst-italic { font-style: normal !important; }
+
+/* ---------- 7. total: the one loud number, KHR in the same column -------- */
+.pos-receipt.o_kh_receipt > .text-center {                 /* core "--------" before the total -> 4px rule */
+  height: 0; overflow: hidden;
+  border-top: #{'max(2px, 0.15em)'} solid #000;
+  margin: 0.5em 0 0.2em;
+}
+.pos-receipt.o_kh_receipt.o_kh_unpaid > .text-center { border-top: 0; margin: 0.5em 0 0; }  /* unpaid: the dashed frame separates */
+.pos-receipt.o_kh_receipt .pos-receipt-taxes { font-size: 0.815em; line-height: 1.5; margin-top: 0.3em; }   /* not used by ABJ (no taxes) */
+.pos-receipt.o_kh_receipt .pos-receipt-taxes > .text-center { height: 0; overflow: hidden; border-top: 0.08em solid #000; margin: 0.4em 0 0.2em; }
+.pos-receipt.o_kh_receipt .receipt-total,
+.pos-receipt.o_kh_receipt .receipt-change {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.5em; align-items: baseline;
+  font-size: 1em;                                          /* undo core 125%: children size from the root */
+}
+.pos-receipt.o_kh_receipt .receipt-total > .kh-lbl-km { grid-row: 1; grid-column: 1; font-size: 1.1115em; font-weight: 700; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .receipt-total > .pos-receipt-right-align {
+  grid-row: 1; grid-column: 2; justify-self: end;
+  font-size: 1.6305em; font-weight: 700; line-height: 1.2;
+}
+.pos-receipt.o_kh_receipt .receipt-total > .kh-lbl-en,
+.pos-receipt.o_kh_receipt .receipt-change > .kh-lbl-en {
+  grid-row: 2; grid-column: 1;
+  font-size: 0.7785em; font-weight: 600; line-height: 1.3; letter-spacing: 0.24em; white-space: nowrap;  /* Latin only */
+}
+.pos-receipt.o_kh_receipt .receipt-total > .kh-amt-khr,
+.pos-receipt.o_kh_receipt .receipt-change > .kh-amt-khr {
+  grid-row: 2; grid-column: 2; justify-self: end;
+  font-size: 0.8895em; font-weight: 600; line-height: 1.3; white-space: nowrap;
+}
+.pos-receipt.o_kh_receipt.o_kh_unpaid .receipt-total {    /* AMOUNT DUE: dashed frame, never the paid look */
+  border: #{'max(2px, 0.115em)'} dashed #000;
+  padding: 0.05em 0.45em 0.2em;
+}
+.pos-receipt.o_kh_receipt .kh-rate { margin-top: 0.15em; }
+
+/* ---------- 8. payments, change, discounts ------------------------------- */
+.pos-receipt.o_kh_receipt .kh-pay-head { border-top: 0.08em dashed #000; margin: 0.45em 0 0.15em; }
+.pos-receipt.o_kh_receipt .paymentlines {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.5em; align-items: baseline;
+  line-height: 1.5;
+}
+.pos-receipt.o_kh_receipt .paymentlines > .pos-receipt-right-align { grid-row: 1; grid-column: 2; justify-self: end; font-weight: 600; }
+.pos-receipt.o_kh_receipt .paymentlines > .kh-txn { grid-row: 2; grid-column: 1 / -1; font-size: 0.815em; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .paymentlines + .paymentlines { margin-top: 0.15em; }
+.pos-receipt.o_kh_receipt .receipt-change { margin-top: 0.3em; }
+.pos-receipt.o_kh_receipt .receipt-change > .kh-lbl-km { grid-row: 1; grid-column: 1; font-size: 1em; font-weight: 700; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .receipt-change > .pos-receipt-right-align {
+  grid-row: 1; grid-column: 2; justify-self: end; font-size: 1.1115em; font-weight: 700; line-height: 1.3;
+}
+.pos-receipt.o_kh_receipt .receipt-change .kh-or { font-size: 0.9163em; font-weight: 500; margin-right: 0.35em; }   /* = 0.815em of root */
+.pos-receipt.o_kh_receipt .receipt-change > .kh-round {
+  grid-row: 3; grid-column: 1 / -1;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.8em; align-items: baseline;
+  font-size: 0.815em; font-weight: 500; line-height: 1.5;
+}
+.pos-receipt.o_kh_receipt .receipt-change > .kh-round > b { font-weight: 600; text-align: right; }
+.pos-receipt.o_kh_receipt > .receipt-total ~ .text-center {      /* core discounts row (label_discounts + amount) */
+  height: auto; overflow: visible; border: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.5em; align-items: baseline;
+  text-align: left !important; font-size: 0.815em; line-height: 1.5; margin: 0.35em 0 0;
+}
+.pos-receipt.o_kh_receipt > .receipt-total ~ .text-center > .pos-receipt-right-align { font-weight: 600; }
+.pos-receipt.o_kh_receipt .receipt-rounding,
+.pos-receipt.o_kh_receipt .receipt-to-pay {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.5em; font-size: 0.815em; line-height: 1.5;
+}
+
+/* ---------- 9. loyalty (inside div.before-footer, after pos_loyalty) ---- */
+.pos-receipt.o_kh_receipt .kh-loyalty { border: 0.08em solid #000; padding: 0.1em 0.5em 0.15em; margin-top: 0.6em; }
+.pos-receipt.o_kh_receipt .pos-coupon-rewards { padding: 0.5em 0 0 !important; font-size: 0.815em; }
+.pos-receipt.o_kh_receipt .pos-coupon-rewards > div:first-child { height: 0; overflow: hidden; border-top: 0.08em dashed #000; }
+
+/* ---------- 10. footer text, sign-off, unpaid stamp ---------------------- */
+.pos-receipt.o_kh_receipt > .pos-receipt-center-align { font-size: 0.815em; line-height: 1.5; margin-top: 0.6em; text-align: center; }
+.pos-receipt.o_kh_receipt > .pos-receipt-center-align > br { display: none; }
+.pos-receipt.o_kh_receipt .kh-signoff { text-align: center; margin-top: 0.6em; }
+.pos-receipt.o_kh_receipt .kh-orn { width: 2.4em; margin: 0 auto 0.2em; border-top: 0.08em solid #000; }
+.pos-receipt.o_kh_receipt .kh-thanks { display: flex; justify-content: center; align-items: baseline; column-gap: 0.5em; white-space: nowrap; }
+.pos-receipt.o_kh_receipt .kh-thanks-km { font-size: 1.1115em; font-weight: 700; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-thanks-en { font-size: 0.7785em; font-weight: 600; line-height: 1.3; letter-spacing: 0.24em; margin-right: -0.24em; }
+.pos-receipt.o_kh_receipt .kh-again { font-size: 0.815em; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-stamp {
+  display: inline-block; white-space: nowrap;
+  margin-top: 0.4em; padding: 0 0.5em;
+  border: #{'max(2px, 0.115em)'} dashed #000;
+  font-size: 0.8895em; font-weight: 700; line-height: 1.5;
+}
+.pos-receipt.o_kh_receipt .after-footer { font-size: 0.815em; text-align: center; }
+.pos-receipt.o_kh_receipt .pos-payment-terminal-receipt pre { font-family: inherit; font-size: 1em; white-space: pre-wrap; margin: 0.5em 0 0; }
+
+/* ---------- 11. self-invoice QR (only if the company enables it) -------- */
+.pos-receipt.o_kh_receipt #posqrcode { float: none; width: 40% !important; margin: 0.4em auto 0 !important; }
+.pos-receipt.o_kh_receipt .unique-code,
+.pos-receipt.o_kh_receipt .portal-url { font-size: 0.815em !important; overflow-wrap: anywhere; }
+
+/* ---------- 12. cash in / out slip (CashMoveReceipt) -------------------- */
+.pos-receipt.o_kh_receipt.o_kh_cashmove .kh-meta { margin-top: 0.35em; }
+
+/* ---------- 13. context blocks ------------------------------------------ */
+/* Raster only (Epson / IoT / e-mail image; core: .pos-receipt-print {width:512px; font-size:27px}).
+   Nothing is resized: the em scale above is tuned to 27px. The html-to-image clone freezes every
+   used width/height and re-lays text with fonts 0.1-0.9px smaller, so shrink-to-fit label groups
+   must never be allowed to re-wrap there. */
+.pos-receipt-print.o_kh_receipt .kh-row > span,
+.pos-receipt-print.o_kh_receipt .kh-band > span,
+.pos-receipt-print.o_kh_receipt .kh-thanks,
+.pos-receipt-print.o_kh_receipt .kh-stamp { white-space: nowrap; }
+
+/* Web print only (window.print fallback; core forces .render-container .pos-receipt {width:266px;
+   font-size:14px} and transparent background + black text on every descendant). Nothing is resized:
+   the em scale holds at 14px, the band degrades to a title between its two rules, dashed frames print
+   as is. Odoo also forces position:static on everything, so the design uses no positioning (the
+   logo is a float). The only addition: keep blocks whole across the driver's page breaks. */
+@media print {
+  .render-container .pos-receipt.o_kh_receipt .orderline,
+  .render-container .pos-receipt.o_kh_receipt .kh-band,
+  .render-container .pos-receipt.o_kh_receipt .kh-meta,
+  .render-container .pos-receipt.o_kh_receipt .receipt-total,
+  .render-container .pos-receipt.o_kh_receipt .receipt-change,
+  .render-container .pos-receipt.o_kh_receipt .paymentlines,
+  .render-container .pos-receipt.o_kh_receipt .kh-loyalty,
+  .render-container .pos-receipt.o_kh_receipt .kh-signoff { break-inside: avoid; }
+}

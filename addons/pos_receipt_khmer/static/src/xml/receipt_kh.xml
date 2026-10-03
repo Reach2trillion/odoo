@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Khmer / English receipt: extensions only (never primary, never replace). Every node is a
+    restyled core node or a new kh-* node inserted next to a class anchor, so pos_loyalty,
+    pos_sale, l10n_* and other extenders keep finding their anchors.
+    Khmer and bilingual nodes carry t-translation="off": the receipt must not depend on km.po
+    or on the cashier's UI language.
+-->
+<templates id="template" xml:space="preserve">
+
+<!-- ReceiptHeader: also rendered by CashMoveReceipt (no order) -->
+<t t-name="pos_receipt_khmer.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+    <xpath expr="//img[hasclass('pos-receipt-logo')]" position="attributes">
+        <attribute name="t-attf-src">/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field={{props.data.kh?.logo_field or 'logo'}}</attribute>
+        <attribute name="t-att-class">{'kh-logo-print': props.data.kh?.logo_field === 'kh_receipt_logo'}</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('pos-receipt-contact')]/.." position="attributes">
+        <attribute name="class" add="kh-head" separator=" "/>
+    </xpath>
+    <xpath expr="//div[hasclass('pos-receipt-contact')]" position="before">
+        <div t-if="props.data.kh" class="kh-brand" t-translation="off">
+            <div t-if="props.data.kh.name_km" class="kh-brand-km" t-esc="props.data.kh.name_km"/>
+            <div t-if="props.data.company.name" class="kh-brand-en" t-esc="props.data.company.name"/>
+            <div t-if="props.data.kh.addr_km" class="kh-brand-addr" t-esc="props.data.kh.addr_km"/>
+            <div t-if="props.data.kh.addr_en" class="kh-brand-addr kh-latin" t-esc="props.data.kh.addr_en"/>
+        </div>
+        <div t-if="props.data.kh" class="kh-contact" t-translation="off">
+            <div t-if="props.data.kh.phone">ទូរស័ព្ទ / Tel <span class="kh-nw" t-esc="props.data.kh.phone"/></div>
+            <div t-if="props.data.kh.web_line" class="kh-latin" t-esc="props.data.kh.web_line"/>
+            <div t-if="props.data.kh.tin_line" t-esc="props.data.kh.tin_line"/>
+        </div>
+    </xpath>
+</t>
+
+<t t-name="pos_receipt_khmer.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
+        <attribute name="class" add="o_kh_receipt" separator=" "/>
+        <attribute name="t-att-class">{'o_kh_unpaid': props.data.kh?.unpaid}</attribute>
+    </xpath>
+    <!-- band + meta -->
+    <xpath expr="//ReceiptHeader" position="after">
+        <div t-if="props.data.kh" class="kh-doc" t-translation="off">
+            <div t-if="!props.data.kh.unpaid" class="kh-band">
+                <span class="kh-band-km" t-esc="props.data.kh.title_km"/><span class="kh-band-en" t-esc="props.data.kh.title_en"/>
+            </div>
+            <div t-else="" class="kh-band kh-band--due">
+                <span class="kh-band-km">មិន&#8203;ទាន់&#8203;បង់ប្រាក់</span>
+                <span class="kh-band-en">NOT PAID — PRE-RECEIPT</span>
+                <div class="kh-band-note"><span class="kh-nw" t-esc="props.data.kh.not_doc_km"/> / <span class="kh-nw" t-esc="props.data.kh.not_doc_en"/></div>
+            </div>
+            <div class="kh-meta">
+                <div class="kh-row"><span t-esc="props.data.kh.number_label"/><b t-esc="props.data.kh.number"/></div>
+                <div class="kh-row"><span>កាលបរិច្ឆេទ / Date</span><b t-esc="props.data.kh.date"/></div>
+                <div t-if="props.data.cashier" class="kh-row"><span>អ្នកគិតលុយ / Cashier</span><b t-esc="props.data.cashier"/></div>
+                <div t-if="props.data.kh.partner_name" class="kh-row"><span>អតិថិជន / Customer</span><b t-esc="props.data.kh.partner_name"/></div>
+            </div>
+        </div>
+    </xpath>
+    <!-- item lines: receipt-only rows in OrderReceipt's own <Orderline> slot (shared Orderline untouched) -->
+    <xpath expr="//Orderline" position="inside">
+        <t t-set="kl" t-value="khLine(line)"/>
+        <li t-if="kl" class="kh-qty" t-translation="off"><t t-esc="kl.qty"/><t t-if="!props.basic_receipt"> × <t t-esc="kl.unit_price"/></t></li>
+        <li t-if="kl and kl.disc_line and !props.basic_receipt" class="kh-disc" t-esc="kl.disc_line" t-translation="off"/>
+    </xpath>
+    <xpath expr="//li[hasclass('customer-note')]/i" position="after">
+        <span class="kh-note-lbl" t-translation="off">សម្គាល់ / Note · </span>
+    </xpath>
+    <!-- amounts: receipt-only USD formatter (attribute change only; the spans stay as anchors) -->
+    <xpath expr="//div[hasclass('receipt-total')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
+        <attribute name="t-esc">khUsd(props.data.taxTotals.order_sign * props.data.taxTotals.order_total)</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('paymentlines')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
+        <attribute name="t-esc">khUsd(line.amount)</attribute>
+    </xpath>
+    <!-- change: visibility and amount come from the normalised data (export_for_printing), not from
+         the build-specific core expressions ('order_change' in taxTotals / show_change) -->
+    <xpath expr="//div[hasclass('receipt-change')]" position="attributes">
+        <attribute name="t-if">props.data.show_change</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-change')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
+        <attribute name="t-esc">khUsd(props.data.order_change)</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-change')]/following::div[hasclass('text-center')][1]/span[hasclass('pos-receipt-right-align')]" position="attributes">
+        <attribute name="t-esc">khUsd(props.data.total_discount)</attribute>
+    </xpath>
+    <!-- KHR total + rate -->
+    <xpath expr="//div[hasclass('receipt-total')]" position="inside">
+        <span t-if="props.data.kh?.total_khr" class="kh-amt-khr" t-translation="off"><t t-esc="props.data.kh.total_khr"/>&#160;<span class="kh-riel">៛</span></span>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-total')]" position="after">
+        <div t-if="props.data.kh?.rate_text" class="kh-row kh-rate" t-translation="off"><span>អត្រាប្តូរប្រាក់ / Rate</span><b>1 USD = <t t-esc="props.data.kh.rate_text"/>&#160;<span class="kh-riel">៛</span></b></div>
+    </xpath>
+    <!-- payments -->
+    <xpath expr="//div[hasclass('paymentlines')]" position="before">
+        <div t-if="props.data.paymentlines.length" class="kh-pay-head"/>
+    </xpath>
+    <xpath expr="//div[hasclass('paymentlines')]" position="inside">
+        <div t-if="line.kh_txn" class="kh-txn" t-translation="off">លេខប្រតិបត្តិការ / Txn ID <t t-esc="line.kh_txn"/></div>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-change')]" position="before">
+        <div t-if="props.data.kh?.due" class="kh-row" t-translation="off"><span>ប្រាក់នៅខ្វះ / Balance due</span><b t-esc="khUsd(props.data.kh.due)"/></div>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-change')]" position="inside">
+        <span t-if="props.data.kh?.change_khr" class="kh-amt-khr" t-translation="off"><span class="kh-or">ឬ / or</span><t t-esc="props.data.kh.change_khr"/>&#160;<span class="kh-riel">៛</span></span>
+        <span t-if="props.data.kh?.change_round" class="kh-round" t-translation="off"><span>ការបង្គត់ / Rounding</span><b><t t-esc="props.data.kh.change_round"/>&#160;<span class="kh-riel">៛</span></b></span>
+    </xpath>
+    <!-- loyalty: after pos_loyalty's own content (we depend on pos_loyalty) -->
+    <xpath expr="//div[hasclass('before-footer')]" position="inside">
+        <div t-if="props.data.kh?.loyalty?.length" class="kh-loyalty" t-translation="off">
+            <t t-foreach="props.data.kh.loyalty" t-as="ls" t-key="ls_index">
+                <div t-if="ls.won" class="kh-row"><span>ពិន្ទុទទួលបាន / <t t-esc="ls.name"/> earned</span><b>+<t t-esc="ls.won"/></b></div>
+                <div t-if="ls.spent" class="kh-row"><span>ពិន្ទុបានប្រើ / <t t-esc="ls.name"/> spent</span><b>-<t t-esc="ls.spent"/></b></div>
+                <div t-if="ls.balance" class="kh-row"><span>សមតុល្យពិន្ទុ / <t t-esc="ls.name"/> balance</span><b t-esc="ls.balance"/></div>
+            </t>
+        </div>
+    </xpath>
+    <!-- sign-off -->
+    <xpath expr="//div[hasclass('after-footer')]" position="before">
+        <div t-if="props.data.kh" class="kh-signoff" t-translation="off">
+            <div class="kh-orn"/>
+            <t t-if="!props.data.kh.unpaid">
+                <div class="kh-thanks"><span class="kh-thanks-km">សូមអរគុណ</span><span class="kh-thanks-en">THANK YOU</span></div>
+                <div class="kh-again">សូម&#8203;អញ្ជើញ&#8203;មក&#8203;ម្តង&#8203;ទៀត / Please come again</div>
+            </t>
+            <t t-else="">
+                <div class="kh-again">សូម&#8203;បង់ប្រាក់&#8203;នៅ&#8203;បញ្ជរ / Please pay at the counter</div>
+                <div class="kh-stamp">មិន&#8203;ទាន់&#8203;បង់ប្រាក់ · NOT PAID</div>
+            </t>
+        </div>
+    </xpath>
+</t>
+
+<t t-name="pos_receipt_khmer.CashMoveReceipt" t-inherit="point_of_sale.CashMoveReceipt" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
+        <attribute name="class" add="o_kh_receipt o_kh_cashmove" separator=" "/>
+    </xpath>
+    <xpath expr="//div[hasclass('pos-receipt-center-align')]" position="before">
+        <div class="kh-band" t-translation="off"><span class="kh-band-km" t-esc="khMove.km"/><span class="kh-band-en" t-esc="khMove.en"/></div>
+        <div class="kh-meta" t-translation="off">
+            <div class="kh-row kh-row--big"><span>ទឹកប្រាក់ / Amount</span><b t-esc="khMove.amount"/></div>
+            <div t-if="props.reason" class="kh-row"><span>មូលហេតុ / Reason</span><b t-esc="props.reason"/></div>
+            <div t-if="props.headerData.kh?.cashier_name" class="kh-row"><span>អ្នកគិតលុយ / Cashier</span><b t-esc="props.headerData.kh.cashier_name"/></div>
+            <div class="kh-row"><span>កាលបរិច្ឆេទ / Date</span><b t-esc="khMove.date"/></div>
+        </div>
+    </xpath>
+</t>
+</templates>

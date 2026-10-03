@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_pos_receipt_khmer" model="ir.ui.view">
+        <field name="name">res.company.form.pos_receipt_khmer</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="POS Receipt (Khmer)" name="pos_receipt_khmer">
+                    <group name="pos_receipt_khmer">
+                        <group string="POS Receipt (Khmer)" name="pos_receipt_khmer_identity">
+                            <field name="kh_name" placeholder="e.g. អេប៊ីជេ ស្គីនឃែរ"/>
+                            <field name="kh_address_km" placeholder="e.g. ក្រុងតាខ្មៅ ខេត្តកណ្ដាល"/>
+                            <field name="kh_address_en" placeholder="e.g. Ta Khmau, Kandal"/>
+                            <field name="kh_doc_title"/>
+                            <field name="kh_tin_label"/>
+                        </group>
+                        <group string="Thermal print logo" name="pos_receipt_khmer_logo">
+                            <field name="kh_has_receipt_logo" invisible="1"/>
+                            <field name="kh_receipt_logo" widget="image" options="{'size': [200, 0]}"/>
+                            <div colspan="2" class="text-muted">
+                                1-bit black and white PNG, exactly 200 px wide, lines at least 2 px thick.
+                                Leave empty to print the company logo.
+                            </div>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
