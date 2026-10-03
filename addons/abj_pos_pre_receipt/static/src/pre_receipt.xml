@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="abj_pos_pre_receipt.ControlButtons" t-inherit="point_of_sale.ControlButtons" t-inherit-mode="extension">
+        <xpath expr="//SelectPartnerButton" position="after">
+            <button t-if="!props.showRemainingButtons"
+                t-attf-class="{{ buttonClass }}"
+                t-att-disabled="!pos.get_order() or pos.get_order().is_empty()"
+                t-on-click="() => this.clickPrintPreReceipt()">
+                <i class="fa fa-print me-1"/> Print Bill
+            </button>
+        </xpath>
+        <!-- Small screens only show control buttons in the "Actions" dialog -->
+        <xpath expr="//div[hasclass('control-buttons-modal')]" position="inside">
+            <button t-if="ui.isSmall" class="btn btn-secondary btn-lg py-5"
+                t-att-disabled="!pos.get_order() or pos.get_order().is_empty()"
+                t-on-click="() => this.clickPrintPreReceipt()">
+                <i class="fa fa-print me-1"/> Print Bill
+            </button>
+        </xpath>
+    </t>
+
+    <t t-name="abj_pos_pre_receipt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//ReceiptHeader" position="after">
+            <div t-if="props.data.is_pre_receipt" class="text-center fw-bolder my-2">
+                *** PRE-RECEIPT - NOT PAID ***
+            </div>
+        </xpath>
+    </t>
+</templates>
