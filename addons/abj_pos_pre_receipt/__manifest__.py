@@ -1,6 +1,6 @@
 {
     "name": "ABJ POS Pre-Receipt (Print Bill)",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Sales/Point of Sale",
     "summary": "Print the POS bill before payment without validating or locking the order.",
     "description": """

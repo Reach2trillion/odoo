@@ -21,7 +21,7 @@
 
     <t t-name="abj_pos_pre_receipt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
         <xpath expr="//ReceiptHeader" position="after">
-            <div t-if="props.data.is_pre_receipt" class="text-center fw-bolder my-2">
+            <div t-if="props.data.is_pre_receipt and !props.data.kh" class="text-center fw-bolder my-2">
                 *** PRE-RECEIPT - NOT PAID ***
             </div>
         </xpath>
