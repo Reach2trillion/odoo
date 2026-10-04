@@ -22,11 +22,11 @@ import {
     khNumber,
     khOrderRounding,
     khOrderTotal,
+    khPaper,
     khPhone,
     khQty,
     khRate,
     khWeb,
-    stripNb,
 } from "./kh_format";
 
 // Every Khmer / bilingual string below is deliberately literal (not _t()): the cashier's UI
@@ -64,9 +64,13 @@ patch(PosStore.prototype, {
                 addr_en: c.kh_address_en || "",
                 phone: khPhone(c.phone),
                 web_line: [khWeb(c.website), c.email].filter(Boolean).join(" · "),
-                tin_line: c.vat && tinLabel ? `${tinLabel} ${c.vat}` : "",
+                // WORD JOINER after each hyphen: a VATTIN such as K008-901701793 never breaks
+                // inside the number (the row wraps before it instead)
+                tin_line: c.vat && tinLabel ? `${tinLabel} ${c.vat.replace(/-/g, "-\u2060")}` : "",
                 cashier_name: order?.getCashierName?.() || this.get_cashier?.()?.name || "",
                 logo_field: c.kh_has_receipt_logo ? "kh_receipt_logo" : "logo",
+                // the cash in/out slip takes its paper width from here (it has no order)
+                ...khPaper(this.config),
             };
         } catch (error) {
             console.error("pos_receipt_khmer: could not build the receipt header data", error);
@@ -98,6 +102,9 @@ patch(PosOrder.prototype, {
                 res.headerData = { ...res.headerData };
                 delete res.headerData.kh;
             }
+            // ...but on a 58 mm till the core receipt is still scaled to the raster width (the
+            // same rule as core's Daily Sales report), so the printer gets an image it can print
+            res.kh_paper = khPaper(this.config);
             console.error("pos_receipt_khmer: could not build the Khmer receipt data", error);
         }
         return res;
@@ -133,9 +140,9 @@ patch(PosOrder.prototype, {
         const pays = this.payment_ids.filter((p) => !p.is_change); // same filter and order as core
         const aligned = pays.length === res.paymentlines.length;
 
-        // receipt-only USD strings without the NBSP and with the minus first ("-$6.00"); same
-        // keys, same types, so the Orderline prop shape stays valid; undefined lines (pos_loyalty
-        // guard) are left alone
+        // receipt-only USD strings without the NBSP, in Odoo's sign order ("$6.00", "$-6.00");
+        // same keys, same types, so the Orderline prop shape stays valid; undefined lines
+        // (pos_loyalty guard) are left alone
         res.orderlines = res.orderlines.map((l) => {
             if (!l) {
                 return l;
@@ -204,6 +211,8 @@ patch(PosOrder.prototype, {
         }
 
         res.kh = {
+            // paper: "80" | "58", raster_w: 0 on 80 mm, else the 58 mm raster width in dots
+            ...khPaper(this.config),
             unpaid,
             title_km: isReceipt ? "បង្កាន់ដៃលក់" : "វិក្កយបត្រ",
             title_en: isReceipt ? "SALES RECEIPT" : "INVOICE",
@@ -250,7 +259,9 @@ patch(PosOrder.prototype, {
                 : (res.loyaltyStats || [])
                       .filter((s) => s.program?.portal_visible && (s.points?.won || s.points?.spent))
                       .map((s) => ({
-                          name: s.points.name || "",
+                          // block heading when there are several programs: the program's name
+                          // (the points name is often the same "Points" for every program)
+                          name: s.program?.name || s.points.name || "",
                           won: s.points.won ? fmtPtsSigned(s.points.won) : "",
                           // spent points print as a deduction ("-5")
                           spent: s.points.spent ? fmtPtsSigned(-s.points.spent) : "",
@@ -264,11 +275,10 @@ patch(PosOrder.prototype, {
 // Template helpers
 // ---------------------------------------------------------------------------------------------
 patch(OrderReceipt.prototype, {
-    /** "$6.00", "-$20.00": receipt-only USD formatting, no NBSP after the symbol. */
+    /** "$6.00", "$-20.00": receipt-only USD formatting, Odoo's sign order without the NBSP. */
     khUsd(value) {
         const v = Number(value) || 0;
-        const s = stripNb(this.props.formatCurrency(Math.abs(v)));
-        return v < 0 && !floatIsZero(v, 6) ? "-" + s : s;
+        return khMoney(this.props.formatCurrency(floatIsZero(v, 6) ? 0 : v));
     },
     /** Signed order total, whatever the 18.0 build (see khOrderTotal). */
     khTotal() {

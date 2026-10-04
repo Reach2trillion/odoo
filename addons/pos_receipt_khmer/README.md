@@ -1,8 +1,8 @@
 # POS Khmer Bilingual Receipt (ABJ) — `pos_receipt_khmer`
 
 Odoo 18.0 module (LGPL-3, author ABJ SkinCare) that turns the Point of Sale customer receipt and the
-cash in/out slip into a Khmer / English document designed for an 80 mm thermal printer and for the
-browser's print dialog.
+cash in/out slip into a Khmer / English document designed for an 80 mm (default) or 58 mm thermal
+printer and for the browser's print dialog.
 
 ## What it does
 
@@ -22,16 +22,23 @@ browser's print dialog.
   "please pay at the counter" and a NOT PAID stamp. **A change row is never printed on an unpaid
   order or with a negative amount** (the `CHANGE $ -6.00` bug of older 18.0 builds).
 - **Loyalty** points earned / spent / balance in a small bilingual box (paid receipts only; with more
-  than one loyalty program each block is headed by the program's points name).
+  than one loyalty program each block is headed by the program's name).
 - **Cash in/out slip**: `ដាក់ប្រាក់ចូល CASH IN` / `ដកប្រាក់ចេញ CASH OUT` band, amount, reason,
   cashier and date.
+- **58 mm paper** (per point of sale): the same receipt and cash slip in a narrower layout (design
+  spec `design/final58/SPEC58.md`): a 384-dot raster (360 for 180-dpi printers such as the Epson
+  TM-T88 in 58 mm mode) and a 48 mm browser print at 100 % scale.
+- **Amounts** print in Odoo's own sign order without the space after the symbol: `$6.00`,
+  `$-15.72` (what the cashier sees on the payment screen), riel as `-64,452 ៛`.
 - Ships the **Kantumruy Pro** Khmer font (subset, SIL Open Font License 1.1, see
   `static/fonts/OFL.txt`), so Khmer shapes correctly on every device and in the printed image, and
   waits for it before printing.
 
 Only receipts change: the product-screen order list, the ticket screen and the customer display use
 the shared `Orderline` component, which this module does not modify (all receipt markup goes into
-`OrderReceipt`'s own `Orderline` slot and all CSS is scoped to `.pos-receipt.o_kh_receipt`).
+`OrderReceipt`'s own `Orderline` slot and all CSS is scoped to `.pos-receipt.o_kh_receipt`, or to
+the module's own `o_kh_w58` class: the 58 mm print-page rules only match while a 58 mm receipt is
+being printed).
 
 ## Settings
 
@@ -50,6 +57,25 @@ the shared `Orderline` component, which this module does not modify (all receipt
 the receipt, e.g. `ABA KHQR` for "ABA QR Pos". Empty: cash methods print `សាច់ប្រាក់ / Cash`,
 customer-account methods `គណនីអតិថិជន / Customer Account`, others their own name. The label can be
 changed while a POS session is open (the POS picks it up after a reload).
+
+**Point of Sale > Configuration > Settings > (point of sale) > Bills & Receipts > Receipt paper**:
+`80 mm` (default) or `58 mm`, per point of sale.
+
+| Field | Default | Effect |
+|---|---|---|
+| Receipt paper (`pos.config.kh_paper_width`) | 80 mm | 58 mm switches the receipt and the cash in/out slip to the narrow layout. |
+| Print width (dots) (`pos.config.kh_raster_dots`, shown for 58 mm) | 384 | Width of the printed image on 58 mm paper, 360 to 384. 384 for 203-dpi printers (Xprinter, Sunmi, most ESC/POS units, Epson TM-m10 / TM-m30 58 mm); 360 for an Epson TM-T88 in 58 mm mode (180 dpi). A 384-dot image sent to a 360-dot printer is refused or clipped, so update it when a printer is replaced. |
+
+Both can be saved while a session is open (core's "A session is currently opened… Some settings can
+only be changed after the session is closed" banner does not apply to them), but an open POS keeps
+the paper it loaded until it is reloaded: **reload the POS (or close and reopen the session) to
+apply** — the setting's help text says so too.
+
+A warning (non-blocking) is shown when 58 mm is chosen and the company has no thermal receipt logo:
+at 58 mm the print logo is shown at 3/4 scale (150 dots), and the plain company logo prints with
+broken lines. Browser printing on 58 mm needs Chrome 105 or later, the 58 mm roll selected as paper
+size in the OS print settings, "Scale" at Default (100) and no custom margins narrower than 48 mm; do
+one test print: the rule above the total measures 46.4 mm.
 
 **Exchange rate**: there is no new setting. The receipt uses the company's accounting rate
 `l10n_kh_exchange_rate` (module `l10n_kh_tax`) when it is installed and greater than 0 (ABJ: 4,100)
@@ -70,7 +96,9 @@ speckles and thin lines break up, so upload a dedicated print logo:
    is the ABJ print logo and can be used as is.
 2. Settings > Companies > your company > tab **POS Receipt (Khmer)** > **Receipt logo (thermal)** >
    upload the file > Save.
-3. Reload the POS. The receipt prints it 1:1 (200 dots) beside the shop name.
+3. Reload the POS. The receipt prints it 1:1 (200 dots) beside the shop name; on 58 mm paper at
+   3/4 (150 dots) with a lighter threshold, so its 2-dot lines still print 2 dots wide. A shop that
+   only prints 58 mm may upload a 150 px 1-bit logo instead (then shown 1:1 on 58 mm).
 
 Without a print logo the receipt uses the normal company logo at 44 % width with a hard
 black/white threshold; a light or pastel logo (lighter than about 40 % grey) can disappear.
@@ -103,14 +131,15 @@ black/white threshold; a light or pastel logo (lighter than about 40 % grey) can
 | Company settings, `_load_pos_data_fields` (+ `l10n_kh_exchange_rate` only if that field exists) | `models/res_company.py` |
 | Load the KHR currency into the POS | `models/res_currency.py` |
 | Payment-method receipt label (+ loaded into the POS, editable with an open session) | `models/pos_payment_method.py` |
-| Views (company page "POS Receipt (Khmer)", payment-method field) | `views/*.xml` |
+| Receipt paper per point of sale (`kh_paper_width`, `kh_raster_dots` 360-384) and its POS settings fields | `models/pos_config.py`, `models/res_config_settings.py` |
+| Views (company page "POS Receipt (Khmer)", payment-method field, "Receipt paper" setting) | `views/*.xml` |
 | Formatting helpers (riel, phone, web, dates in Asia/Phnom_Penh) | `static/src/js/kh_format.js` |
 | Data patches: `PosStore.getReceiptHeaderData`, `PosOrder.export_for_printing`, `OrderReceipt` helpers, `CashMoveReceipt.khMove` | `static/src/js/receipt_kh.js` |
 | Font readiness (`PosStore._loadFonts`, `PrinterService.print` await the Khmer font) | `static/src/js/font_ready.js` |
-| Template extensions (`ReceiptHeader`, `OrderReceipt`, `CashMoveReceipt`; extension mode, attribute changes and insertions only) | `static/src/xml/receipt_kh.xml` |
-| Receipt stylesheet (em-based: 512 px / 27 px raster and 266 px / 14 px web print) | `static/src/scss/receipt_kh.scss` |
+| Template extensions (`ReceiptHeader`, `OrderReceipt`, `CashMoveReceipt`, `SaleDetailsReport` root attributes; extension mode, attribute changes and insertions only) | `static/src/xml/receipt_kh.xml` |
+| Receipt stylesheet (em-based: 512 px / 27 px raster and 266 px / 14 px web print; then the 58 mm layer under `.o_kh_w58`: 384 or 360 px / 24 px raster and 181 px / 11.5 px web print on the named page `kh-w58`) | `static/src/scss/receipt_kh.scss` |
 | Font + licence, sample print logo | `static/fonts/`, `static/img/` |
-| Tests: POS data loaders, logo flag, label editing, receipt tour | `tests/`, `static/tests/tours/` |
+| Tests: POS data loaders, logo flag, label editing, paper settings and range, receipt tour (formatting helpers, 80 mm root; on 58 mm / 360 dots the receipt, cash slip, Daily Sales report and the no-Khmer-data fallback receipt get `o_kh_w58` and the raster width, and the printed images of the receipt, the fallback and the report are 360 dots wide) | `tests/`, `static/tests/tours/` |
 
 Run the tests with
 `odoo-bin -d <db> -i pos_receipt_khmer --test-tags /pos_receipt_khmer --stop-after-init`.
@@ -144,8 +173,11 @@ not work as written on real Odoo 18.0:
 5. **Line discount condition from display data** — `kh.lines` is built from the exported orderlines
    (`d.discount`, same condition as the core discount `<li>`) instead of indexing
    `getSortedOrderlines()` in parallel, so it can never shift if another module filters the lines.
-6. **Negative amounts in item lines** — core formats a refund line price as `$ -6.00`; the receipt-only
-   orderline strings are normalised to `-$6.00` (spec §8 USD format), not just stripped of the NBSP.
+6. **Negative amounts** — the spec's `-$15.72` (§8) was replaced by Odoo's own sign order without the
+   NBSP, `$-15.72`: it is what the cashier sees on the payment screen, and core tours look for the
+   substring `-15.72` (with `-$15.72` ten core tours failed). `khMoney()` only removes the (narrow)
+   NBSP; a negative amount that rounds to zero prints `$0.00`. The receipt-only orderline strings,
+   pos_sale's down-payment amounts and the cash-slip amount use it too.
 7. **Payment-method label editable with an open session** — core forbids writing any payment-method
    field except `sequence` while a session is open; `kh_receipt_label` is whitelisted
    (`_is_write_forbidden`) because it is purely cosmetic (needed to configure "ABA QR Pos" on a
@@ -179,13 +211,13 @@ not work as written on real Odoo 18.0:
       are literal English text there, and the tax-summary and cash-rounding amounts keep core's
       `$ 6.00` format.
 12. **One USD format on every amount** — the total, payments, change, discounts, cash rounding,
-    "To pay" and tax-summary amounts all print as `$6.00` / `-$15.72` (spec §8), so a refund never
-    mixes `-$15.72` with core's `$ -15.70`. "To Pay" gets a bilingual label; core's English text node
+    "To pay" and tax-summary amounts all print as `$6.00` / `$-15.72` (`khUsd()`), so a refund never
+    mixes the receipt format with core's `$ -15.70`. "To Pay" gets a bilingual label; core's English text node
     cannot be selected, so the CSS grid places it in a 0-high, clipped row.
 13. **Fallback without Khmer data** — if `_khExportForPrinting` throws, `res.kh` and
     `headerData.kh` are removed and the root gets no `o_kh_receipt` class (it is set with
     `t-att-class` from the data), so no receipt CSS applies and the plain core receipt prints with its
-    number, date and loyalty rows.
+    number, date and loyalty rows (on a 58 mm till scaled to the paper, see note 18).
 14. **KHR change rounding** — the cash riel line is rounded to 100 from the exact riel amount
     (`halfUp(exact / 100) × 100`), so the `Rounding` row always adds up, also with a fractional rate
     (4,055.06 × $0.90 = 3,650 → 3,700, `+50`). A change that rounds to 0 riel (e.g. $0.01) prints no
@@ -201,23 +233,88 @@ not work as written on real Odoo 18.0:
     weight with `$1,800.00` amounts.
 17. **Quantities** keep the locale they were formatted in: trailing zeros are trimmed after the
     locale's decimal point (`1,000.00` → `1,000`, `1.000,00` → `1.000`).
-18. **Font subset** — the bundled woff2 contains every code point of Kantumruy Pro 1.002 (363:
+18. **58 mm paper (SPEC58)** — implemented as specified: `pos.config` fields + POS settings
+    (Bills & Receipts), `khPaper()` keys `paper` / `raster_w` in `res.kh` and in the header data
+    (cash slip), root class `o_kh_w58` and `--kh-raster-w` on the `OrderReceipt` and
+    `CashMoveReceipt` roots (no `style` attribute on 80 mm), the design layer and the paper-context
+    rules appended to the stylesheet (the four `max(2px, …em)` values wrapped as in note 1; `var()`,
+    `calc()` and `@page kh-w58` compile unchanged), the WORD JOINER after each hyphen of the Tax ID.
+    Differences:
+    - **No NBSP in static template text.** OWL's template compiler collapses every whitespace run of
+      a static text node to one plain space, NBSP included (JS `\s`), so the spec's
+      `Please&#160;come&#160;again` rendered as plain spaces (the 58 mm sign-off then broke as
+      "… / Please come" + "again"). The English halves are wrapped in `span.kh-nw` (nowrap)
+      instead, which gives the same single break after " / ". The same applies to the existing
+      `&#160;` before `៛`: the rate value and the riel rounding amount are now `kh-nw` groups
+      (the KHR total and change were already nowrap). Nothing changes on 80 mm.
+    - **Label / value rows are two floats**, not the grid: the meta rows after the number (date,
+      cashier, customer), the cash-slip rows after the amount (reason, cashier, date) and the loyalty
+      rows. The label never wraps; the value stays beside it when it fits and otherwise moves whole to
+      its own line, right-aligned like the number row. In the grid, a value (or a loyalty label) that
+      wrapped by less than 0.7 % printed a blank line in the image (see Known limits); the float
+      decision only depends on box widths, which html-to-image copies. A loyalty figure that does not
+      fit beside its label therefore prints under it (`សមតុល្យពិន្ទុ / Points balance`, then `102,580`
+      right-aligned), no longer as "សមតុល្យពិន្ទុ /" + "Points balance" beside the figure. The English
+      halves keep their `kh-nw` spans (now redundant: the whole label is nowrap).
+    - **AMOUNT DUE**: the letter-spaced English tag spans the whole total row (it is wider than
+      column 1 next to a total from about $1,000; the KHR figure is end-aligned in the same row).
+    - **Module-only blocks** that the mock-up did not have get the 58 mm secondary size (0.835em, 20
+      dots): the order's general note and the loyalty program name.
+    - The settings flag for the logo warning is `kh_pos_has_receipt_logo` (spec:
+      `pos_kh_has_receipt_logo`): `res.config.settings.create()` copies every `pos_*` value to the
+      `pos.config` field of the same name, which does not exist for this one.
+    - `pos.config._load_pos_data_fields` adds the two fields only if another module restricted the
+      list (core loads every `pos.config` field).
+    - **Optional SPEC58 §4.4 included**: core's Daily Sales report gets `o_kh_w58` and the raster
+      width on its root on a 58 mm till and is scaled (font-size = width × 27 / 512), not reflowed.
+      The same rule scales the plain core receipt printed when the Khmer data cannot be built
+      (note 13): on a 58 mm till that receipt keeps `o_kh_w58` and the raster width (`kh_paper`),
+      so the printer never gets a 512-dot image. In browser print that root (`pos-receipt o_kh_w58`
+      without `o_kh_receipt`) is scaled the same way, to 181px with a 9.526px root (core's
+      266px / 14px proportions), on the `kh-w58` page, instead of core's 266px that Chrome would
+      shrink by about 68 %.
+19. **Font subset** — the bundled woff2 contains every code point of Kantumruy Pro 1.002 (363:
     ASCII, all of Latin-1 Supplement, Œ œ ı, punctuation, ™, arrows, combining accents, Khmer),
     74 KB. The font has no Latin Extended-A/B (e.g. Vietnamese ă đ ư): such letters fall back to the
     device's sans-serif.
 
 Known limits (from the spec's risk list, still true):
 
-- **Core tours that assert core's negative amount format fail with the module installed** (expected:
-  the spec's `-$15.72` format is deliberate and now used by every amount). They look for
-  `.receipt-total:contains("-15.72")`, `.receipt-rounding:contains("-0.02")` or `("-10.00")`, which
-  `-$15.72` / `-$0.02` do not contain: 9 `point_of_sale` `TestPosCashRounding` tours
-  (`test_cash_rounding_{down,halfup,up}_add_invoice_line_*` x 7, `test_cash_rounding_with_change`,
-  `test_cash_rounding_only_cash_method_with_change`) and `TestUi.test_refund_backend_duplicate`.
-  Checked on a fresh database: every other `point_of_sale` `TestUi` / `TestPosCashRounding`, `pos_hr`,
-  `pos_loyalty` `TestUi`, `pos_sale` and `pos_discount` UI test passes (257 of 267, with this module's
-  5). The core `Served by` line stays in the DOM as a 1 px, ink-free strip so pos_hr's
-  `.pos-receipt-contact .cashier:contains(Served by)` check still sees it.
+- **Core tours**: checked on a fresh database with this module installed, every `point_of_sale`
+  `TestUi` / `TestPosCashRounding`, `pos_hr`, `pos_loyalty` `TestUi`, `pos_sale` and `pos_discount` UI
+  test passes, with this module's own 7 tests (0 failed of 269). The core `Served by` line stays in
+  the DOM as a 1 px, ink-free strip so pos_hr's `.pos-receipt-contact .cashier:contains(Served by)`
+  check still sees it.
+- **A blank line under a wrapped text, at the wrap boundary** (raster print and e-mail image only).
+  Odoo's html-to-image clone re-lays every text at `floor(px) − 0.1` (0.3 to 0.7 % smaller at the
+  receipt's sizes) inside the boxes measured on the live receipt. A text that wraps by less than that
+  in the live layout takes fewer lines in the image, and the line it wrapped onto prints blank;
+  nothing is clipped. Measured with html-to-image's own clone (`toSvg`) on 367 names (the 57 demo
+  partners and 310 Cambodian names), 448 points figures of 1 to 7 digits, 200 KHQR transaction IDs
+  and the 88 demo products:
+  - 58 mm label / value rows: with a grid they printed a blank line for 1–5 % of the values (customer
+    and cashier names, e.g. "Gemini Furniture" at 360 dots and "Chantha Vuthy Mao" at 384; the
+    cash-slip reason "Float for the morning" at 384; loyalty labels next to up to 4 % of the figures,
+    e.g. a balance of 10,000 at 360). With the float layout of note 18: **0 cases** at 360
+    and 384 dots. A value longer than a whole line (about 30 characters) still wraps inside itself
+    and can still meet the boundary.
+  - 80 mm (unchanged): customer, cashier, reason, rate and loyalty rows 0 cases; the KHQR
+    transaction line 1 of 200 IDs (on 58 mm it always takes two lines: 0); product names 3 of the 88
+    demo products (e.g. "Conference Chair (Aluminium)"; 58 mm: 0). Notes and loyalty program names
+    can meet it too.
+- **58 mm** (SPEC58 §8): web print relies on `:has()` and named pages (Chrome 105+); the 360 / 384
+  setting is per point of sale and needs a POS reload; above $9,999.99 (360 dots) or $99,999.99 (384) the unpaid
+  `ប្រាក់ត្រូវបង់` label wraps (one line more, nothing clipped); a loyalty figure that does not fit
+  beside its label prints on its own line under it (one line more): at 360 dots a balance or gain
+  from 5 digits (about half of those from 10,000, every one from 100,000) and points spent from 7
+  digits, at 384 dots balances and gains from 7 digits (1,000,000); without the thermal print logo the
+  company logo prints with broken lines (settings warning). The receipt-screen preview uses the 58 mm
+  layer at the screen's width (it is not narrowed to the paper).
+- **80 mm items found by the 58 mm review (SPEC58 §7), not applied** so the approved 80 mm receipts
+  stay unchanged: the print logo is drawn at 211 dots instead of 200 (the
+  `:not(#posqrcode)` specificity), pos_loyalty's coupon text prints at 75 %, the tax-summary rule is
+  1 dot, the KHR change line has line-height 1.3, and 80 mm web print is shrunk by Chrome to about
+  88 % on a 72 mm printable width (fixable like the 58 mm named page).
 - Core blocks the module does not translate keep Odoo's own words: the tax summary (`Untaxed
   Amount`, the tax group names, `on`; not used by ABJ, which has no taxes), pos_sale's `(tax incl.)`,
   pos_loyalty's coupon-code block and the terminal slips.

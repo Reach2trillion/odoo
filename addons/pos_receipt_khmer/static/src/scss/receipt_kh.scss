@@ -337,3 +337,223 @@
   .render-container .pos-receipt.o_kh_receipt .kh-loyalty,
   .render-container .pos-receipt.o_kh_receipt .kh-signoff { break-inside: avoid; }
 }
+
+/* ==========================================================================
+   ABJ SkinCare receipt - 58 mm paper layer (append AFTER the 80 mm rules)
+   Root modifier: o_kh_w58 on .pos-receipt.o_kh_receipt (OrderReceipt and CashMoveReceipt).
+   Every rule is scoped under .pos-receipt.o_kh_receipt.o_kh_w58, one class more specific than
+   the 80 mm rule it overrides; !important only where the 80 mm rule has it.
+   Root font: 24px on the raster (384 dots; 360 on Epson TM-T88 58 mm), 11.5px in web print (181px).
+   Width budget: 15em at 360 dots (the binding case), 15.74em in web print, 16em at 384 dots.
+   em values sit just above an integer px at 24px (html-to-image clone: floor(px) - 0.1):
+     0.7919em = 19.006px -> 18.9   0.835em = 20.04px -> 19.9    0.8755em = 21.012px -> 20.9
+     1em = 24px -> 23.9            1.0837em = 26.009px -> 25.9  1.167em = 28.008px -> 27.9
+     1.6253em = 39.007px -> 38.9
+   Floors: Khmer >= 20 dots, Latin-only >= 19 dots, weight >= 500, #000 only, rules >= 2 dots.
+   ========================================================================== */
+
+/* ---------- 0. rule weights ---------------------------------------------
+   Chrome floors border widths to whole pixels: the 80 mm 0.08em is 1.92px at 24px -> a 1-dot rule.
+   Re-based on 24px:  0.084em = 2.016px -> 2 dots (web 0.97px -> 1px)
+                      max(2px, 0.1252em) = 3.005px -> 3 dots (web 2px)
+                      max(2px, 0.1667em) = 4.0008px -> 4 dots (web 2px)   (= the 80 mm dots) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .order-container { border-top-width: 0.084em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-taxes > .text-center { border-top-width: 0.1em; }        /* inside a 0.835em block: 2.004px */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-pay-head { border-top-width: 0.084em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty { border-width: 0.084em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-coupon-rewards > div:first-child { border-top-width: 0.1em; }    /* inside a 0.835em block */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-orn { border-top-width: 0.084em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band { border-top-width: #{'max(2px, 0.1252em)'}; border-bottom-width: #{'max(2px, 0.1252em)'}; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band.kh-band--due,
+.pos-receipt.o_kh_receipt.o_kh_w58.o_kh_unpaid .receipt-total { border-width: #{'max(2px, 0.1252em)'}; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-stamp { border-width: #{'max(2px, 0.143em)'}; }                       /* own font 0.8755em: 3.005px */
+.pos-receipt.o_kh_receipt.o_kh_w58 > .text-center { border-top-width: #{'max(2px, 0.1667em)'}; }        /* rule above the total */
+
+/* ---------- 1. root: the raster is already the printable width, keep only a hairline gutter */
+.pos-receipt.o_kh_receipt.o_kh_w58 { padding: 0.15em 0.25em 0.3em !important; }
+
+/* ---------- 2. hidden core nodes: unchanged (the 80 mm hide list applies as is) */
+
+/* ---------- 3. header: letterhead kept, logo at 3/4 (150 dots) beside the identity ------
+   150 dots = 4:3 of the 200-dot print logo at an integer offset. The threshold is raised from luma ~106
+   (80 mm) to ~212: a dot that is >= ~17 % covered by ink prints black, so the 2-dot hairlines, which
+   are 1.5 dots after the 4:3 resample, land on 2 dots instead of 1 (measured on the thermal output:
+   B bars 2/2/2, drop hairline >= 2, J hook 3-4). A 150-px 1-bit upload is shown 1:1 by the same rule. */
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-logo:not(#posqrcode) { width: 42% !important; margin: 0 0.3em 0.1em -0.15em !important; }
+/* :not(#posqrcode) is required: the 80 mm logo rule carries it (specificity 1,3,0) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-logo.kh-logo-print:not(#posqrcode) { width: 6.25em !important; margin: 0.1em 0.45em 0.1em 0 !important; filter: grayscale(1) brightness(0.6) contrast(50); }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-brand { padding-top: 0; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-brand-km { font-size: 1.167em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-brand-en { font-size: 0.8755em; letter-spacing: 0.08em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-brand-addr { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-contact { font-size: 0.835em; padding-top: 0.2em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-contact > div[style*="pre-line"] { font-size: 0.835em; }
+
+/* ---------- 4. band ------------------------------------------------------ */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band { margin-top: 0.35em; padding: 0 0.3em 0.05em; column-gap: 0.4em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band-km { font-size: 1.167em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band-en { letter-spacing: 0.14em; margin-right: -0.14em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band.kh-band--due { padding: 0.05em 0.3em 0.15em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band--due .kh-band-en { font-size: 0.835em; letter-spacing: 0.08em; margin-right: -0.08em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-band-note { font-size: 0.835em; }
+
+/* ---------- 5. label / value rows ---------------------------------------- */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-meta { margin-top: 0.25em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-row { font-size: 0.835em; column-gap: 0.4em; }
+/* number row: "លេខវិក្កយបត្រ / Invoice No." (232 dots) + "00030-001-0003" (163) > 348: value on its own line */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-doc .kh-meta > .kh-row:first-child { grid-template-columns: minmax(0, 1fr); }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-doc .kh-meta > .kh-row:first-child > b { justify-self: end; }
+/* The other meta rows (receipt: date, cashier, customer; cash slip: reason, cashier, date) and the loyalty
+   rows: two floats instead of the grid. html-to-image redraws text at floor(px) - 0.1 (20.04px -> 19.9px)
+   inside the boxes measured on the live receipt, so a grid cell whose text wraps by less than 0.7 % live
+   holds one line in the image and the line under it prints blank. With the grid this hit 1-5 % of customer
+   and cashier names (e.g. "Gemini Furniture" at 360 dots, "Chantha Vuthy Mao" at 384), the reason "Float for
+   the morning" at 384, and loyalty labels next to some 4- to 7-digit figures (e.g. balance 10,464 at 360).
+   Here the label never wraps and the value is a right float: it stays beside the label when it fits, else
+   it moves whole to its own line, right-aligned like the number row. That choice only depends on box widths,
+   which the image copies, so both agree; a value only wraps inside itself when it is longer than the whole
+   line (about 30 characters). Label and value have the same font size and line-height: same baseline. */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-meta > .kh-row:not(:first-child),
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty .kh-row { display: flow-root; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-meta > .kh-row:not(:first-child) > span,
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty .kh-row > span { float: left; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-meta > .kh-row:not(:first-child) > b,
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty .kh-row > b { float: right; margin-left: 0.4em; }
+/* a free-text value longer than the line still wraps inside the float (points figures stay nowrap) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-meta > .kh-row:not(:first-child) > b { overflow-wrap: anywhere; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-row.kh-row--big { font-size: 1em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-row.kh-row--big > b { font-size: 1.0837em; }
+
+/* ---------- 6. item lines ------------------------------------------------ */
+.pos-receipt.o_kh_receipt.o_kh_w58 .order-container { margin-top: 0.35em; padding: 0.25em 0 0 !important; gap: 0.3em !important; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .orderline.orderline-combo { margin-left: 0.75em !important; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .orderline .product-name { padding-right: 0.5em !important; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .orderline .info-list { font-size: 0.835em; }
+
+/* ---------- 7. total ----------------------------------------------------- */
+.pos-receipt.o_kh_receipt.o_kh_w58 > .text-center { margin: 0.4em 0 0.15em; }
+.pos-receipt.o_kh_receipt.o_kh_w58.o_kh_unpaid > .text-center { margin: 0.4em 0 0; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-taxes { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-total > .kh-lbl-km { font-size: 1.0837em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-total > .pos-receipt-right-align { font-size: 1.6253em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-total > .kh-lbl-en,
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .kh-lbl-en { font-size: 0.7919em; letter-spacing: 0.2em; }
+/* the letter-spaced "AMOUNT DUE" (163 dots) is wider than column 1 next to a total from about $1,000: give it
+   the whole row (the KHR figure is end-aligned in column 2 of the same row; $9,000.00 at 360 dots: 90 dots apart) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-total > .kh-lbl-en { grid-column: 1 / -1; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-total > .kh-amt-khr,
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .kh-amt-khr { font-size: 0.8755em; }
+/* the change KHR line holds the Khmer "ឬ / or": Khmer line-height (80 mm sheet: 1.3) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .kh-amt-khr { line-height: 1.5; }
+.pos-receipt.o_kh_receipt.o_kh_w58.o_kh_unpaid .receipt-total { padding: 0.05em 0.35em 0.15em; }
+
+/* ---------- 8. payments, change, discounts ------------------------------- */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-pay-head { margin: 0.35em 0 0.1em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .paymentlines > .kh-txn { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change { margin-top: 0.25em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .pos-receipt-right-align { font-size: 1.0837em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change .kh-or { font-size: 0.9538em; }            /* = 0.835em of root */
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .kh-round { font-size: 0.835em; column-gap: 0.4em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 > .receipt-total ~ .text-center { font-size: 0.835em; margin: 0.25em 0 0; }   /* discounts row (after the rule override above) */
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-rounding,
+.pos-receipt.o_kh_receipt.o_kh_w58 .receipt-to-pay { font-size: 0.835em; }
+
+/* ---------- 9. loyalty (rows: floats, see 5) ------------------------------ */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty { padding: 0.05em 0.4em 0.1em; margin-top: 0.5em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-coupon-rewards { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-coupon-rewards .coupon-container { font-size: 1em; }   /* core 75% would be 15 dots */
+
+/* ---------- 10. footer text, sign-off, unpaid stamp ---------------------- */
+.pos-receipt.o_kh_receipt.o_kh_w58 > .pos-receipt-center-align { font-size: 0.835em; margin-top: 0.5em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-signoff { margin-top: 0.5em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-orn { width: 2em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-thanks { column-gap: 0.4em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-thanks-km { font-size: 1.0837em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-thanks-en { font-size: 0.7919em; letter-spacing: 0.2em; margin-right: -0.2em; }
+/* "Khmer / English" sentence: always two lines (Khmer + "/", then the English half in span.kh-nw, nowrap).
+   16.75em of 20.04px = 336 dots: narrower than the whole sentence (>= 372 dots) at every width,
+   so live layout and the html-to-image clone can never disagree about the break. */
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-again { font-size: 0.835em; max-width: 16.75em; margin: 0 auto; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-stamp { font-size: 0.8755em; margin-top: 0.3em; padding: 0 0.4em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .after-footer { font-size: 0.835em; }
+
+/* ---------- 11. self-invoice QR, shipping date (core .pos-receipt-order-data blocks) ----
+   Core: .pos-receipt .pos-receipt-order-data { font-size: 75% } (0,2,0) = 18 dots at 24px, under the
+   19-dot Latin floor ("Need an invoice for your purchase ?", "Expected delivery:"). Every such block is
+   a child of the root or of a plain root-level <div>, so 0.835em = 20.04px. The hidden ones (:empty,
+   :has(> #order-date), cash slip) keep their display:none !important. */
+.pos-receipt.o_kh_receipt.o_kh_w58 .pos-receipt-order-data { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 #posqrcode { width: 50% !important; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .unique-code,
+.pos-receipt.o_kh_receipt.o_kh_w58 .portal-url { font-size: 0.835em !important; }
+
+/* ---------- 12. cash in / out slip --------------------------------------- */
+.pos-receipt.o_kh_receipt.o_kh_w58.o_kh_cashmove .kh-meta { margin-top: 0.3em; }
+
+/* ---------- 13. module-only blocks (not in the design mock-up) ---------------
+   The order's general note (with its Khmer "សម្គាល់ / Note" heading) and the loyalty program name are
+   0.815em on 80 mm, i.e. 19.56px at 24px: under the 20-dot Khmer floor. Same secondary size as the rest. */
+.pos-receipt.o_kh_receipt.o_kh_w58 .order-container > div:has(> b.fw-bolder:first-child) { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .kh-loyalty .kh-loy-name { font-size: 0.835em; }
+
+/* ---------- 58 mm paper context (append after final58.css) ------------------
+   Raster (Epson ePOS / IoT / e-mail image). Core: .pos-receipt-print { width: 512px; font-size: 27px }
+   (specificity 0,1,0, not !important). 384 dots = 48 mm at 203 dpi (Xprinter, Sunmi, most ESC/POS
+   58 mm units, Epson TM-m10/TM-m30 58 mm). Epson TM-T88 in 58 mm mode is 180 dpi and prints 360 dots:
+   the template then sets style="--kh-raster-w: 360px" on the receipt root (pos.config.kh_raster_dots).
+   html-to-image sizes the canvas from el.clientWidth, so the raster is exactly this many dots. */
+.pos-receipt-print.o_kh_receipt.o_kh_w58 {
+  width: var(--kh-raster-w, 384px) !important;
+  font-size: 24px !important;
+}
+/* Web print (window.print: ABJ's current path, and the fallback after a failed raster print).
+   Core 18.0 (receipt_screen.scss) prints the receipt inside
+     @page { padding: 15px }        Chrome (>= 131) honours it: the page content box is 30px narrower
+     .render-container { position: absolute !important; top: 10px; left: 10px }
+     .render-container .pos-receipt { width: 266px !important; font-size: 14px !important;
+                                      margin: 0 !important; margin-left: auto !important; margin-right: auto !important }  (0,2,0)
+   so on a 48 mm printable width (181.4px) a 181px receipt needs 15 + 10 + 181 + 15 px and Chrome shrinks it
+   to about 80 % (11.5px root = 3.0 mm -> 2.4 mm; secondary text 2.0 mm, under the 20-dot floor; measured in
+   design/final58/lab/webprint/report.txt).
+   1. Size: 181 CSS px = 47.9 mm at 96 px/in; 11.5px root = 3.0 mm, the physical size of 24 dots at 203 dpi.
+      (0,4,0) !important beats core's (0,2,0) !important whatever the bundle order.
+   2. Page: while a 58 mm receipt sits in the render container, the body prints on the named page kh-w58,
+      which has no page margin (the "Default" margins follow it) and no page padding.
+   3. Position: the render container and its absolute parent are stretched to the page, so core's auto
+      margins centre the receipt: it fills a 48 mm page and sits 5 mm from each edge of a 58 mm page,
+      i.e. inside the printable 48 mm either way. Core's 10px top offset is kept (2.6 mm of feed).
+   The :has() rules match only in print media and only while a 58 mm receipt is being printed. */
+@page kh-w58 { margin: 0; padding: 0; }
+@media print {
+  .render-container .pos-receipt.o_kh_receipt.o_kh_w58 {
+    width: 181px !important;
+    font-size: 11.5px !important;
+  }
+  /* the plain core receipt printed when the Khmer data could not be built (root "pos-receipt o_kh_w58",
+     without o_kh_receipt; also the Daily Sales report root): core's 266px / 14px web print scaled to the
+     same 181px (14 x 181 / 266 = 9.526px), on the same page, instead of Chrome shrinking a 266px receipt */
+  .render-container .pos-receipt.o_kh_w58:not(.o_kh_receipt) {
+    width: 181px !important;
+    font-size: 9.526px !important;
+  }
+  body:has(.render-container > .pos-receipt.o_kh_w58) { page: kh-w58; }
+  .o-main-components-container:has(.render-container > .pos-receipt.o_kh_w58),
+  .render-container:has(> .pos-receipt.o_kh_w58) { left: 0; right: 0; }
+}
+
+/* ---------- core "Daily sales" report (and the plain core receipt) on a 58 mm ePOS / IoT printer ------
+   Also matches the order receipt when its Khmer data could not be built (root without o_kh_receipt, see
+   receipt_kh.xml): the core receipt is then scaled the same way, never sent as a 512-dot image. */
+/* (SPEC58 4.4, optional part, included)
+   point_of_sale.SaleDetailsReport (root div.pos-receipt, no o_kh_receipt) is printed from the closing popup
+   and the navbar only when hardwareProxy.printer exists, through printReceipt -> htmlToCanvas, i.e. as a
+   512-dot image that a 384- or 360-dot printer refuses or clips. Browser printing never prints it (the
+   closing popup's "Daily Sale" button downloads the A4 PDF instead).
+   Template: one attribute xpath on its root adds o_kh_w58 and --kh-raster-w from pos.config (SPEC58 4.4).
+   The report is scaled, not reflowed: font-size = raster width x 27/512 keeps core's 80 mm proportions
+   (18.96em wide), so nothing wraps or overflows that did not at 80 mm. 384 dots -> 20.25px, 360 -> 18.98px.
+   Not a customer document: its 75 % lines print at 15 / 14 dots (80 mm: 20). */
+.pos-receipt.pos-receipt-print.o_kh_w58:not(.o_kh_receipt) {
+  width: var(--kh-raster-w, 384px) !important;
+  font-size: calc(var(--kh-raster-w, 384px) * 27 / 512) !important;
+}

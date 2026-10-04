@@ -1,6 +1,6 @@
 import base64
 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.misc import file_open
 from odoo.tests import tagged
 
@@ -72,6 +72,43 @@ class TestPosReceiptKhmer(TestPointOfSaleHttpCommon):
         labels = {pm['id']: pm['kh_receipt_label'] for pm in data['pos.payment.method']['data']}
         if self.label_pm:
             self.assertEqual(labels.get(self.label_pm.id), 'ABA KHQR')
+
+    def test_paper_width_settings(self):
+        """80 mm by default; 58 mm and its raster width are set from the POS settings and loaded."""
+        config = self.main_pos_config
+        self.assertEqual(config.kh_paper_width, '80')
+        self.assertEqual(config.kh_raster_dots, 384)
+        self.env['res.config.settings'].create({
+            'pos_config_id': config.id,
+            'pos_kh_paper_width': '58',
+            'pos_kh_raster_dots': 360,
+        })
+        self.assertEqual(config.kh_paper_width, '58')
+        self.assertEqual(config.kh_raster_dots, 360)
+        settings = self.env['res.config.settings'].create({'pos_config_id': config.id})
+        self.assertEqual(settings.pos_kh_paper_width, '58')
+        self.assertFalse(settings.kh_pos_has_receipt_logo)
+        with file_open('pos_receipt_khmer/static/img/abj_logo_print.png', 'rb') as f:
+            self.company.kh_receipt_logo = base64.b64encode(f.read())
+        settings.invalidate_recordset(['kh_pos_has_receipt_logo'])
+        self.assertTrue(settings.kh_pos_has_receipt_logo)
+        # the setting is in the POS settings form
+        arch = self.env['res.config.settings'].get_views([(False, 'form')])['views']['form']['arch']
+        self.assertIn('pos_kh_paper_width', arch)
+        self.assertIn('pos_kh_raster_dots', arch)
+
+        data = self._load_data()
+        loaded = data['pos.config']['data'][0]
+        self.assertEqual(loaded['kh_paper_width'], '58')
+        self.assertEqual(loaded['kh_raster_dots'], 360)
+
+    def test_raster_dots_range(self):
+        config = self.main_pos_config
+        for dots in (360, 384):
+            config.kh_raster_dots = dots
+        for dots in (0, 359, 385, 512):
+            with self.assertRaises(ValidationError):
+                config.kh_raster_dots = dots
 
     def test_inactive_khr_is_not_loaded(self):
         self.khr.active = False

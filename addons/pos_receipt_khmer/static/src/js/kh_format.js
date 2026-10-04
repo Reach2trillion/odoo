@@ -11,9 +11,19 @@ export const clean = (x) => Math.round(x * 1e6) / 1e6;
 export const fmtInt = (n) => halfUp(n).toLocaleString("en-US");
 /** Remove the (narrow) no-break spaces that formatCurrency puts after "$": "$ 6.00" -> "$6.00". */
 export const stripNb = (s) => (typeof s === "string" ? s.replace(/[  ]/g, "") : s);
-/** Receipt money string: no NBSP and the minus before the symbol ("$ -6.00" -> "-$6.00"). */
-export const khMoney = (s) =>
-    typeof s === "string" ? stripNb(s).replace(/^([^\d\s.,-]+)-(?=\d)/, "-$1") : s;
+/**
+ * Receipt money string: Odoo's own sign order, without the NBSP after the symbol
+ * ("$ 6.00" -> "$6.00", "$ -15.72" -> "$-15.72": what the cashier sees on the payment screen and
+ * what core tours look for, "-15.72"). A negative amount that rounds to zero loses its minus
+ * ("$ -0.00" -> "$0.00").
+ */
+export const khMoney = (s) => {
+    if (typeof s !== "string") {
+        return s;
+    }
+    s = stripNb(s);
+    return /\d/.test(s) && !/[1-9]/.test(s) ? s.replace(/-(?=[\d.,])/, "") : s;
+};
 
 /**
  * KHR per unit of the POS currency, or 0 (= no KHR on the receipt).
@@ -136,4 +146,13 @@ export function khNumber(name, prefixes = []) {
         }
     }
     return name;
+}
+
+/**
+ * Receipt paper of a pos.config: { paper: "80" | "58", raster_w: 0 on 80 mm, else the 58 mm raster
+ * width in dots (pos.config.kh_raster_dots, 360-384; 384 when unset) }.
+ */
+export function khPaper(config) {
+    const paper = config?.kh_paper_width === "58" ? "58" : "80";
+    return { paper, raster_w: paper === "58" ? config.kh_raster_dots || 384 : 0 };
 }

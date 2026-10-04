@@ -10,6 +10,9 @@
     resolves to the real node when it exists (it comes first in document order) and otherwise to
     span.kh-xp-sink, a node inside <t t-if="false"> appended at the end of the receipt, where the
     change is harmless and never rendered.
+    No &#160; in static text: OWL's template compiler turns every whitespace run of a static text
+    node into one plain space, NBSP included (JS \s). Groups that must not break are wrapped in
+    span.kh-nw (white-space: nowrap); NBSP and WORD JOINER only survive in t-esc data.
 -->
 <templates id="template" xml:space="preserve">
 
@@ -43,9 +46,13 @@
         <t t-if="false"><span class="kh-xp-sink"/></t>
     </xpath>
     <!-- root classes only when the Khmer data exists: if it could not be built, no receipt CSS
-         applies and the core receipt prints unchanged -->
+         applies and the core receipt prints unchanged. 58 mm paper (pos.config.kh_paper_width): the
+         o_kh_w58 layer, and the raster width in dots as a custom property (no style attribute on 80 mm).
+         Without the Khmer data, kh_paper still carries the paper: the core receipt is then only scaled
+         to the 58 mm raster width (o_kh_w58 without o_kh_receipt, see the stylesheet). -->
     <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
-        <attribute name="t-att-class">{'o_kh_receipt': props.data.kh, 'o_kh_unpaid': props.data.kh?.unpaid}</attribute>
+        <attribute name="t-att-class">{'o_kh_receipt': props.data.kh, 'o_kh_unpaid': props.data.kh?.unpaid, 'o_kh_w58': (props.data.kh or props.data.kh_paper)?.paper === '58'}</attribute>
+        <attribute name="t-att-style">(props.data.kh or props.data.kh_paper)?.raster_w ? '--kh-raster-w:' + (props.data.kh or props.data.kh_paper).raster_w + 'px' : false</attribute>
     </xpath>
     <!-- the total is the first div.pos-receipt-amount on every 18.0 build; core only added the
          receipt-total class in Nov 2024 (8fb7e5fd), so add it (once) for the anchors and CSS below -->
@@ -81,7 +88,8 @@
         <span class="kh-note-lbl" t-translation="off">សម្គាល់ / Note · </span>
     </xpath>
     <!-- amounts: receipt-only USD formatter (attribute change only; the spans stay as anchors).
-         Every amount span gets it, so a refund prints "-$15.72" everywhere, never "$ -15.70". -->
+         Every amount span gets it, so a refund prints "$-15.72" (Odoo's sign order, no NBSP)
+         everywhere, never "$ -15.72". -->
     <xpath expr="//div[hasclass('receipt-total')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
         <attribute name="t-esc">khUsd(khTotal())</attribute>
     </xpath>
@@ -121,10 +129,10 @@
     </xpath>
     <!-- KHR total + rate -->
     <xpath expr="//div[hasclass('receipt-total')]" position="inside">
-        <span t-if="props.data.kh?.total_khr" class="kh-amt-khr" t-translation="off"><t t-esc="props.data.kh.total_khr"/>&#160;<span class="kh-riel">៛</span></span>
+        <span t-if="props.data.kh?.total_khr" class="kh-amt-khr" t-translation="off"><t t-esc="props.data.kh.total_khr"/> <span class="kh-riel">៛</span></span>
     </xpath>
     <xpath expr="//div[hasclass('receipt-total')]" position="after">
-        <div t-if="props.data.kh?.rate_text" class="kh-row kh-rate" t-translation="off"><span>អត្រាប្តូរប្រាក់ / Rate</span><b>1 <t t-esc="props.data.kh.rate_from"/> = <t t-esc="props.data.kh.rate_text"/>&#160;<span class="kh-riel">៛</span></b></div>
+        <div t-if="props.data.kh?.rate_text" class="kh-row kh-rate" t-translation="off"><span>អត្រាប្តូរប្រាក់ / Rate</span><b>1 <t t-esc="props.data.kh.rate_from"/> = <span class="kh-nw"><t t-esc="props.data.kh.rate_text"/> <span class="kh-riel">៛</span></span></b></div>
     </xpath>
     <!-- payments -->
     <xpath expr="//div[hasclass('paymentlines')]" position="before">
@@ -137,18 +145,19 @@
         <div t-if="props.data.kh?.due" class="kh-row" t-translation="off"><span>ប្រាក់នៅខ្វះ / Balance due</span><b t-esc="khUsd(props.data.kh.due)"/></div>
     </xpath>
     <xpath expr="//div[hasclass('receipt-change')]" position="inside">
-        <span t-if="props.data.kh?.change_khr" class="kh-amt-khr" t-translation="off"><span class="kh-or">ឬ / or</span><t t-esc="props.data.kh.change_khr"/>&#160;<span class="kh-riel">៛</span></span>
-        <span t-if="props.data.kh?.change_round" class="kh-round" t-translation="off"><span>ការបង្គត់ / Rounding</span><b><t t-esc="props.data.kh.change_round"/>&#160;<span class="kh-riel">៛</span></b></span>
+        <span t-if="props.data.kh?.change_khr" class="kh-amt-khr" t-translation="off"><span class="kh-or">ឬ / or</span><t t-esc="props.data.kh.change_khr"/> <span class="kh-riel">៛</span></span>
+        <span t-if="props.data.kh?.change_round" class="kh-round" t-translation="off"><span>ការបង្គត់ / Rounding</span><b class="kh-nw"><t t-esc="props.data.kh.change_round"/> <span class="kh-riel">៛</span></b></span>
     </xpath>
     <!-- loyalty: after pos_loyalty's own content (we depend on pos_loyalty) -->
     <xpath expr="//div[hasclass('before-footer')]" position="inside">
         <div t-if="props.data.kh?.loyalty?.length" class="kh-loyalty" t-translation="off">
             <t t-foreach="props.data.kh.loyalty" t-as="ls" t-key="ls_index">
-                <!-- the program's points name only when there is more than one program -->
+                <!-- the program's name only when there is more than one program. A label never wraps
+                     (on 58 mm a figure that does not fit beside it moves to its own line) -->
                 <div t-if="props.data.kh.loyalty.length > 1 and ls.name" class="kh-loy-name" t-esc="ls.name"/>
-                <div t-if="ls.won" class="kh-row"><span>ពិន្ទុទទួលបាន / Points earned</span><b t-esc="ls.won"/></div>
-                <div t-if="ls.spent" class="kh-row"><span>ពិន្ទុបានប្រើ / Points spent</span><b t-esc="ls.spent"/></div>
-                <div t-if="ls.balance" class="kh-row"><span>សមតុល្យពិន្ទុ / Points balance</span><b t-esc="ls.balance"/></div>
+                <div t-if="ls.won" class="kh-row"><span>ពិន្ទុទទួលបាន / <span class="kh-nw">Points earned</span></span><b t-esc="ls.won"/></div>
+                <div t-if="ls.spent" class="kh-row"><span>ពិន្ទុបានប្រើ / <span class="kh-nw">Points spent</span></span><b t-esc="ls.spent"/></div>
+                <div t-if="ls.balance" class="kh-row"><span>សមតុល្យពិន្ទុ / <span class="kh-nw">Points balance</span></span><b t-esc="ls.balance"/></div>
             </t>
         </div>
     </xpath>
@@ -158,10 +167,11 @@
             <div class="kh-orn"/>
             <t t-if="!props.data.kh.unpaid">
                 <div class="kh-thanks"><span class="kh-thanks-km">សូមអរគុណ</span><span class="kh-thanks-en">THANK YOU</span></div>
-                <div class="kh-again">សូម&#8203;អញ្ជើញ&#8203;មក&#8203;ម្តង&#8203;ទៀត / Please come again</div>
+                <!-- the English half never breaks: on 58 mm the sentence breaks only after " / " -->
+                <div class="kh-again">សូម&#8203;អញ្ជើញ&#8203;មក&#8203;ម្តង&#8203;ទៀត / <span class="kh-nw">Please come again</span></div>
             </t>
             <t t-else="">
-                <div class="kh-again">សូម&#8203;បង់ប្រាក់&#8203;នៅ&#8203;បញ្ជរ / Please pay at the counter</div>
+                <div class="kh-again">សូម&#8203;បង់ប្រាក់&#8203;នៅ&#8203;បញ្ជរ / <span class="kh-nw">Please pay at the counter</span></div>
                 <div class="kh-stamp">មិន&#8203;ទាន់&#8203;បង់ប្រាក់ · NOT PAID</div>
             </t>
         </div>
@@ -171,6 +181,8 @@
 <t t-name="pos_receipt_khmer.CashMoveReceipt" t-inherit="point_of_sale.CashMoveReceipt" t-inherit-mode="extension">
     <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
         <attribute name="class" add="o_kh_receipt o_kh_cashmove" separator=" "/>
+        <attribute name="t-att-class">{'o_kh_w58': props.headerData.kh?.paper === '58'}</attribute>
+        <attribute name="t-att-style">props.headerData.kh?.raster_w ? '--kh-raster-w:' + props.headerData.kh.raster_w + 'px' : false</attribute>
     </xpath>
     <xpath expr="//div[hasclass('pos-receipt-center-align')]" position="before">
         <div class="kh-band" t-translation="off"><span class="kh-band-km" t-esc="khMove.km"/><span class="kh-band-en" t-esc="khMove.en"/></div>
@@ -180,6 +192,17 @@
             <div t-if="props.headerData.kh?.cashier_name" class="kh-row"><span>អ្នកគិតលុយ / Cashier</span><b t-esc="props.headerData.kh.cashier_name"/></div>
             <div class="kh-row"><span>កាលបរិច្ឆេទ / Date</span><b t-esc="khMove.date"/></div>
         </div>
+    </xpath>
+</t>
+<!-- Optional 58 mm support for core's "Daily sales" report (not a customer document, no Khmer
+     content): it is printed only through hardwareProxy.printer (ePOS / IoT) as a 512-dot image, which
+     a 58 mm printer refuses or clips. On a 58 mm till the root gets o_kh_w58 and the raster width;
+     the stylesheet scales the report (font-size = width x 27 / 512) instead of reflowing it. 80 mm:
+     no class, no style attribute. -->
+<t t-name="pos_receipt_khmer.SaleDetailsReport" t-inherit="point_of_sale.SaleDetailsReport" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
+        <attribute name="t-att-class">{'o_kh_w58': pos?.config?.kh_paper_width === '58'}</attribute>
+        <attribute name="t-att-style">pos?.config?.kh_paper_width === '58' ? '--kh-raster-w:' + (pos.config.kh_raster_dots || 384) + 'px' : false</attribute>
     </xpath>
 </t>
 </templates>

@@ -40,6 +40,18 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_tour", {
                 eq(f.khOrderTotal({ amount_total: 7 }), 7, "total without taxTotals");
                 eq(f.fmtPtsSigned(-5), "-5", "negative points");
                 eq(f.fmtPtsSigned(100365), "+100,365", "grouped points");
+                // money: Odoo's sign order without the NBSP (core tours look for "-15.72")
+                eq(f.khMoney("$\u00a06.00"), "$6.00", "khMoney positive");
+                eq(f.khMoney("$\u00a0-15.72"), "$-15.72", "khMoney negative");
+                eq(f.khMoney("$\u00a0-0.00"), "$0.00", "khMoney negative zero");
+                eq(f.khMoney("Free"), "Free", "khMoney text");
+                // paper width of a pos.config
+                const p80 = f.khPaper({ kh_paper_width: "80", kh_raster_dots: 360 });
+                eq(`${p80.paper}/${p80.raster_w}`, "80/0", "khPaper 80");
+                const p58 = f.khPaper({ kh_paper_width: "58", kh_raster_dots: 360 });
+                eq(`${p58.paper}/${p58.raster_w}`, "58/360", "khPaper 58");
+                const pNone = f.khPaper(undefined);
+                eq(`${pNone.paper}/${pNone.raster_w}`, "80/0", "khPaper without config");
             }),
             ProductScreen.addOrderline("Desk Pad", "1"),
             // unpaid draft (what a pre-receipt prints): AMOUNT DUE, never a change row
@@ -66,6 +78,10 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_tour", {
             {
                 content: "the receipt is the Khmer receipt",
                 trigger: ".receipt-screen .pos-receipt.o_kh_receipt:not(.o_kh_unpaid)",
+            },
+            {
+                content: "80 mm (default): no 58 mm layer and no style attribute on the root",
+                trigger: ".receipt-screen .pos-receipt.o_kh_receipt:not(.o_kh_w58):not([style])",
             },
             {
                 content: "paid title band",
@@ -138,6 +154,144 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_tour", {
                     }
                     if (!el.querySelector(".kh-row--big b")?.textContent.includes("$50.00")) {
                         throw new Error("cash in slip without the amount");
+                    }
+                },
+            },
+            {
+                content:
+                    "58 mm paper: o_kh_w58 and the raster width on the receipt, the cash slip, the core " +
+                    "receipt printed without the Khmer data and the Daily Sales report; the image is 360 dots",
+                trigger: "body",
+                run: async () => {
+                    const { CashMoveReceipt } = odoo.loader.modules.get(
+                        "@point_of_sale/app/navbar/cash_move_popup/cash_move_receipt/cash_move_receipt"
+                    );
+                    const { OrderReceipt } = odoo.loader.modules.get(
+                        "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt"
+                    );
+                    const { PosOrder } = odoo.loader.modules.get("@point_of_sale/app/models/pos_order");
+                    const { htmlToCanvas } = odoo.loader.modules.get("@point_of_sale/app/printer/render_service");
+                    const { renderToElement } = odoo.loader.modules.get("@web/core/utils/render");
+                    const { _t } = odoo.loader.modules.get("@web/core/l10n/translation");
+                    const config = posmodel.config;
+                    const saved = [config.kh_paper_width, config.kh_raster_dots];
+                    const formatCurrency = posmodel.env.utils.formatCurrency;
+                    // the printed image: html-to-image sizes the canvas from the root's width
+                    const imageWidth = async (el) =>
+                        (await htmlToCanvas(el, { addClass: "pos-receipt-print" })).width;
+                    // core's Daily Sales report (printed only through an ePOS / IoT printer), with the
+                    // data of an empty session: get_sale_details needs accounting read access, which the
+                    // tour's POS user does not have
+                    const renderSaleDetails = () =>
+                        renderToElement("point_of_sale.SaleDetailsReport", {
+                            products: [],
+                            refund_products: [],
+                            payments: [],
+                            taxes: [],
+                            currency: { total_paid: 0 },
+                            date: "",
+                            pos: posmodel,
+                            formatCurrency,
+                        });
+                    const report80 = renderSaleDetails();
+                    if (report80.classList.contains("o_kh_w58") || report80.hasAttribute("style")) {
+                        throw new Error(`80 mm Daily Sales report: ${report80.outerHTML.slice(0, 120)}`);
+                    }
+                    // the renderer only reports a component it mounts: give it a frame to unmount
+                    // the previous one (two toHtml() calls in a row patch instead, never resolve)
+                    const unmounted = async () => {
+                        await new Promise((r) => setTimeout(r, 100));
+                        await new Promise((r) => requestAnimationFrame(() => r()));
+                    };
+                    // local change of the loaded record only (nothing is written to the server)
+                    config.kh_paper_width = "58";
+                    config.kh_raster_dots = 360;
+                    try {
+                        await unmounted();
+                        const slip = await posmodel.printer.renderer.toHtml(CashMoveReceipt, {
+                            reason: "",
+                            translatedType: _t("out"),
+                            formattedAmount: posmodel.env.utils.formatCurrency(-5),
+                            headerData: posmodel.getReceiptHeaderData(),
+                            date: "",
+                        });
+                        if (!slip.classList.contains("o_kh_w58") || !slip.classList.contains("o_kh_cashmove")) {
+                            throw new Error(`58 mm cash slip classes: ${slip.className}`);
+                        }
+                        if (slip.style.getPropertyValue("--kh-raster-w") !== "360px") {
+                            throw new Error(`58 mm cash slip raster width: ${slip.getAttribute("style")}`);
+                        }
+                        const order = posmodel.get_order(); // the paid order (still on the receipt screen)
+                        await unmounted();
+                        const receipt = await posmodel.printer.renderer.toHtml(OrderReceipt, {
+                            data: posmodel.orderExportForPrinting(order),
+                            formatCurrency,
+                        });
+                        if (!receipt.classList.contains("o_kh_w58") || !receipt.classList.contains("o_kh_receipt")) {
+                            throw new Error(`58 mm receipt classes: ${receipt.className}`);
+                        }
+                        if (receipt.style.getPropertyValue("--kh-raster-w") !== "360px") {
+                            throw new Error(`58 mm receipt raster width: ${receipt.getAttribute("style")}`);
+                        }
+                        const signOff = receipt.querySelector(".kh-again > .kh-nw")?.textContent;
+                        if (!["Please come again", "Please pay at the counter"].includes(signOff)) {
+                            throw new Error(`the English sign-off must be one unbreakable group: ${signOff}`);
+                        }
+                        const receiptWidth = await imageWidth(receipt);
+                        if (receiptWidth !== 360) {
+                            throw new Error(`58 mm receipt image: ${receiptWidth} dots wide, expected 360`);
+                        }
+
+                        // without the Khmer data (the data patch failed): the core receipt, still scaled
+                        // to the 58 mm raster width. The patch logs a console error, which fails a tour.
+                        const buildKh = PosOrder.prototype._khExportForPrinting;
+                        const consoleError = console.error;
+                        const logged = [];
+                        let fallbackData;
+                        PosOrder.prototype._khExportForPrinting = () => {
+                            throw new Error("forced by the tour");
+                        };
+                        console.error = (...args) => logged.push(args.map(String).join(" "));
+                        try {
+                            fallbackData = posmodel.orderExportForPrinting(order);
+                        } finally {
+                            PosOrder.prototype._khExportForPrinting = buildKh;
+                            console.error = consoleError;
+                        }
+                        if (fallbackData.kh || !logged.some((m) => m.includes("could not build the Khmer receipt data"))) {
+                            throw new Error(`the forced failure did not take the fallback path: ${logged.join(" | ")}`);
+                        }
+                        await unmounted();
+                        const fallback = await posmodel.printer.renderer.toHtml(OrderReceipt, {
+                            data: fallbackData,
+                            formatCurrency,
+                        });
+                        if (fallback.classList.contains("o_kh_receipt") || !fallback.classList.contains("o_kh_w58")) {
+                            throw new Error(`58 mm fallback receipt classes: ${fallback.className}`);
+                        }
+                        if (fallback.style.getPropertyValue("--kh-raster-w") !== "360px") {
+                            throw new Error(`58 mm fallback receipt raster width: ${fallback.getAttribute("style")}`);
+                        }
+                        const fallbackWidth = await imageWidth(fallback);
+                        if (fallbackWidth !== 360) {
+                            throw new Error(`58 mm fallback receipt image: ${fallbackWidth} dots wide, expected 360`);
+                        }
+
+                        const report = renderSaleDetails();
+                        if (!report.classList.contains("o_kh_w58")) {
+                            throw new Error(`58 mm Daily Sales report classes: ${report.className}`);
+                        }
+                        if (report.style.getPropertyValue("--kh-raster-w") !== "360px") {
+                            throw new Error(`58 mm Daily Sales report raster width: ${report.getAttribute("style")}`);
+                        }
+                        const reportWidth = await imageWidth(report);
+                        if (reportWidth !== 360) {
+                            throw new Error(`58 mm Daily Sales report image: ${reportWidth} dots wide, expected 360`);
+                        }
+                    } finally {
+                        [config.kh_paper_width, config.kh_raster_dots] = saved;
+                        // htmlToCanvas leaves its copy in the render container
+                        document.querySelector(".render-container")?.replaceChildren();
                     }
                 },
             },
