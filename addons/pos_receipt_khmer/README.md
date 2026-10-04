@@ -208,12 +208,15 @@ not work as written on real Odoo 18.0:
 
 Known limits (from the spec's risk list, still true):
 
-- **Core tours that assert core's amount format fail with the module installed** (expected, the spec's
-  `-$15.72` format is deliberate): the 7 `point_of_sale` `TestPosCashRounding` tours
-  (`test_cash_rounding_{down,halfup,up}_add_invoice_line_*`) and `TestUi.test_refund_backend_duplicate`
-  look for `.receipt-total:contains("-15.72")` / `("-10.00")`, which `-$15.72` does not contain. Every
-  other `point_of_sale`, `pos_hr`, `pos_loyalty`, `pos_sale` and `pos_discount` UI tour passes. The core
-  `Served by` line stays in the DOM as a 1 px, ink-free strip so pos_hr's
+- **Core tours that assert core's negative amount format fail with the module installed** (expected:
+  the spec's `-$15.72` format is deliberate and now used by every amount). They look for
+  `.receipt-total:contains("-15.72")`, `.receipt-rounding:contains("-0.02")` or `("-10.00")`, which
+  `-$15.72` / `-$0.02` do not contain: 9 `point_of_sale` `TestPosCashRounding` tours
+  (`test_cash_rounding_{down,halfup,up}_add_invoice_line_*` x 7, `test_cash_rounding_with_change`,
+  `test_cash_rounding_only_cash_method_with_change`) and `TestUi.test_refund_backend_duplicate`.
+  Checked on a fresh database: every other `point_of_sale` `TestUi` / `TestPosCashRounding`, `pos_hr`,
+  `pos_loyalty` `TestUi`, `pos_sale` and `pos_discount` UI test passes (257 of 267, with this module's
+  5). The core `Served by` line stays in the DOM as a 1 px, ink-free strip so pos_hr's
   `.pos-receipt-contact .cashier:contains(Served by)` check still sees it.
 - Core blocks the module does not translate keep Odoo's own words: the tax summary (`Untaxed
   Amount`, the tax group names, `on`; not used by ABJ, which has no taxes), pos_sale's `(tax incl.)`,
