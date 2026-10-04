@@ -277,6 +277,14 @@ not work as written on real Odoo 18.0:
     ASCII, all of Latin-1 Supplement, Œ œ ı, punctuation, ™, arrows, combining accents, Khmer),
     74 KB. The font has no Latin Extended-A/B (e.g. Vietnamese ă đ ư): such letters fall back to the
     device's sans-serif.
+20. **KHQR transaction line as two floats** (80 mm and 58 mm) — the spec's single text line
+    `លេខប្រតិបត្តិការ / Txn ID <id>` is now `span.kh-txn-lbl` and `span.kh-txn-id` in the same `div.kh-txn`
+    (text unchanged), both left floats: the ID stays beside the label when it fits and otherwise moves
+    whole to the next line at the left edge, as the text line wrapped. As one text line it could print
+    a blank line in the raster image (see Known limits). The label's right margin (0.27em) is the
+    narrowest gap the text line had between `ID` and the ID (the font kerns the space before Y, A and 7),
+    so no ID takes more lines than before (two of 403 ABA IDs on 80 mm now fit on one line). An ID longer
+    than a whole line now wraps inside itself instead of running past the paper edge.
 
 Known limits (from the spec's risk list, still true):
 
@@ -290,17 +298,23 @@ Known limits (from the spec's risk list, still true):
   receipt's sizes) inside the boxes measured on the live receipt. A text that wraps by less than that
   in the live layout takes fewer lines in the image, and the line it wrapped onto prints blank;
   nothing is clipped. Measured with html-to-image's own clone (`toSvg`) on 367 names (the 57 demo
-  partners and 310 Cambodian names), 448 points figures of 1 to 7 digits, 200 KHQR transaction IDs
-  and the 88 demo products:
+  partners and 310 Cambodian names), 448 points figures of 1 to 7 digits and the 88 demo products, and
+  through Odoo's `htmlToCanvas` (ink under every live text line) on 657 transaction IDs:
   - 58 mm label / value rows: with a grid they printed a blank line for 1–5 % of the values (customer
     and cashier names, e.g. "Gemini Furniture" at 360 dots and "Chantha Vuthy Mao" at 384; the
     cash-slip reason "Float for the morning" at 384; loyalty labels next to up to 4 % of the figures,
     e.g. a balance of 10,000 at 360). With the float layout of note 18: **0 cases** at 360
     and 384 dots. A value longer than a whole line (about 30 characters) still wraps inside itself
     and can still meet the boundary.
-  - 80 mm (unchanged): customer, cashier, reason, rate and loyalty rows 0 cases; the KHQR
-    transaction line 1 of 200 IDs (on 58 mm it always takes two lines: 0); product names 3 of the 88
-    demo products (e.g. "Conference Chair (Aluminium)"; 58 mm: 0). Notes and loyalty program names
+  - KHQR transaction line: as one text line it printed a blank line on both papers: on 80 mm for
+    3 of 403 ABA-format IDs (`K` + 12 digits + 6 hex, e.g. `K26060643969490D20D`, about 0.7 %), on 58 mm
+    for 12- to 14-character IDs (18 of 154 at 384 dots, 1 at 360; ABA IDs always take two lines there:
+    0). With the two floats of note 20: **0 cases** for the 403 ABA IDs and the 154 IDs of 12 to 14
+    characters at 80 mm, 384 and 360 dots. An ID longer than a whole line (about 37 characters on 80 mm,
+    29 on 58 mm) still wraps inside itself and can still meet the boundary (1 of 100 IDs of 6 to 30
+    characters, 28 characters at 384 dots).
+  - 80 mm (unchanged): customer, cashier, reason, rate and loyalty rows 0 cases; product names 3 of the
+    88 demo products (e.g. "Conference Chair (Aluminium)"; 58 mm: 0). Notes and loyalty program names
     can meet it too.
 - **58 mm** (SPEC58 §8): web print relies on `:has()` and named pages (Chrome 105+); the 360 / 384
   setting is per point of sale and needs a POS reload; above $9,999.99 (360 dots) or $99,999.99 (384) the unpaid

@@ -248,7 +248,18 @@
   line-height: 1.5;
 }
 .pos-receipt.o_kh_receipt .paymentlines > .pos-receipt-right-align { grid-row: 1; grid-column: 2; justify-self: end; font-weight: 600; }
-.pos-receipt.o_kh_receipt .paymentlines > .kh-txn { grid-row: 2; grid-column: 1 / -1; font-size: 0.815em; line-height: 1.5; }
+/* KHQR transaction line: label and id are two left floats, not one wrapping text line. html-to-image redraws
+   text at floor(px) - 0.1 inside the boxes measured on the live receipt, so a line that wrapped live by less
+   than that fitted in the image and the line under it printed blank (80 mm: about 0.7 % of ABA KHQR ids,
+   e.g. K26060643969490D20D; 58 mm: 12- to 14-character ids, 18 of 154 at 384 dots). With floats the break
+   only depends on box widths, which the image copies: the id stays beside the label when it fits, else it
+   moves whole to the next line, at the left edge as before. The label's margin-right (0.27em) is the
+   narrowest "ID" + space + id gap of the old text line in this font (space 0.316em, less the kerning before
+   Y, A or 7), so an id never takes more lines than it did. An id longer than a whole line wraps inside itself
+   (it overflowed the paper before) and can still meet the boundary (about 37 characters on 80 mm, 29 on 58 mm). */
+.pos-receipt.o_kh_receipt .paymentlines > .kh-txn { grid-row: 2; grid-column: 1 / -1; display: flow-root; font-size: 0.815em; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .kh-txn > .kh-txn-lbl { float: left; white-space: nowrap; margin-right: 0.27em; }
+.pos-receipt.o_kh_receipt .kh-txn > .kh-txn-id { float: left; overflow-wrap: anywhere; }
 .pos-receipt.o_kh_receipt .paymentlines + .paymentlines { margin-top: 0.15em; }
 .pos-receipt.o_kh_receipt .receipt-change { margin-top: 0.3em; }
 .pos-receipt.o_kh_receipt .receipt-change > .kh-lbl-km { grid-row: 1; grid-column: 1; font-size: 1em; font-weight: 700; line-height: 1.5; }
@@ -449,7 +460,7 @@
 
 /* ---------- 8. payments, change, discounts ------------------------------- */
 .pos-receipt.o_kh_receipt.o_kh_w58 .kh-pay-head { margin: 0.35em 0 0.1em; }
-.pos-receipt.o_kh_receipt.o_kh_w58 .paymentlines > .kh-txn { font-size: 0.835em; }
+.pos-receipt.o_kh_receipt.o_kh_w58 .paymentlines > .kh-txn { font-size: 0.835em; }   /* label / id floats: the 80 mm rules apply as is */
 .pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change { margin-top: 0.25em; }
 .pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change > .pos-receipt-right-align { font-size: 1.0837em; }
 .pos-receipt.o_kh_receipt.o_kh_w58 .receipt-change .kh-or { font-size: 0.9538em; }            /* = 0.835em of root */

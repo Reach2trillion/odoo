@@ -138,8 +138,9 @@
     <xpath expr="//div[hasclass('paymentlines')]" position="before">
         <div t-if="props.data.paymentlines.length" class="kh-pay-head"/>
     </xpath>
+    <!-- label and id are two floats, never one wrapping text line (see the stylesheet, section 8) -->
     <xpath expr="//div[hasclass('paymentlines')]" position="inside">
-        <div t-if="line.kh_txn" class="kh-txn" t-translation="off">លេខប្រតិបត្តិការ / Txn ID <t t-esc="line.kh_txn"/></div>
+        <div t-if="line.kh_txn" class="kh-txn" t-translation="off"><span class="kh-txn-lbl">លេខប្រតិបត្តិការ / Txn ID</span> <span class="kh-txn-id" t-esc="line.kh_txn"/></div>
     </xpath>
     <xpath expr="//div[hasclass('receipt-change')]" position="before">
         <div t-if="props.data.kh?.due" class="kh-row" t-translation="off"><span>ប្រាក់នៅខ្វះ / Balance due</span><b t-esc="khUsd(props.data.kh.due)"/></div>
