@@ -15,6 +15,32 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_tour", {
         [
             Chrome.startPoS(),
             Dialog.confirm("Open Register"),
+            check("formatting helpers", () => {
+                const f = odoo.loader.modules.get("@pos_receipt_khmer/js/kh_format");
+                const eq = (got, want, what) => {
+                    if (got !== want) {
+                        throw new Error(`${what}: expected ${want}, got ${got}`);
+                    }
+                };
+                // quantities in the locale they were formatted with
+                eq(f.khQty("2.50"), "2.5", "khQty en");
+                eq(f.khQty("1,000.00"), "1,000", "khQty en thousands");
+                eq(f.khQty("1.000,00", ","), "1.000", "khQty de thousands");
+                eq(f.khQty("10,00", ","), "10", "khQty de");
+                // rate: KHR per unit of the POS currency, 0 when the POS sells in riel
+                const usdCompany = { l10n_kh_exchange_rate: 4100, currency_id: { name: "USD" } };
+                eq(f.khRate(usdCompany, {}, { name: "USD", rate: 1 }), 4100, "khRate USD POS");
+                eq(f.khRate(usdCompany, {}, { name: "KHR", rate: 4100 }), 0, "khRate KHR POS");
+                const khrCompany = { l10n_kh_exchange_rate: 4100, currency_id: { name: "KHR" } };
+                const khrModels = { "res.currency": [{ name: "KHR", rate: 1 }] };
+                eq(f.khRate(khrCompany, khrModels, { name: "USD", rate: 0.00025 }), 4000, "khRate KHR company");
+                // order total on every 18.0 build (no order_sign / no taxTotals on older builds)
+                eq(f.khOrderTotal({ taxTotals: { order_total: 5, order_sign: -1 } }), -5, "total");
+                eq(f.khOrderTotal({ taxTotals: { order_total: 5 } }), 5, "total without order_sign");
+                eq(f.khOrderTotal({ amount_total: 7 }), 7, "total without taxTotals");
+                eq(f.fmtPtsSigned(-5), "-5", "negative points");
+                eq(f.fmtPtsSigned(100365), "+100,365", "grouped points");
+            }),
             ProductScreen.addOrderline("Desk Pad", "1"),
             // unpaid draft (what a pre-receipt prints): AMOUNT DUE, never a change row
             check("draft order exports an unpaid pre-receipt", () => {
@@ -76,6 +102,10 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_tour", {
             {
                 content: "KHR change rounding row ($18.02 x 4,100 = 73,882)",
                 trigger: `.receipt-screen .o_kh_receipt .receipt-change .kh-round:contains("+18")`,
+            },
+            {
+                content: "the core cashier line stays a visible anchor (pos_hr tours) without printing",
+                trigger: `.receipt-screen .o_kh_receipt .pos-receipt-contact .cashier:contains("Served by")`,
             },
             {
                 content: "thank-you sign-off",

@@ -44,7 +44,7 @@
 
 /* ---------- 2. hidden core nodes (they stay in the DOM as anchors) ------- */
 .pos-receipt.o_kh_receipt > br,                                                   /* layout <br/> of header, footer, slip */
-.pos-receipt.o_kh_receipt .pos-receipt-contact > div:not([style*="pre-line"]),     /* company name, Tel:, Tax ID, e-mail, web, cashier, tracking no. -> .kh-brand/.kh-contact/.kh-meta */
+.pos-receipt.o_kh_receipt .pos-receipt-contact > div:not([style*="pre-line"]):not(.cashier), /* company name, Tel:, Tax ID, e-mail, web, tracking no. -> .kh-brand/.kh-contact */
 .pos-receipt.o_kh_receipt .orderline > .product-order,
 .pos-receipt.o_kh_receipt .info-list > .price-per-unit,                            /* "1.00 x $ 6.00 / Units" -> li.kh-qty */
 .pos-receipt.o_kh_receipt .info-list > li:nth-child(2):not([class]),               /* core "$ 5.00 With a 10% discount" -> li.kh-disc */
@@ -57,6 +57,16 @@
 .pos-receipt.o_kh_receipt.o_kh_cashmove > .pos-receipt-center-align,              /* slip: "CASH IN" -> .kh-band */
 .pos-receipt.o_kh_receipt.o_kh_cashmove > div:not([class]),                        /* slip: AMOUNT / REASON rows -> .kh-meta */
 .pos-receipt.o_kh_receipt.o_kh_cashmove > .pos-receipt-order-data { display: none !important; }   /* slip: date -> .kh-meta */
+/* core "Served by" (-> .kh-meta Cashier row): kept rendered as an ink-free 1px strip cancelled by its own
+   negative margin, so it takes no paper but stays a visible anchor (pos_hr's core tour checks that
+   .pos-receipt-contact .cashier:contains(Served by) is visible). Transparent text, not font-size 0: the
+   print clone turns a 0px font into an invalid size and the dashes would come back in the strip. The
+   !important colour beats core's web-print "color: black !important". */
+.pos-receipt.o_kh_receipt .pos-receipt-contact > .cashier {
+  height: 1px; margin: 0 0 -1px !important; padding: 0 !important; border: 0 !important; overflow: hidden;
+}
+.pos-receipt.o_kh_receipt .pos-receipt-contact > .cashier,
+.pos-receipt.o_kh_receipt .pos-receipt-contact > .cashier * { color: transparent !important; text-shadow: none !important; }
 /* :has() hides kept separate: an engine without :has() only falls back to showing core content */
 .pos-receipt.o_kh_receipt .before-footer > div:not([class]):has(> .pos-receipt-right-align) { display: none !important; } /* pos_loyalty "Customer" */
 .pos-receipt.o_kh_receipt > .pos-receipt-order-data:has(> #order-date) { display: none !important; }  /* Powered by Odoo + ref + date: printed once at the top */
@@ -151,7 +161,7 @@
 .pos-receipt.o_kh_receipt .orderline.orderline-combo { margin-left: 1em !important; }
 .pos-receipt.o_kh_receipt .orderline > .d-flex.flex-column { gap: 0 !important; }
 .pos-receipt.o_kh_receipt .orderline > .d-flex.flex-column > .d-flex { align-items: baseline; }
-.pos-receipt.o_kh_receipt .orderline .product-name {
+.pos-receipt.o_kh_receipt .orderline .product-name:not(td) {     /* not pos_sale's down-payment table cells */
   display: block !important; font-weight: 600 !important; padding-right: 0.8em !important;
   white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
   -webkit-line-clamp: unset; overflow-wrap: break-word;   /* wrap, never clip; break-word (not anywhere) keeps Khmer clusters whole */
@@ -170,6 +180,30 @@
   border-left: 0.15em solid #000; padding: 0 0 0 0.45em !important; margin: 0.1em 0 0 !important;
 }
 .pos-receipt.o_kh_receipt .orderline .kh-note-lbl { font-weight: 600; }
+/* order general note (OrderWidget, shared: restyled here, receipt only) like the line notes; the core
+   English "General Note" heading is replaced by a bilingual label, each line stays "• text" */
+.pos-receipt.o_kh_receipt .order-container > div:has(> b.fw-bolder:first-child) {
+  background: none !important; border: 0 !important; border-left: 0.15em solid #000 !important; border-radius: 0 !important;
+  padding: 0 0 0 0.45em !important; margin: 0.1em 0 0 !important;
+  font-size: 0.815em; line-height: 1.5; overflow-wrap: break-word;
+}
+.pos-receipt.o_kh_receipt .order-container > div:has(> b.fw-bolder:first-child) > b.fw-bolder:first-child { display: none; }
+.pos-receipt.o_kh_receipt .order-container > div:has(> b.fw-bolder:first-child)::before {
+  content: "\179F\1798\17D2\1782\17B6\179B\17CB\20/ Note";   /* សម្គាល់ / Note */
+  font-weight: 600;
+}
+/* pos_sale: sale order reference (its icon is hidden with the other .fa) and down-payment details */
+.pos-receipt.o_kh_receipt .info-list > li:has(> .fa-shopping-basket)::before {
+  content: "\179B\17C1\1781\1794\1789\17D2\1787\17B6\1791\17B7\1789\20/ SO ";   /* លេខបញ្ជាទិញ / SO */
+}
+.pos-receipt.o_kh_receipt .sale-order-info { width: 100%; border-collapse: collapse; font-size: 1em; line-height: 1.5; }
+.pos-receipt.o_kh_receipt .sale-order-info td {
+  padding: 0 0.35em 0 0; vertical-align: top; font-weight: 500;
+  white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: break-word;
+}
+.pos-receipt.o_kh_receipt .sale-order-info td:first-child,
+.pos-receipt.o_kh_receipt .sale-order-info td:last-child { white-space: nowrap !important; }
+.pos-receipt.o_kh_receipt .sale-order-info td:last-child { padding-right: 0; text-align: right; }
 .pos-receipt.o_kh_receipt .fst-italic { font-style: normal !important; }
 
 /* ---------- 7. total: the one loud number, KHR in the same column -------- */
@@ -238,9 +272,17 @@
 .pos-receipt.o_kh_receipt .receipt-to-pay {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.5em; font-size: 0.815em; line-height: 1.5;
 }
+/* "To Pay": the bilingual span.kh-topay-lbl takes row 1; core's English text node (an anonymous grid
+   item, it cannot be selected) is auto-placed in row 2, which is 0 high and clipped */
+.pos-receipt.o_kh_receipt .receipt-to-pay:has(> .kh-topay-lbl) { grid-template-rows: auto 0; row-gap: 0; overflow: hidden; }
+.pos-receipt.o_kh_receipt .receipt-to-pay > .kh-topay-lbl { grid-row: 1; grid-column: 1; }
+.pos-receipt.o_kh_receipt .receipt-to-pay > .pos-receipt-right-align { grid-row: 1; grid-column: 2; justify-self: end; }
 
 /* ---------- 9. loyalty (inside div.before-footer, after pos_loyalty) ---- */
 .pos-receipt.o_kh_receipt .kh-loyalty { border: 0.08em solid #000; padding: 0.1em 0.5em 0.15em; margin-top: 0.6em; }
+.pos-receipt.o_kh_receipt .kh-loyalty .kh-row > b { white-space: nowrap; overflow-wrap: normal; }   /* a points figure never splits */
+.pos-receipt.o_kh_receipt .kh-loyalty .kh-loy-name { font-size: 0.815em; font-weight: 600; line-height: 1.5; overflow-wrap: break-word; }
+.pos-receipt.o_kh_receipt .kh-loyalty .kh-row + .kh-loy-name { margin-top: 0.2em; }
 .pos-receipt.o_kh_receipt .pos-coupon-rewards { padding: 0.5em 0 0 !important; font-size: 0.815em; }
 .pos-receipt.o_kh_receipt .pos-coupon-rewards > div:first-child { height: 0; overflow: hidden; border-top: 0.08em dashed #000; }
 

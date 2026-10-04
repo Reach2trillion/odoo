@@ -15,6 +15,8 @@ Bilingual Khmer / English POS receipt
 * Unpaid pre-receipts are clearly marked NOT PAID / AMOUNT DUE and never print a negative change.
 * Bilingual cash in / cash out slip.
 * Bundled Khmer font (Kantumruy Pro, SIL OFL 1.1) so the receipt prints the same on every device.
+* Odoo 18.0: renders on every 18.0 build; fully bilingual totals from the 2024-11-29 builds on
+  (on older builds core's TOTAL / CHANGE labels stay English, see README).
 
 See README.md for settings and notes.
 """,

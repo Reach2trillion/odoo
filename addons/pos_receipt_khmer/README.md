@@ -21,7 +21,8 @@ browser's print dialog.
   dashed `មិនទាន់បង់ប្រាក់ / NOT PAID — PRE-RECEIPT` frame, `Order No.`, `AMOUNT DUE`,
   "please pay at the counter" and a NOT PAID stamp. **A change row is never printed on an unpaid
   order or with a negative amount** (the `CHANGE $ -6.00` bug of older 18.0 builds).
-- **Loyalty** points earned / spent / balance in a small bilingual box.
+- **Loyalty** points earned / spent / balance in a small bilingual box (paid receipts only; with more
+  than one loyalty program each block is headed by the program's points name).
 - **Cash in/out slip**: `ដាក់ប្រាក់ចូល CASH IN` / `ដកប្រាក់ចេញ CASH OUT` band, amount, reason,
   cashier and date.
 - Ships the **Kantumruy Pro** Khmer font (subset, SIL Open Font License 1.1, see
@@ -51,9 +52,11 @@ customer-account methods `គណនីអតិថិជន / Customer Account`,
 changed while a POS session is open (the POS picks it up after a reload).
 
 **Exchange rate**: there is no new setting. The receipt uses the company's accounting rate
-`l10n_kh_exchange_rate` (module `l10n_kh_tax`) when it is installed and greater than 0 (ABJ: 4,100);
-otherwise the current rate of the KHR currency (Accounting > Currencies; KHR must be active). With
-neither, the KHR total, rate line and riel change are not printed.
+`l10n_kh_exchange_rate` (module `l10n_kh_tax`) when it is installed and greater than 0 (ABJ: 4,100)
+and the POS sells in the company currency; otherwise the current rate of the KHR currency
+(Accounting > Currencies; KHR must be active), converted to the POS currency. With neither, or when
+the POS itself sells in riel (KHR), the KHR total, rate line and riel change are not printed. The rate
+line names the POS currency (`1 USD = 4,100 ៛`).
 
 After changing settings, reload the POS (or close and reopen the session) so it loads the new values.
 
@@ -88,7 +91,10 @@ black/white threshold; a light or pastel logo (lighter than about 40 % grey) can
    loaded in Odoo (4,055.06). Confirm that this is the rate to print and keep it up to date.
 5. **Wording.** Strings marked "U" in the design spec (e.g. `គណនីអតិថិជន`, `លេខប្រតិបត្តិការ`,
    `ដាក់ប្រាក់ចូល`, `ដកប្រាក់ចេញ`, `មូលហេតុ`, the "not an invoice" line and the loyalty labels) and the
-   placeholder Khmer shop name need a native-speaker review.
+   placeholder Khmer shop name need a native-speaker review. Added after the spec, also to review:
+   `ឥតគិតថ្លៃ / Free` (a 100 % discounted line), `លេខបញ្ជាទិញ / SO` (pos_sale sale-order reference),
+   `ប្រាក់ត្រូវបង់ / To pay` (cash-rounded amount, same words as AMOUNT DUE) and
+   `សម្គាល់ / Note` as the heading of the order's general note.
 
 ## Technical overview
 
@@ -123,13 +129,14 @@ not work as written on real Odoo 18.0:
    the slot's `line` reaches `OrderReceipt` through `OrderWidget`'s props, i.e. as a *different OWL
    reactive proxy* of the same object, so every line fell back to the core "1.00 x $ 6.00 / Units"
    row (spec risk 4). The lookup now compares raw objects (`toRaw`).
-3. **`show_change` normalised for every 18.0 build** — older 18.0 builds have no `show_change` /
+3. **`show_change` normalised by the module** — older 18.0 builds have no `show_change` /
    `order_change` in `export_for_printing` (Dec 2024) or show it on unpaid drafts (before Odoo commit
    ebfc6bf1, 2025-09-29: the live server's `CHANGE $ -6.00`). The patch computes `order_change`
    itself when missing (`get_change()`) and sets
-   `show_change = (core value ?? true) && finalized && change > 0 && paymentlines.length`. The
-   template's `div.receipt-change` also gets `t-if="props.data.show_change"` (attribute change on the
-   class anchor), because the Dec 2024 template used `'order_change' in taxTotals` instead.
+   `show_change = (core value ?? true) && finalized && change > 0 && paymentlines.length`, in its own
+   guarded step before the rest of the Khmer data. The template's `div.receipt-change` also gets
+   `t-if="props.data.show_change"` (attribute change on the class anchor), because the Dec 2024
+   template used `'order_change' in taxTotals` instead.
 4. **Receipt number without "Order "** — this 18.0 build stores `pos_reference = "Order 00030-001-0002"`
    once the order is synced (the server copies the frontend `name`), the live build does not. The
    meta row prints `kh.number` (the reference without a leading `Order ` or its translation) instead
@@ -152,8 +159,67 @@ not work as written on real Odoo 18.0:
    4-second cap above.
 10. **Tour assets** — the receipt tour lives in `static/tests/tours/` and is added to
     `web.assets_tests` (not to the POS bundle).
+11. **18.0 build compatibility** — an xpath that matches nothing throws and no receipt renders at
+    all, so every anchor was checked with Odoo's own `template_inheritance.js` against the 9
+    distinct core `OrderReceipt` versions of 18.0 (2024-09-25 release to 2026-10), the 4
+    `ReceiptHeader` versions, `CashMoveReceipt` and both `pos_loyalty` versions: all apply.
+    - The total is anchored as the first `div.pos-receipt-amount` (every build) and gets the
+      `receipt-total` class there, because core only added that class on 2024-11-29 (8fb7e5fd).
+    - The total, rounding and to-pay amounts come from build-independent helpers (`khTotal()`,
+      `khRounding()`): `taxTotals.order_sign` only exists since 2024-12-16 (186bb06b) and `taxTotals`
+      since 2024-11-29; before that `amount_total` / `rounding_applied` are used. A non-numeric
+      total prints no KHR line (never `NaN ៛`).
+    - Anchors that exist only on some builds (`receipt-rounding`, `receipt-to-pay`, the tax-summary
+      amount expressions) are written `<anchor> | //span[hasclass('kh-xp-sink')]`: the union resolves
+      to the real node when it exists and otherwise to a never-rendered sink node the module appends
+      inside `<t t-if="false">`.
+    - **Fully supported from the 2024-11-29 builds on** (the live server: point_of_sale 18.0.1.0.2,
+      2025-03 or later). On the first two months of 18.0 (2024-09-25 to 2024-11-29) the receipt still
+      renders with all Khmer content, but core's TOTAL / CHANGE / Discounts / Rounding / To Pay labels
+      are literal English text there, and the tax-summary and cash-rounding amounts keep core's
+      `$ 6.00` format.
+12. **One USD format on every amount** — the total, payments, change, discounts, cash rounding,
+    "To pay" and tax-summary amounts all print as `$6.00` / `-$15.72` (spec §8), so a refund never
+    mixes `-$15.72` with core's `$ -15.70`. "To Pay" gets a bilingual label; core's English text node
+    cannot be selected, so the CSS grid places it in a 0-high, clipped row.
+13. **Fallback without Khmer data** — if `_khExportForPrinting` throws, `res.kh` and
+    `headerData.kh` are removed and the root gets no `o_kh_receipt` class (it is set with
+    `t-att-class` from the data), so no receipt CSS applies and the plain core receipt prints with its
+    number, date and loyalty rows.
+14. **KHR change rounding** — the cash riel line is rounded to 100 from the exact riel amount
+    (`halfUp(exact / 100) × 100`), so the `Rounding` row always adds up, also with a fractional rate
+    (4,055.06 × $0.90 = 3,650 → 3,700, `+50`). A change that rounds to 0 riel (e.g. $0.01) prints no
+    riel line and no rounding row.
+15. **Loyalty box** — the spec's fixed labels (`Points earned / spent / balance`), points grouped
+    like the KHR figures (`100,365`) and signed (`+120`, `-5`, a negative gain prints `-5`); the value
+    never wraps. The box is not printed on an unpaid pre-receipt (points are only earned or spent
+    when the order is paid, and the balance would not add up).
+16. **Core blocks restyled** — the order's general note (OrderWidget) is styled like the line notes
+    with a `សម្គាល់ / Note` heading (CSS on the receipt only; the shared component is not modified);
+    a 100 % discounted line prints `ឥតគិតថ្លៃ / Free` instead of core's English `Free`; pos_sale's
+    sale-order reference gets a `លេខបញ្ជាទិញ / SO` prefix and its down-payment table prints in body
+    weight with `$1,800.00` amounts.
+17. **Quantities** keep the locale they were formatted in: trailing zeros are trimmed after the
+    locale's decimal point (`1,000.00` → `1,000`, `1.000,00` → `1.000`).
+18. **Font subset** — the bundled woff2 contains every code point of Kantumruy Pro 1.002 (363:
+    ASCII, all of Latin-1 Supplement, Œ œ ı, punctuation, ™, arrows, combining accents, Khmer),
+    74 KB. The font has no Latin Extended-A/B (e.g. Vietnamese ă đ ư): such letters fall back to the
+    device's sans-serif.
 
 Known limits (from the spec's risk list, still true):
+
+- **Core tours that assert core's amount format fail with the module installed** (expected, the spec's
+  `-$15.72` format is deliberate): the 7 `point_of_sale` `TestPosCashRounding` tours
+  (`test_cash_rounding_{down,halfup,up}_add_invoice_line_*`) and `TestUi.test_refund_backend_duplicate`
+  look for `.receipt-total:contains("-15.72")` / `("-10.00")`, which `-$15.72` does not contain. Every
+  other `point_of_sale`, `pos_hr`, `pos_loyalty`, `pos_sale` and `pos_discount` UI tour passes. The core
+  `Served by` line stays in the DOM as a 1 px, ink-free strip so pos_hr's
+  `.pos-receipt-contact .cashier:contains(Served by)` check still sees it.
+- Core blocks the module does not translate keep Odoo's own words: the tax summary (`Untaxed
+  Amount`, the tax group names, `on`; not used by ABJ, which has no taxes), pos_sale's `(tax incl.)`,
+  pos_loyalty's coupon-code block and the terminal slips.
+- Refunds keep the paid title and print negative amounts (spec risk 9); a `សងប្រាក់វិញ / REFUND`
+  title with the original order's number is a possible v2.
 
 - CSS hides every core `.pos-receipt-contact` child except the config header. If a module that
   injects inside `.pos-receipt-contact` is installed later (e.g. `l10n_es_pos`, `l10n_jo_edi_pos`),

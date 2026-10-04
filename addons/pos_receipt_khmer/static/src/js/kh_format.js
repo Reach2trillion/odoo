@@ -16,15 +16,25 @@ export const khMoney = (s) =>
     typeof s === "string" ? stripNb(s).replace(/^([^\d\s.,-]+)-(?=\d)/, "-$1") : s;
 
 /**
- * KHR per USD: the company's accounting rate (l10n_kh_tax, when installed and > 0),
- * else the rate of the KHR res.currency loaded into the POS, else 0 (= no KHR on the receipt).
+ * KHR per unit of the POS currency, or 0 (= no KHR on the receipt).
+ * - POS currency KHR (or unknown): 0, there is nothing to convert.
+ * - l10n_kh_tax's company rate (KHR per unit of the *company* currency), when it is > 0 and the
+ *   POS sells in the company currency (ABJ: USD company, USD POS, 4,100).
+ * - else the KHR res.currency loaded into the POS: its rate and the POS currency's rate are both
+ *   relative to the company currency, so KHR per POS unit = KHR.rate / posCurrency.rate.
  */
-export function khRate(company, models) {
-    if (company?.l10n_kh_exchange_rate > 0) {
+export function khRate(company, models, currency) {
+    const code = currency?.name;
+    if (!code || code === "KHR") {
+        return 0;
+    }
+    const companyCode = company?.currency_id?.name;
+    if (company?.l10n_kh_exchange_rate > 0 && (!companyCode || companyCode === code)) {
         return company.l10n_kh_exchange_rate;
     }
     const khr = models?.["res.currency"]?.find?.((c) => c.name === "KHR");
-    return khr?.rate > 0 ? khr.rate : 0;
+    const own = currency.rate > 0 ? currency.rate : companyCode === code ? 1 : 0;
+    return khr?.rate > 0 && own > 0 ? khr.rate / own : 0;
 }
 /** 4,100 | 4,055.06 */
 export const fmtRate = (r) => r.toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -46,13 +56,52 @@ export function khPhone(raw) {
 /** "https://www.abjskincare.com/" -> "abjskincare.com" */
 export const khWeb = (w) =>
     (w || "").replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
-/** "2.00" -> "2", "1.50" -> "1.5" */
-export const khQty = (s) => {
+/**
+ * Quantity string without trailing decimal zeros, in the locale it was formatted with:
+ * "2.00" -> "2", "1.50" -> "1.5", "1,000.00" -> "1,000"; with decimalPoint ",": "1.000,00" -> "1.000".
+ */
+export const khQty = (s, decimalPoint = ".") => {
     s = s === undefined || s === null ? "" : String(s);
-    return s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s;
+    const i = decimalPoint ? s.lastIndexOf(decimalPoint) : -1;
+    if (i < 0) {
+        return s;
+    }
+    const frac = s.slice(i + decimalPoint.length);
+    if (!/^\d+$/.test(frac)) {
+        return s; // not "<int><point><digits>": leave it as formatted
+    }
+    const kept = frac.replace(/0+$/, "");
+    return kept ? s.slice(0, i + decimalPoint.length) + kept : s.slice(0, i);
 };
+/** Loyalty points: "100,365", "12.5" (en-US groups like every KHR figure). */
+export const fmtPts = (n) =>
+    Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+/** Signed points: "+120", "-5", "0". */
+export const fmtPtsSigned = (n) => (n > 0 ? "+" : n < 0 ? "-" : "") + fmtPts(Math.abs(n || 0));
 /** Keep an English half on one line so a bilingual label only wraps at " / ". */
 export const enNb = (s) => s.replace(/ /g, NB);
+
+/**
+ * Signed order total of the export_for_printing data, whatever the 18.0 build:
+ * taxTotals.order_sign * taxTotals.order_total (order_sign only exists since Odoo 186bb06b,
+ * 2024-12-16; taxTotals since 8fb7e5fd, 2024-11-29), else amount_total (every build).
+ * NaN when neither is a number.
+ */
+export function khOrderTotal(data) {
+    const t = data?.taxTotals;
+    if (t && typeof t.order_total === "number") {
+        return (typeof t.order_sign === "number" ? t.order_sign : 1) * t.order_total;
+    }
+    return typeof data?.amount_total === "number" ? data.amount_total : NaN;
+}
+/** Signed cash rounding of the order (taxTotals.order_rounding, or rounding_applied before 8fb7e5fd). */
+export function khOrderRounding(data) {
+    const t = data?.taxTotals;
+    if (t && typeof t.order_rounding === "number") {
+        return (typeof t.order_sign === "number" ? t.order_sign : 1) * t.order_rounding;
+    }
+    return typeof data?.rounding_applied === "number" ? data.rounding_applied : 0;
+}
 
 /** "yyyy-MM-dd HH:mm:ss" (UTC, as stored) or a luxon DateTime -> "dd/MM/yyyy HH:mm" in Phnom Penh. */
 export function khDateTime(value) {

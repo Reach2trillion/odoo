@@ -5,6 +5,11 @@
     pos_sale, l10n_* and other extenders keep finding their anchors.
     Khmer and bilingual nodes carry t-translation="off": the receipt must not depend on km.po
     or on the cashier's UI language.
+    Every xpath must resolve on every 18.0 build (an unresolved xpath throws and no receipt renders
+    at all). Anchors that only exist on some builds are written "<anchor> | <sink>": the union
+    resolves to the real node when it exists (it comes first in document order) and otherwise to
+    span.kh-xp-sink, a node inside <t t-if="false"> appended at the end of the receipt, where the
+    change is harmless and never rendered.
 -->
 <templates id="template" xml:space="preserve">
 
@@ -33,9 +38,19 @@
 </t>
 
 <t t-name="pos_receipt_khmer.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+    <!-- sink for the optional anchors (see the header comment); must stay the first operation -->
+    <xpath expr="//div[hasclass('pos-receipt')]" position="inside">
+        <t t-if="false"><span class="kh-xp-sink"/></t>
+    </xpath>
+    <!-- root classes only when the Khmer data exists: if it could not be built, no receipt CSS
+         applies and the core receipt prints unchanged -->
     <xpath expr="//div[hasclass('pos-receipt')]" position="attributes">
-        <attribute name="class" add="o_kh_receipt" separator=" "/>
-        <attribute name="t-att-class">{'o_kh_unpaid': props.data.kh?.unpaid}</attribute>
+        <attribute name="t-att-class">{'o_kh_receipt': props.data.kh, 'o_kh_unpaid': props.data.kh?.unpaid}</attribute>
+    </xpath>
+    <!-- the total is the first div.pos-receipt-amount on every 18.0 build; core only added the
+         receipt-total class in Nov 2024 (8fb7e5fd), so add it (once) for the anchors and CSS below -->
+    <xpath expr="//div[hasclass('pos-receipt-amount')]" position="attributes">
+        <attribute name="class" remove="receipt-total" add="receipt-total" separator=" "/>
     </xpath>
     <!-- band + meta -->
     <xpath expr="//ReceiptHeader" position="after">
@@ -65,9 +80,30 @@
     <xpath expr="//li[hasclass('customer-note')]/i" position="after">
         <span class="kh-note-lbl" t-translation="off">សម្គាល់ / Note · </span>
     </xpath>
-    <!-- amounts: receipt-only USD formatter (attribute change only; the spans stay as anchors) -->
+    <!-- amounts: receipt-only USD formatter (attribute change only; the spans stay as anchors).
+         Every amount span gets it, so a refund prints "-$15.72" everywhere, never "$ -15.70". -->
     <xpath expr="//div[hasclass('receipt-total')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
-        <attribute name="t-esc">khUsd(props.data.taxTotals.order_sign * props.data.taxTotals.order_total)</attribute>
+        <attribute name="t-esc">khUsd(khTotal())</attribute>
+    </xpath>
+    <!-- cash rounding (receipt-rounding / receipt-to-pay classes: Nov 2024 builds and later) -->
+    <xpath expr="//div[hasclass('receipt-rounding')]/span[hasclass('pos-receipt-right-align')] | //span[hasclass('kh-xp-sink')]" position="attributes">
+        <attribute name="t-esc">khUsd(khRounding())</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-to-pay')]/span[hasclass('pos-receipt-right-align')] | //span[hasclass('kh-xp-sink')]" position="attributes">
+        <attribute name="t-esc">khUsd(khTotal() + khRounding())</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('receipt-to-pay')]/span[hasclass('pos-receipt-right-align')] | //span[hasclass('kh-xp-sink')]" position="before">
+        <span t-if="props.data.kh" class="kh-topay-lbl" t-translation="off">ប្រាក់ត្រូវបង់ / To pay</span>
+    </xpath>
+    <!-- tax summary: only where the exact core expression is found, so the loop variables exist -->
+    <xpath expr="//div[hasclass('pos-receipt-taxes')]//span[@t-esc='props.formatCurrency(subtotal.base_amount_currency)'] | //span[hasclass('kh-xp-sink')]" position="attributes">
+        <attribute name="t-esc">khUsd(subtotal.base_amount_currency)</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('pos-receipt-taxes')]//span[@t-esc='props.formatCurrency(tax_group.base_amount_currency)'] | //span[hasclass('kh-xp-sink')]" position="attributes">
+        <attribute name="t-esc">khUsd(tax_group.base_amount_currency)</attribute>
+    </xpath>
+    <xpath expr="//div[hasclass('pos-receipt-taxes')]//span[@t-esc='props.formatCurrency(tax_group.tax_amount_currency)'] | //span[hasclass('kh-xp-sink')]" position="attributes">
+        <attribute name="t-esc">khUsd(tax_group.tax_amount_currency)</attribute>
     </xpath>
     <xpath expr="//div[hasclass('paymentlines')]/span[hasclass('pos-receipt-right-align')]" position="attributes">
         <attribute name="t-esc">khUsd(line.amount)</attribute>
@@ -88,7 +124,7 @@
         <span t-if="props.data.kh?.total_khr" class="kh-amt-khr" t-translation="off"><t t-esc="props.data.kh.total_khr"/>&#160;<span class="kh-riel">៛</span></span>
     </xpath>
     <xpath expr="//div[hasclass('receipt-total')]" position="after">
-        <div t-if="props.data.kh?.rate_text" class="kh-row kh-rate" t-translation="off"><span>អត្រាប្តូរប្រាក់ / Rate</span><b>1 USD = <t t-esc="props.data.kh.rate_text"/>&#160;<span class="kh-riel">៛</span></b></div>
+        <div t-if="props.data.kh?.rate_text" class="kh-row kh-rate" t-translation="off"><span>អត្រាប្តូរប្រាក់ / Rate</span><b>1 <t t-esc="props.data.kh.rate_from"/> = <t t-esc="props.data.kh.rate_text"/>&#160;<span class="kh-riel">៛</span></b></div>
     </xpath>
     <!-- payments -->
     <xpath expr="//div[hasclass('paymentlines')]" position="before">
@@ -108,9 +144,11 @@
     <xpath expr="//div[hasclass('before-footer')]" position="inside">
         <div t-if="props.data.kh?.loyalty?.length" class="kh-loyalty" t-translation="off">
             <t t-foreach="props.data.kh.loyalty" t-as="ls" t-key="ls_index">
-                <div t-if="ls.won" class="kh-row"><span>ពិន្ទុទទួលបាន / <t t-esc="ls.name"/> earned</span><b>+<t t-esc="ls.won"/></b></div>
-                <div t-if="ls.spent" class="kh-row"><span>ពិន្ទុបានប្រើ / <t t-esc="ls.name"/> spent</span><b>-<t t-esc="ls.spent"/></b></div>
-                <div t-if="ls.balance" class="kh-row"><span>សមតុល្យពិន្ទុ / <t t-esc="ls.name"/> balance</span><b t-esc="ls.balance"/></div>
+                <!-- the program's points name only when there is more than one program -->
+                <div t-if="props.data.kh.loyalty.length > 1 and ls.name" class="kh-loy-name" t-esc="ls.name"/>
+                <div t-if="ls.won" class="kh-row"><span>ពិន្ទុទទួលបាន / Points earned</span><b t-esc="ls.won"/></div>
+                <div t-if="ls.spent" class="kh-row"><span>ពិន្ទុបានប្រើ / Points spent</span><b t-esc="ls.spent"/></div>
+                <div t-if="ls.balance" class="kh-row"><span>សមតុល្យពិន្ទុ / Points balance</span><b t-esc="ls.balance"/></div>
             </t>
         </div>
     </xpath>

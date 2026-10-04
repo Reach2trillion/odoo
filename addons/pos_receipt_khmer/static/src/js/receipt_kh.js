@@ -1,6 +1,7 @@
 /* global luxon */
 import { markup, toRaw } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
+import { localization } from "@web/core/l10n/localization";
 import { patch } from "@web/core/utils/patch";
 import { floatIsZero } from "@web/core/utils/numbers";
 import { PosOrder } from "@point_of_sale/app/models/pos_order";
@@ -12,11 +13,15 @@ import {
     clean,
     enNb,
     fmtInt,
+    fmtPts,
+    fmtPtsSigned,
     fmtRate,
     halfUp,
     khDateTime,
     khMoney,
     khNumber,
+    khOrderRounding,
+    khOrderTotal,
     khPhone,
     khQty,
     khRate,
@@ -76,23 +81,55 @@ patch(PosStore.prototype, {
 patch(PosOrder.prototype, {
     export_for_printing(baseUrl, headerData) {
         const res = super.export_for_printing(...arguments);
+        // the template's change row reads these two keys on every build: normalise them first,
+        // on their own, so they are right even if the Khmer data below fails
+        try {
+            this._khNormaliseChange(res);
+        } catch (error) {
+            console.error("pos_receipt_khmer: could not normalise the change", error);
+        }
         try {
             this._khExportForPrinting(res);
         } catch (error) {
-            // never block printing: the receipt falls back to the core content
+            // never block printing: without res.kh the root gets no o_kh_receipt class, so none of
+            // the receipt CSS applies and the core receipt (header included) prints as is
             delete res.kh;
+            if (res.headerData?.kh) {
+                res.headerData = { ...res.headerData };
+                delete res.headerData.kh;
+            }
             console.error("pos_receipt_khmer: could not build the Khmer receipt data", error);
         }
         return res;
     },
 
+    /**
+     * order_change / show_change, whatever the 18.0 build computed (older builds have no
+     * show_change, or show it on unpaid drafts as a negative "CHANGE -6.00"): only a real,
+     * positive change on a paid order with at least one payment line.
+     */
+    _khNormaliseChange(res) {
+        const digits = this.currency?.decimal_places ?? 2;
+        const orderChange =
+            typeof res.order_change === "number" ? res.order_change : this.get_change();
+        res.order_change = orderChange;
+        res.show_change =
+            (res.show_change ?? true) &&
+            this.finalized &&
+            Number.isFinite(orderChange) &&
+            orderChange > 0 &&
+            !floatIsZero(orderChange, digits) &&
+            (res.paymentlines?.length || 0) > 0;
+    },
+
     _khExportForPrinting(res) {
-        const rate = khRate(this.company, this.models);
+        const currency = this.currency;
+        const rate = khRate(this.company, this.models, currency);
         const unpaid = !this.finalized;
         const isReceipt = this.company.kh_doc_title === "receipt";
-        const taxTotals = res.taxTotals || this.taxTotals;
-        const total = taxTotals.order_sign * taxTotals.order_total;
-        const digits = this.currency?.decimal_places ?? 2;
+        // build-independent (taxTotals / order_sign do not exist on every 18.0 build)
+        const total = khOrderTotal(res);
+        const digits = currency?.decimal_places ?? 2;
         const pays = this.payment_ids.filter((p) => !p.is_change); // same filter and order as core
         const aligned = pays.length === res.paymentlines.length;
 
@@ -109,6 +146,16 @@ patch(PosOrder.prototype, {
                     copy[key] = khMoney(copy[key]);
                 }
             }
+            // 100 % discount: core prints the translated "Free" instead of an amount
+            if (copy.discount === "100" && typeof copy.price === "string" && !/\d/.test(copy.price)) {
+                copy.price = "ឥតគិតថ្លៃ / Free";
+            }
+            // pos_sale down-payment details ("$ 1,800.00" -> "$1,800.00")
+            if (Array.isArray(copy.details)) {
+                copy.details = copy.details.map((d) =>
+                    d && typeof d.total === "string" ? { ...d, total: khMoney(d.total) } : d
+                );
+            }
             return copy;
         });
         res.paymentlines = res.paymentlines.map((pl, i) => {
@@ -124,18 +171,8 @@ patch(PosOrder.prototype, {
             return { ...pl, name, kh_txn: payment?.transaction_id || "" };
         });
 
-        // change: normalised here, whatever the 18.0 build computed (older builds have no
-        // show_change, or show it on unpaid drafts as a negative "CHANGE -6.00").
-        // Only a real, positive change on a paid order with at least one payment line.
-        const orderChange =
-            typeof res.order_change === "number" ? res.order_change : this.get_change();
-        res.order_change = orderChange;
-        res.show_change =
-            (res.show_change ?? true) &&
-            !unpaid &&
-            orderChange > 0 &&
-            !floatIsZero(orderChange, digits) &&
-            res.paymentlines.length > 0;
+        // change: normalised by _khNormaliseChange (export_for_printing)
+        const orderChange = res.order_change;
 
         res.label_total = markup(
             unpaid
@@ -149,15 +186,20 @@ patch(PosOrder.prototype, {
         res.label_rounding = markup("<span>ការបង្គត់ / Rounding</span>");
 
         // KHR total: exact conversion to 1 riel (Notification 4908), never rounded to 100
-        const totalKhr = rate ? halfUp(clean(total * rate)) : null;
-        // KHR change (cash handling): nearest 100 riel, with an explicit rounding row
+        const totalKhr = rate && Number.isFinite(total) ? halfUp(clean(total * rate)) : null;
+        // KHR change (cash handling): the exact riel amount rounded to the nearest 100 riel (from
+        // the exact amount, so the rounding row always adds up), with an explicit rounding row;
+        // nothing when it rounds to 0 riel (e.g. $0.01)
         let changeKhr = null;
         let changeRound = "";
         if (rate && res.show_change) {
             const exact = halfUp(clean(orderChange * rate));
-            changeKhr = halfUp(clean((orderChange * rate) / 100)) * 100;
-            if (changeKhr !== exact) {
-                changeRound = (changeKhr > exact ? "+" : "-") + fmtInt(Math.abs(changeKhr - exact));
+            const cash = halfUp(exact / 100) * 100;
+            if (cash > 0) {
+                changeKhr = cash;
+                if (cash !== exact) {
+                    changeRound = (cash > exact ? "+" : "-") + fmtInt(Math.abs(cash - exact));
+                }
             }
         }
 
@@ -178,6 +220,7 @@ patch(PosOrder.prototype, {
             date: khDateTime(this.date_order),
             partner_name: this.get_partner()?.name || "",
             rate_text: rate ? fmtRate(rate) : "",
+            rate_from: currency?.name || "",
             total_khr:
                 totalKhr === null ? "" : (totalKhr < 0 ? "-" : "") + fmtInt(Math.abs(totalKhr)),
             change_khr: changeKhr === null ? "" : fmtInt(changeKhr),
@@ -194,21 +237,25 @@ patch(PosOrder.prototype, {
                 // same condition as the core discount <li> of the Orderline template
                 const disc = Boolean(d.discount && d.discount !== "0");
                 return {
-                    qty: khQty(d.qty),
+                    qty: khQty(d.qty, localization.decimalPoint),
                     // "1 × $5.00" shows the unit price before the discount
                     unit_price: disc ? d.price_without_discount || d.unitPrice : d.unitPrice,
                     disc_line: disc ? `បញ្ចុះតម្លៃ ${d.discount}% / ${d.discount}% discount` : "",
                 };
             }),
-            // same guard as pos_loyalty's own receipt rows
-            loyalty: (res.loyaltyStats || [])
-                .filter((s) => s.program?.portal_visible && (s.points?.won || s.points?.spent))
-                .map((s) => ({
-                    name: s.points.name || "Points",
-                    won: s.points.won,
-                    spent: s.points.spent,
-                    balance: s.points.balance,
-                })),
+            // same guard as pos_loyalty's own receipt rows. Not on an unpaid pre-receipt: nothing
+            // is earned or spent before payment, and the balance would not add up.
+            loyalty: unpaid
+                ? []
+                : (res.loyaltyStats || [])
+                      .filter((s) => s.program?.portal_visible && (s.points?.won || s.points?.spent))
+                      .map((s) => ({
+                          name: s.points.name || "",
+                          won: s.points.won ? fmtPtsSigned(s.points.won) : "",
+                          // spent points print as a deduction ("-5")
+                          spent: s.points.spent ? fmtPtsSigned(-s.points.spent) : "",
+                          balance: s.points.balance ? fmtPts(s.points.balance) : "",
+                      })),
         };
     },
 });
@@ -222,6 +269,15 @@ patch(OrderReceipt.prototype, {
         const v = Number(value) || 0;
         const s = stripNb(this.props.formatCurrency(Math.abs(v)));
         return v < 0 && !floatIsZero(v, 6) ? "-" + s : s;
+    },
+    /** Signed order total, whatever the 18.0 build (see khOrderTotal). */
+    khTotal() {
+        const total = khOrderTotal(this.props.data);
+        return Number.isFinite(total) ? total : 0;
+    },
+    /** Signed cash rounding of the order, whatever the 18.0 build. */
+    khRounding() {
+        return khOrderRounding(this.props.data) || 0;
     },
     /**
      * Receipt-only data of the orderline rendered in the <Orderline> slot. The slot's `line`
