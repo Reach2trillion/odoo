@@ -8,6 +8,9 @@ import { AbaKhqrDialog } from "./khqr_dialog/khqr_dialog";
 
 const POLL_INTERVAL_MS = 3000;
 const PAID_CLOSE_DELAY_MS = 1400;
+// Popup states mirrored on the customer-facing display; any other state
+// (cancelled, failed, error) simply takes the KHQR off the second screen.
+const DISPLAY_STATES = ["loading", "waiting", "paid", "expired"];
 
 /**
  * POS "terminal" for ABA KHQR.
@@ -102,6 +105,7 @@ export class PaymentAbaKhqr extends PaymentInterface {
             },
             { onClose: () => this._onDialogClosed(session) }
         );
+        this._syncDisplay(session);
         this._createRequest(session);
         return result;
     }
@@ -110,6 +114,7 @@ export class PaymentAbaKhqr extends PaymentInterface {
         const { ui } = session;
         this._stopTimers(session);
         Object.assign(ui, { state: "loading", request: null, error: "", warning: "" });
+        this._syncDisplay(session);
         try {
             const request = await this._call("aba_khqr_create_request", [
                 this.pos.config.id,
@@ -129,6 +134,7 @@ export class PaymentAbaKhqr extends PaymentInterface {
         } catch (error) {
             ui.state = "error";
             ui.error = this._errorMessage(error);
+            this._syncDisplay(session);
         }
     }
 
@@ -147,6 +153,53 @@ export class PaymentAbaKhqr extends PaymentInterface {
             ui.state = request.state; // expired | cancelled | failed
             this._stopTimers(session);
         }
+        this._syncDisplay(session);
+    }
+
+    /**
+     * Mirror the popup on the customer-facing display (second screen).
+     *
+     * Writes a small plain-data record on the (reactive) order; the POS
+     * streams it to the display with the rest of the order (see
+     * models/pos_order.js). Nothing is sent when the POS has no customer
+     * display, e.g. on a handheld terminal.
+     */
+    _syncDisplay(session) {
+        const order = session.order;
+        if (!order) {
+            return;
+        }
+        const { ui } = session;
+        if (session.done || !DISPLAY_STATES.includes(ui.state)) {
+            if (order.abaKhqrDisplay) {
+                order.abaKhqrDisplay = null;
+            }
+            return;
+        }
+        const request = ui.request;
+        const currency = request?.currency || this.pos.currency?.name || "";
+        order.abaKhqrDisplay = {
+            state: ui.state,
+            tranId: request?.tran_id || "",
+            mode: request?.mode || "payway",
+            qrImage: request?.qr_image || "",
+            merchantName: request?.merchant_name || this.paymentMethodName,
+            amountText: request?.amount_text || this._amountText(session.amount, currency),
+            currency,
+            currencySymbol: request?.currency_symbol || (currency === "KHR" ? "៛" : "$"),
+            apv: request?.apv || "",
+            logoUrl: request?.logo_url || "",
+            orderRef: ui.orderRef || "",
+            expiresAt: ui.state === "waiting" ? session.expiresAt || 0 : 0,
+        };
+    }
+
+    _amountText(amount, currency) {
+        const digits = currency === "KHR" ? 0 : 2;
+        return Number(amount || 0).toLocaleString("en-US", {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits,
+        });
     }
 
     _startTimers(session) {
@@ -289,6 +342,7 @@ export class PaymentAbaKhqr extends PaymentInterface {
         }
         session.done = true;
         this._stopTimers(session);
+        this._syncDisplay(session);
         if (this.session === session) {
             this.session = null;
         }

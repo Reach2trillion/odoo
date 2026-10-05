@@ -1,6 +1,7 @@
 # ABA KHQR for Point of Sale (Odoo 18)
 
-Customers scan a **KHQR** on the POS screen with ABA Mobile (or ACLEDA, Wing,
+Customers scan a **KHQR** on the POS screen — or on the customer-facing
+display when the till has a second screen — with ABA Mobile (or ACLEDA, Wing,
 Bakong… any KHQR app). With ABA PayWay the payment is confirmed automatically
 and the order validates by itself.
 
@@ -43,6 +44,7 @@ scanner can't pay it directly. This module shows a real KHQR instead.
 3. Restart Odoo, then **Apps → ABA KHQR for Point of Sale → Upgrade**
    (or `odoo -u pos_aba_khqr -d <db>`).
 4. Reload the POS with `Ctrl+Shift+R`. The red "css error" banner is gone.
+5. Reload the **customer display** page too (it has its own asset bundle).
 
 The upgrade keeps the existing fields (`aba_khqr_provider_id`,
 `aba_khqr_lifetime`, `aba_khqr_template`, `aba_khqr_webhook_url`) and the
@@ -84,6 +86,34 @@ adds the amount, the order reference and a 5-minute expiry.
    received** → **Yes, received**.
 4. **New QR** if it expired; **Cancel** to choose another method. Cancelling
    first re-checks ABA, so a last-second payment is never lost.
+
+## Customer display (second screen)
+
+Some tills have two screens: the cashier's POS and a **customer-facing
+display** (Point of Sale → Settings → *Customer Display*, the page at
+`/pos_customer_display/<config>/<token>`). While the cashier's KHQR popup is
+open, the **same KHQR is shown full-size on the customer display** — the
+customer scans from their side of the counter and never has to read the
+cashier's screen.
+
+* Appears the moment the cashier taps the method ("Preparing your KHQR…"),
+  then shows the KHQR card, the amount, a Khmer/English *Waiting for payment*
+  line and the countdown.
+* Turns green — *បានទទួលប្រាក់ / Payment received / Thank you* — when PayWay
+  confirms (or the cashier confirms in own-KHQR mode), stays a moment, then
+  the display goes back to the order / thank-you screen.
+* Cancel on the POS takes it off the display at once; an expired QR shows
+  "QR expired" until the cashier presses **New QR**.
+* Nothing changes on a single-screen / handheld POS: the cashier's popup is
+  still the QR the customer scans. The display only receives data when the
+  POS has a customer display configured.
+
+Technical: the POS adds an `abaKhqr` block to the data it already streams to
+the display (`getCustomerDisplayData`), and a small patch of the display
+opens/closes a dialog on it. Local (same device) and remote (other device)
+display types both work; the countdown is re-anchored on every message, so
+the two devices' clocks don't need to agree. Styling lives in
+`static/src/customer_display/` and is loaded only in the display bundle.
 
 ## Back office
 

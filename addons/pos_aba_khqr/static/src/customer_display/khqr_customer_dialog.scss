@@ -1,0 +1,390 @@
+// ABA KHQR on the customer-facing display (second screen).
+//
+// Same rules as the cashier popup: Odoo compiles SCSS with libsass, which
+// chokes on CSS min()/max() with mixed units — size with width + max-width.
+// The modal frame itself is left alone so a themed display (e.g. a frosted
+// .modal-content) keeps its look; only the content below is styled.
+
+$o-khqr-cd-red: #e1232e;
+$o-khqr-cd-ink: #1d2733;
+$o-khqr-cd-muted: #6b7785;
+$o-khqr-cd-line: #d6dde4;
+$o-khqr-cd-teal: #005b7f;
+$o-khqr-cd-success: #12a05a;
+$o-khqr-cd-card-width: 360px;
+$o-khqr-cd-khmer: "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS", "Khmer UI", sans-serif;
+
+.o_aba_khqr_cd_dialog {
+    border-radius: 28px;
+    overflow: hidden;
+
+    .modal-body {
+        padding: 0;
+    }
+}
+
+.o_aba_khqr_cd {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 22px 24px;
+    color: $o-khqr-cd-ink;
+    text-align: center;
+}
+
+// ------------------------------------------------------------------ header
+
+.o_aba_khqr_cd_head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.o_aba_khqr_cd_logo {
+    height: 44px;
+    width: auto;
+    padding: 4px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(10, 35, 55, 0.12);
+}
+
+.o_aba_khqr_cd_mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: $o-khqr-cd-teal;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+}
+
+.o_aba_khqr_cd_headtext {
+    text-align: left;
+}
+
+.o_aba_khqr_cd_km {
+    font-family: $o-khqr-cd-khmer;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.o_aba_khqr_cd_en {
+    color: $o-khqr-cd-muted;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+// -------------------------------------------------------------------- card
+// KHQR card after the NBC guideline: red head with folded corner, merchant
+// and amount, dashed separator, QR with the currency mark in the middle.
+
+.o_aba_khqr_cd_card {
+    position: relative;
+    width: 100%;
+    max-width: $o-khqr-cd-card-width;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 18px 44px rgba(10, 35, 55, 0.18);
+    overflow: hidden;
+    animation: o_aba_khqr_cd_rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.o_aba_khqr_cd_card_top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 58px;
+    background: $o-khqr-cd-red;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+
+    &::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -20px;
+        border-top: 20px solid $o-khqr-cd-red;
+        border-left: 20px solid transparent;
+    }
+}
+
+.o_aba_khqr_cd_card_info {
+    padding: 20px 30px 14px;
+    text-align: left;
+}
+
+.o_aba_khqr_cd_merchant {
+    overflow: hidden;
+    font-size: 1rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.o_aba_khqr_cd_amount {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.o_aba_khqr_cd_value {
+    color: #000;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_aba_khqr_cd_currency {
+    color: $o-khqr-cd-muted;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.o_aba_khqr_cd_sep {
+    border-top: 2px dashed $o-khqr-cd-line;
+}
+
+.o_aba_khqr_cd_qrwrap {
+    padding: 18px 26px 26px;
+}
+
+.o_aba_khqr_cd_qrbox {
+    position: relative;
+    width: 100%;
+}
+
+.o_aba_khqr_cd_qr {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    transition: opacity 0.25s ease, filter 0.25s ease;
+
+    &.is-faded {
+        opacity: 0.18;
+        filter: blur(1.5px);
+    }
+}
+
+// Currency mark in the centre (the QR is generated with error correction Q).
+.o_aba_khqr_cd_badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: translate(-50%, -50%);
+
+    &.is-khr {
+        font-family: $o-khqr-cd-khmer;
+        font-size: 1.8rem;
+    }
+}
+
+.o_aba_khqr_cd_skeleton {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #eef1f4 25%, #dfe5ea 37%, #eef1f4 63%);
+    background-size: 400% 100%;
+    animation: o_aba_khqr_cd_shimmer 1.3s ease infinite;
+}
+
+.o_aba_khqr_cd_overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+}
+
+.o_aba_khqr_cd_overlay_km {
+    font-family: $o-khqr-cd-khmer;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.o_aba_khqr_cd_overlay_en {
+    color: $o-khqr-cd-muted;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.o_aba_khqr_cd_overlay_icon {
+    color: $o-khqr-cd-muted;
+    font-size: 2.6rem;
+}
+
+.o_aba_khqr_cd_check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 104px;
+    height: 104px;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background: $o-khqr-cd-success;
+    color: #fff;
+    font-size: 3.2rem;
+    box-shadow: 0 10px 28px rgba(18, 160, 90, 0.35);
+    animation: o_aba_khqr_cd_pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.is-paid .o_aba_khqr_cd_card_top {
+    background: $o-khqr-cd-success;
+
+    &::after {
+        border-top-color: $o-khqr-cd-success;
+    }
+}
+
+// ------------------------------------------------------------------ status
+
+.o_aba_khqr_cd_status {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-size: 1.05rem;
+    font-weight: 600;
+
+    &.is-paid {
+        color: $o-khqr-cd-success;
+    }
+
+    &.is-urgent,
+    &.is-expired {
+        color: $o-khqr-cd-red;
+    }
+}
+
+.o_aba_khqr_cd_status_km {
+    font-family: $o-khqr-cd-khmer;
+}
+
+.o_aba_khqr_cd_status_en {
+    color: $o-khqr-cd-muted;
+    font-weight: 500;
+
+    .is-paid & {
+        color: $o-khqr-cd-success;
+    }
+
+    .is-expired & {
+        color: $o-khqr-cd-red;
+    }
+}
+
+.o_aba_khqr_cd_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $o-khqr-cd-teal;
+    animation: o_aba_khqr_cd_pulse 1.4s ease-in-out infinite;
+
+    .is-urgent & {
+        background: $o-khqr-cd-red;
+    }
+}
+
+.o_aba_khqr_cd_timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.o_aba_khqr_cd_ref {
+    color: $o-khqr-cd-muted;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+}
+
+@keyframes o_aba_khqr_cd_pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.35;
+        transform: scale(0.7);
+    }
+}
+
+@keyframes o_aba_khqr_cd_pop {
+    from {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes o_aba_khqr_cd_rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes o_aba_khqr_cd_shimmer {
+    from {
+        background-position: 100% 50%;
+    }
+    to {
+        background-position: 0 50%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .o_aba_khqr_cd {
+        padding: 16px 14px 18px;
+    }
+
+    .o_aba_khqr_cd_km {
+        font-size: 1.15rem;
+    }
+
+    .o_aba_khqr_cd_value {
+        font-size: 2rem;
+    }
+}

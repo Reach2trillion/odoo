@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="pos_aba_khqr.AbaKhqrCustomerDialog">
+        <Dialog header="false" footer="false" size="'md'" withBodyPadding="false"
+                contentClass="'o_aba_khqr_cd_dialog'">
+            <div class="o_aba_khqr_cd" t-att-class="{ 'is-paid': isPaid, 'is-expired': isExpired }">
+
+                <div class="o_aba_khqr_cd_head">
+                    <img t-if="khqr.logoUrl" class="o_aba_khqr_cd_logo" t-att-src="khqr.logoUrl" alt="ABA"/>
+                    <span t-else="" class="o_aba_khqr_cd_mark">ABA</span>
+                    <div class="o_aba_khqr_cd_headtext">
+                        <t t-if="isPaid">
+                            <div class="o_aba_khqr_cd_km">បានទទួលប្រាក់</div>
+                            <div class="o_aba_khqr_cd_en">Payment received</div>
+                        </t>
+                        <t t-else="">
+                            <div class="o_aba_khqr_cd_km">ស្កេនដើម្បីបង់ប្រាក់</div>
+                            <div class="o_aba_khqr_cd_en">Scan to pay · ABA Mobile or any KHQR bank app</div>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="o_aba_khqr_cd_card">
+                    <div class="o_aba_khqr_cd_card_top"><span>KHQR</span></div>
+                    <div class="o_aba_khqr_cd_card_info">
+                        <div class="o_aba_khqr_cd_merchant" t-esc="khqr.merchantName"/>
+                        <div class="o_aba_khqr_cd_amount">
+                            <span class="o_aba_khqr_cd_value" t-esc="khqr.amountText"/>
+                            <span class="o_aba_khqr_cd_currency" t-esc="khqr.currency"/>
+                        </div>
+                    </div>
+                    <div class="o_aba_khqr_cd_sep"/>
+                    <div class="o_aba_khqr_cd_qrwrap">
+                        <div class="o_aba_khqr_cd_qrbox">
+                            <t t-if="khqr.qrImage">
+                                <img class="o_aba_khqr_cd_qr" alt="KHQR" t-att-src="khqr.qrImage"
+                                     t-att-class="{ 'is-faded': isPaid or isExpired }"/>
+                                <span t-if="isWaiting" class="o_aba_khqr_cd_badge"
+                                      t-att-class="{ 'is-khr': khqr.currency === 'KHR' }"
+                                      t-esc="khqr.currencySymbol"/>
+                            </t>
+                            <div t-else="" class="o_aba_khqr_cd_skeleton"/>
+
+                            <div t-if="isPaid" class="o_aba_khqr_cd_overlay">
+                                <div class="o_aba_khqr_cd_check"><i class="fa fa-check" role="img" aria-label="Paid"/></div>
+                                <div class="o_aba_khqr_cd_overlay_km">អរគុណ</div>
+                                <div class="o_aba_khqr_cd_overlay_en">Thank you</div>
+                            </div>
+                            <div t-elif="isExpired" class="o_aba_khqr_cd_overlay">
+                                <i class="fa fa-clock-o o_aba_khqr_cd_overlay_icon" role="img"/>
+                                <div class="o_aba_khqr_cd_overlay_km">QR ផុតកំណត់ សូមរង់ចាំ QR ថ្មី</div>
+                                <div class="o_aba_khqr_cd_overlay_en">QR expired — a new one is coming</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="o_aba_khqr_cd_status" t-att-class="{ 'is-paid': isPaid, 'is-urgent': isUrgent, 'is-expired': isExpired }">
+                    <t t-if="isLoading and !isPaid">
+                        <i class="fa fa-circle-o-notch fa-spin" role="img"/>
+                        <span class="o_aba_khqr_cd_status_km">កំពុងរៀបចំ KHQR</span>
+                        <span class="o_aba_khqr_cd_status_en">Preparing your KHQR…</span>
+                    </t>
+                    <t t-elif="isPaid">
+                        <i class="fa fa-check-circle" role="img"/>
+                        <span class="o_aba_khqr_cd_status_en">
+                            Paid<t t-if="khqr.apv"> · APV <t t-esc="khqr.apv"/></t>
+                        </span>
+                    </t>
+                    <t t-elif="isExpired">
+                        <i class="fa fa-clock-o" role="img"/>
+                        <span class="o_aba_khqr_cd_status_en">QR expired</span>
+                    </t>
+                    <t t-else="">
+                        <span class="o_aba_khqr_cd_dot"/>
+                        <span class="o_aba_khqr_cd_status_km">រង់ចាំការទូទាត់</span>
+                        <span class="o_aba_khqr_cd_status_en">Waiting for payment</span>
+                        <span class="o_aba_khqr_cd_timer" t-esc="countdown"/>
+                    </t>
+                </div>
+                <div t-if="khqr.orderRef" class="o_aba_khqr_cd_ref" t-esc="khqr.orderRef"/>
+            </div>
+        </Dialog>
+    </t>
+
+</templates>
