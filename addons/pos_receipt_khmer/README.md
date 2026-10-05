@@ -146,6 +146,15 @@ Run the tests with
 
 ## Implementation notes
 
+**Print race on older 18.0 builds (fixed in 18.0.1.1.2).** Before mid-2025, Odoo's receipt renderer
+handed the printer the render container's `firstChild` from a hook that also fires 100 ms after the
+container is flushed. Two overlapping prints (a double click, or a click while the Khmer font was
+still loading) could resolve with the empty placeholder text node, and printing failed with
+`TypeError: el.classList is not iterable` in `applyWhenMounted`, or a print never finished. The
+module now runs renderer calls one at a time and renders again when the result is not an element
+(`static/src/js/font_ready.js`, `guardRenderer`). The font wait before printing is capped at 2 s.
+
+
 The module follows the design spec (`design/final/SPEC.md`). Deviations, each because the spec did
 not work as written on real Odoo 18.0:
 

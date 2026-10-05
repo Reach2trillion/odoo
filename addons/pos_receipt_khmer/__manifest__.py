@@ -1,6 +1,6 @@
 {
     'name': 'POS Khmer Bilingual Receipt (ABJ)',
-    'version': '18.0.1.1.1',
+    'version': '18.0.1.1.2',
     'category': 'Sales/Point of Sale',
     'summary': 'Khmer / English customer receipt and cash in/out slip for the Point of Sale, '
                'with the KHR total, exchange rate and riel change.',
