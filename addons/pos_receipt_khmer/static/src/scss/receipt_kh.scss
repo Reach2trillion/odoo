@@ -165,6 +165,8 @@
   display: block !important; font-weight: 600 !important; padding-right: 0.8em !important;
   white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
   -webkit-line-clamp: unset; overflow-wrap: break-word;   /* wrap, never clip; break-word (not anywhere) keeps Khmer clusters whole */
+  min-width: 0;   /* flex item beside the price: never wider than the room left by the price, even with a
+                     word longer than the line (min-width: auto would be that word: price pushed off the paper) */
 }
 .pos-receipt.o_kh_receipt .orderline .product-price { font-weight: 600 !important; white-space: nowrap; }
 .pos-receipt.o_kh_receipt .orderline .info-list {
@@ -205,6 +207,64 @@
 .pos-receipt.o_kh_receipt .sale-order-info td:last-child { white-space: nowrap !important; }
 .pos-receipt.o_kh_receipt .sale-order-info td:last-child { padding-right: 0; text-align: right; }
 .pos-receipt.o_kh_receipt .fst-italic { font-style: normal !important; }
+
+/* ---------- 6b. Product names as word boxes (pos.config.kh_product_names) -------
+   export_for_printing swaps the receipt copy's productName for the Khmer name; "Khmer + English" keeps
+   the English name in kh_name_en, printed under it in the secondary size (li.kh-name-en, first row of
+   the info list). Every line's name (Khmer or not, in every mode) and the English line are printed as
+   word boxes from khWords(): span.kh-words > span.kh-w, one box per word (the words between spaces or
+   typed zero-width spaces; a bracketed Latin group such as the variant values "(Plastic, S)" is one
+   box) in a wrapping flex row. A word that the Khmer dictionary splits is span.kh-g > span.kh-w (its
+   parts): one unit like a word, and only when it alone is wider than the line (min-width: 0, alone on
+   its flex line, shrunk to the line) does it wrap between its parts.
+   html-to-image redraws text at floor(px) - 0.1 inside the boxes measured on the live receipt, so a name
+   that wrapped live by less than that would fit on fewer lines in the image and print a blank line under
+   it (as one text line: 3 of the 88 demo products at 80 mm). Here a line break only depends on the box
+   widths, which the image copies (the reason for the label / value floats, 58 mm section 5).
+   - The space between two words is the right margin of the first one (kh-sp: the font's space, 0.316em
+     at weight 500, 0.302em at 600): a word moves to the next line when it and the space before it do
+     not fit, at most one space earlier than a text line would.
+   - A part (or a Latin word) longer than the whole line wraps inside its own box (min-width: 0;
+     break-word, at grapheme clusters, never inside one); in the printed image its text lines are
+     frozen too (below).
+   - Khmer names (kh-km): 0.3em more between their wrapped lines (line pitch 1.5 + 0.3 = 1.8em): a cluster
+     with two subscripts and a vowel below (ហ្គ្លូ, 0.73em of ink under the baseline) otherwise touches a
+     vowel with a sign above it on the next line (ប៊ី ប៊ើ, 0.98em above the baseline): 1.71em of ink,
+     1.65em with 0.15em. Single-line names keep their height.
+   - html-to-image copies the widths with 6 significant digits, which its clone snaps back to 1/64 px: a
+     line with less than 1/64 px to spare could still break differently there. Before a receipt becomes
+     an image (raster printer, e-mail), font_ready.js (khFreezeWordLines) lays out a copy and groups the
+     boxes of each line into a no-wrap span.kh-line (kh-frozen; a word that wrapped between its parts
+     is split into its parts first; the lines are told apart by the row's line height, not a box's own
+     height). A word longer than the line, which wraps inside its own box, is split into its text lines
+     (span.kh-w.kh-frag, no-wrap), one frozen line each: the image cannot re-wrap it either. That copy
+     is printed.
+   - Core's plain-text name (span.text-wrap) stays in the DOM and is hidden when the word boxes follow it
+     (:has()); without :has() support (Chrome 83-104) the word boxes are hidden instead (@supports below):
+     the plain name prints, once. The row keeps align-items: baseline: the word row's baseline is its
+     first line's. */
+.pos-receipt.o_kh_receipt .orderline .product-name:has(> .kh-words) > .text-wrap { display: none !important; }
+.pos-receipt.o_kh_receipt .orderline .kh-words,
+.pos-receipt.o_kh_receipt .orderline .kh-words .kh-g { display: flex; flex-wrap: wrap; align-items: baseline; }
+.pos-receipt.o_kh_receipt .orderline .kh-words .kh-g { min-width: 0; }
+.pos-receipt.o_kh_receipt .orderline .kh-words .kh-w { min-width: 0; white-space: normal; overflow-wrap: break-word; }
+.pos-receipt.o_kh_receipt .orderline .kh-words .kh-sp { margin-right: 0.316em; }
+.pos-receipt.o_kh_receipt .orderline .product-name > .kh-words .kh-sp { margin-right: 0.302em; }   /* weight 600 */
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-km,
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-km .kh-g { row-gap: 0.3em; }
+/* printed image only (font_ready.js khFreezeWordLines): the lines measured on a copy, one no-wrap row each */
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-frozen { display: block; }
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-frozen > .kh-line { display: flex; flex-wrap: nowrap; align-items: baseline; }
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-frozen .kh-g { flex-wrap: nowrap; }
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-frozen .kh-frag { white-space: nowrap; }   /* a text line of a word longer than the line */
+.pos-receipt.o_kh_receipt .orderline .kh-words.kh-km.kh-frozen > .kh-line + .kh-line { margin-top: 0.3em; }   /* = row-gap */
+.pos-receipt.o_kh_receipt .orderline .info-list > .kh-name-en { order: -2; align-self: stretch; line-height: 1.5; }   /* first row; full width (the list aligns its rows on the baseline: shrink-to-fit) */
+.pos-receipt.o_kh_receipt .orderline .info-list > .kh-name-en.kh-latin { line-height: 1.35; }    /* Latin only */
+/* no :has() (Chrome 83-104): core's plain-text name stays visible, so print it alone (Sass interpolation:
+   libsass cannot parse selector() in @supports; it compiles to the identical plain CSS) */
+@supports #{'not selector(:has(*))'} {
+  .pos-receipt.o_kh_receipt .orderline .product-name > .kh-words { display: none; }
+}
 
 /* ---------- 7. total: the one loud number, KHR in the same column -------- */
 .pos-receipt.o_kh_receipt > .text-center {                 /* core "--------" before the total -> 4px rule */

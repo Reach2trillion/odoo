@@ -20,6 +20,9 @@
                         prints with broken lines.
                     </div>
                 </setting>
+                <setting id="kh_product_names" string="Product names on the receipt" help="Khmer + English: the product's Khmer name is the item line and its English name prints under it in small type. Khmer only: the English product name is not printed (a product without a Khmer name prints its English name). The Khmer name is the product's &quot;Khmer name (receipt)&quot;, else the Khmer translation of its name. Reload the POS (or reopen the session) to apply.">
+                    <field name="pos_kh_product_names" widget="radio"/>
+                </setting>
             </xpath>
         </field>
     </record>

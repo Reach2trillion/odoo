@@ -13,6 +13,14 @@ class PosConfig(models.Model):
         string='58 mm print width (dots)', default=384,
         help='Width of the printed image on 58 mm paper. 384 for 203-dpi printers (Xprinter, Sunmi, '
              'most ESC/POS units, Epson TM-m10 / TM-m30 58 mm). 360 for Epson TM-T88 in 58 mm mode (180 dpi).')
+    kh_product_names = fields.Selection(
+        [('both', 'Khmer + English'), ('km', 'Khmer only'), ('en', 'English only')],
+        string='Product names on the receipt', default='both', required=True,
+        help='Khmer + English: the Khmer name of the product is the item line (with the price) and its '
+             'English name prints under it in small type. Khmer only: the English product name is not '
+             'printed (a product without a Khmer name still prints its English name). English only: the '
+             'product name only. The Khmer name is the product\'s "Khmer name (receipt)", else the Khmer '
+             'translation of its name. Reload the POS (or reopen the session) to apply.')
 
     @api.constrains('kh_raster_dots')
     def _check_kh_raster_dots(self):
@@ -25,4 +33,4 @@ class PosConfig(models.Model):
     def _load_pos_data_fields(self, config_id):
         # core loads every pos.config field ([]); only add ours if someone restricted the list
         fields_list = super()._load_pos_data_fields(config_id)
-        return fields_list + ['kh_paper_width', 'kh_raster_dots'] if fields_list else fields_list
+        return fields_list + ['kh_paper_width', 'kh_raster_dots', 'kh_product_names'] if fields_list else fields_list

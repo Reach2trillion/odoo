@@ -7,6 +7,7 @@ import { floatIsZero } from "@web/core/utils/numbers";
 import { PosOrder } from "@point_of_sale/app/models/pos_order";
 import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
+import { Orderline } from "@point_of_sale/app/generic_components/orderline/orderline";
 import { CashMoveReceipt } from "@point_of_sale/app/navbar/cash_move_popup/cash_move_receipt/cash_move_receipt";
 import {
     KH_TZ,
@@ -17,6 +18,7 @@ import {
     fmtPtsSigned,
     fmtRate,
     halfUp,
+    hasKhmer,
     khDateTime,
     khMoney,
     khNumber,
@@ -27,6 +29,7 @@ import {
     khQty,
     khRate,
     khWeb,
+    khWords,
 } from "./kh_format";
 
 // Every Khmer / bilingual string below is deliberately literal (not _t()): the cashier's UI
@@ -48,6 +51,24 @@ function orderPrefixes() {
         return [];
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Receipt-only orderline key (export_for_printing copies): the product name printed under the
+// Khmer name. OrderReceipt passes the whole line to the shared Orderline, whose props are
+// validated in debug mode: register the key like pos_sale registers so_reference / details.
+// ---------------------------------------------------------------------------------------------
+patch(Orderline, {
+    props: {
+        ...Orderline.props,
+        line: {
+            ...Orderline.props.line,
+            shape: {
+                ...Orderline.props.line.shape,
+                kh_name_en: { type: String, optional: true },
+            },
+        },
+    },
+});
 
 // ---------------------------------------------------------------------------------------------
 // Header data (ReceiptHeader): also used by the cash in/out slip, which has no order
@@ -111,6 +132,108 @@ patch(PosOrder.prototype, {
     },
 
     /**
+     * Khmer names of the exported orderlines: a function (exported line, index) -> undefined (print
+     * the line as is) or { main, en }: main replaces productName, en (Khmer + English only) is the
+     * English name printed under it. The Khmer name is product.product.kh_pos_name_km (computed by
+     * the server: "Khmer name (receipt)", else the km_KH translation of the name).
+     * The POS loads product names in the cashier's language: productName is Khmer for a km_KH
+     * cashier when the product has a Khmer translation. The English line is therefore the en_US name
+     * the server sends with the Khmer name (kh_pos_name_en: display name with the variant values)
+     * plus what productName adds to the product's display name (the values of attributes that do not
+     * create variants: "Desk (Custom: Oak)").
+     */
+    _khProductNames() {
+        const mode = ["both", "km", "en"].includes(this.config?.kh_product_names)
+            ? this.config.kh_product_names
+            : "both";
+        if (mode === "en") {
+            return () => undefined;
+        }
+        // the exported lines are getSortedOrderlines() in order; if another module filtered or
+        // reordered them, find the order line by its full product name instead of the index
+        const sorted = this.getSortedOrderlines?.() || [];
+        const byName = new Map();
+        for (const ol of this.lines || []) {
+            const n = ol.get_full_product_name?.();
+            if (n && !byName.has(n)) {
+                byName.set(n, ol);
+            }
+        }
+        /** The rest of `name` after `base` (" (Black)" -> "(Black)"), or null when it does not start with it. */
+        const after = (name, base) => (base && name.startsWith(base) ? name.slice(base.length).trim() : null);
+        return (l, i) => {
+            const name = l?.productName;
+            if (typeof name !== "string") {
+                return undefined;
+            }
+            const ol = sorted[i]?.get_full_product_name?.() === name ? sorted[i] : byName.get(name);
+            const product = ol?.product_id;
+            const km = (product?.kh_pos_name_km || "").trim();
+            if (!km) {
+                return undefined;
+            }
+            if (mode === "km") {
+                if (km === name.trim()) {
+                    return undefined;
+                }
+                // keep the attribute values of the name: "Desk (Black)" -> "<Khmer> (Black)"
+                const rest = after(name, product.name || "") || "";
+                return { main: rest.startsWith("(") ? `${km} ${rest}` : km };
+            }
+            // English line: the en_US name + the extra attribute values of productName; without the
+            // en_US name (older data) or when productName is not built from the product's display name
+            // (a reprinted order saved in another language, a renamed product): productName if it has
+            // no Khmer letters, else the en_US name alone
+            const enBase = (product.kh_pos_name_en || "").trim();
+            const extra = after(name, product.display_name || "");
+            let en;
+            if (!enBase) {
+                en = name;
+            } else if (extra !== null) {
+                en = extra ? `${enBase} ${extra}` : enBase;
+            } else {
+                en = hasKhmer(name) ? enBase : name;
+            }
+            if (km === en.trim()) {
+                return undefined;
+            }
+            return { main: km, en };
+        };
+    },
+
+    /**
+     * Khmer only: the product names of pos_sale's down-payment details (the sale order lines, saved
+     * with the line as display names) are replaced with the Khmer name of the loaded product of that
+     * name, when there is one. "Khmer + English" keeps them (one table cell per name: no room for a
+     * second line without changing pos_sale's template). Returns a function (name) -> name.
+     */
+    _khDetailNames() {
+        if (this.config?.kh_product_names !== "km") {
+            return (n) => n;
+        }
+        let map;
+        return (n) => {
+            if (typeof n !== "string") {
+                return n;
+            }
+            if (!map) {
+                map = new Map();
+                for (const p of this.models?.["product.product"]?.getAll?.() || []) {
+                    const km = (p.kh_pos_name_km || "").trim();
+                    if (km) {
+                        for (const key of [p.display_name, p.kh_pos_name_en]) {
+                            if (key && !map.has(key)) {
+                                map.set(key, km);
+                            }
+                        }
+                    }
+                }
+            }
+            return map.get(n) || n;
+        };
+    },
+
+    /**
      * order_change / show_change, whatever the 18.0 build computed (older builds have no
      * show_change, or show it on unpaid drafts as a negative "CHANGE -6.00"): only a real,
      * positive change on a paid order with at least one payment line.
@@ -139,11 +262,13 @@ patch(PosOrder.prototype, {
         const digits = currency?.decimal_places ?? 2;
         const pays = this.payment_ids.filter((p) => !p.is_change); // same filter and order as core
         const aligned = pays.length === res.paymentlines.length;
+        const khName = this._khProductNames();
+        const detailName = this._khDetailNames();
 
         // receipt-only USD strings without the NBSP, in Odoo's sign order ("$6.00", "$-6.00");
         // same keys, same types, so the Orderline prop shape stays valid; undefined lines
         // (pos_loyalty guard) are left alone
-        res.orderlines = res.orderlines.map((l) => {
+        res.orderlines = res.orderlines.map((l, i) => {
             if (!l) {
                 return l;
             }
@@ -157,11 +282,26 @@ patch(PosOrder.prototype, {
             if (copy.discount === "100" && typeof copy.price === "string" && !/\d/.test(copy.price)) {
                 copy.price = "ឥតគិតថ្លៃ / Free";
             }
-            // pos_sale down-payment details ("$ 1,800.00" -> "$1,800.00")
+            // pos_sale down-payment details ("$ 1,800.00" -> "$1,800.00"; Khmer only: Khmer names)
             if (Array.isArray(copy.details)) {
                 copy.details = copy.details.map((d) =>
-                    d && typeof d.total === "string" ? { ...d, total: khMoney(d.total) } : d
+                    d && typeof d === "object"
+                        ? {
+                              ...d,
+                              total: khMoney(d.total),
+                              product_name: detailName(d.product_name),
+                          }
+                        : d
                 );
+            }
+            // Khmer product name (pos.config.kh_product_names): the copy's productName becomes the
+            // Khmer name; "both" keeps the product name in kh_name_en, printed under it
+            const names = khName(l, i);
+            if (names) {
+                copy.productName = names.main;
+                if (names.en) {
+                    copy.kh_name_en = names.en;
+                }
             }
             return copy;
         });
@@ -246,6 +386,13 @@ patch(PosOrder.prototype, {
                 // same condition as the core discount <li> of the Orderline template
                 const disc = Boolean(d.discount && d.discount !== "0");
                 return {
+                    // the name as word boxes (deterministic wrapping, see the stylesheet 6b), on every
+                    // line (a Khmer name, a product without one, "English only"), and the English
+                    // name printed under a Khmer name
+                    name_words: typeof d.productName === "string" ? khWords(d.productName) : null,
+                    name_km: hasKhmer(d.productName),
+                    en_words: d.kh_name_en ? khWords(d.kh_name_en) : null,
+                    en_latin: Boolean(d.kh_name_en) && !hasKhmer(d.kh_name_en),
                     qty: khQty(d.qty, localization.decimalPoint),
                     // "1 × $5.00" shows the unit price before the discount
                     unit_price: disc ? d.price_without_discount || d.unitPrice : d.unitPrice,

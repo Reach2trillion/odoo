@@ -1,0 +1,14 @@
+// Back end: the Khmer receipt name of the product form and list in the receipt's Khmer font, so it
+// shapes correctly (and looks like the printed name) on a computer without a Khmer system font.
+// Not in the POS bundle (static/src/** only), which declares the same face for the receipt.
+@font-face {
+  font-family: 'ABJ Khmer';
+  src: url('/pos_receipt_khmer/static/fonts/KantumruyPro-subset.woff2') format('woff2');
+  font-weight: 100 700;
+  font-display: swap;
+}
+.o_field_widget[name="kh_receipt_name"],
+.o_field_widget[name="kh_receipt_name"] input,
+.o_list_renderer td[name="kh_receipt_name"] {
+  font-family: 'ABJ Khmer', sans-serif;
+}

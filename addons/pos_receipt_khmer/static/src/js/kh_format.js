@@ -156,3 +156,128 @@ export function khPaper(config) {
     const paper = config?.kh_paper_width === "58" ? "58" : "80";
     return { paper, raster_w: paper === "58" ? config.kh_raster_dots || 384 : 0 };
 }
+
+// ---------------------------------------------------------------------------------------------
+// Khmer product names
+// ---------------------------------------------------------------------------------------------
+
+/** Khmer (U+1780-U+17FF) or Khmer Symbols (U+19E0-U+19FF). */
+const KH_CHARS = /[\u1780-\u17FF\u19E0-\u19FF]/;
+export const hasKhmer = (s) => typeof s === "string" && KH_CHARS.test(s);
+/** Punctuation that opens a group: it stays with the word after it. */
+const OPENING = /^[([{«‹“‘"'¿¡]+$/;
+/** Khmer signs and punctuation that never start a line (ៗ ។ ៕ ៖ ...): they stay with the word before. */
+const CLOSING = /^[។-៚ៜ]+$/;
+/** ...and, after a zero-width space, Latin closing punctuation too. */
+const CLOSING_ANY = /^[។-៚ៜ)\]}»›”’,.;:!?%]+$/;
+/** Segments that are only joiners / zero-width characters: dropped (no ink, no break of their own). */
+const INVISIBLE = /^[​‌‍﻿]+$/;
+const ZWSP = "​";
+/** The spaces a name breaks at: JS \s without the no-break spaces (U+00A0, U+2007, U+202F), which
+ * keep their two words in one box ("ក្រែម BB" typed with a no-break space). */
+const BREAK_SPACES = /[^\S\u00a0\u2007\u202f]+/;
+
+let khSegmenter;
+function segmenter() {
+    if (khSegmenter === undefined) {
+        try {
+            khSegmenter = new Intl.Segmenter("km", { granularity: "word" });
+        } catch {
+            khSegmenter = null; // no Intl.Segmenter: Khmer runs only break at spaces
+        }
+    }
+    return khSegmenter;
+}
+
+/**
+ * The pieces of one word (no space, no zero-width space in it): its Khmer word boundaries
+ * (Intl.Segmenter, the ICU dictionary of the browser's own line breaking) when it has Khmer letters,
+ * punctuation kept with its neighbour; else the word itself.
+ */
+function khPieces(word) {
+    const seg = hasKhmer(word) ? segmenter() : null;
+    if (!seg) {
+        return [word];
+    }
+    const pieces = [];
+    let prefix = "";
+    for (const { segment, isWordLike } of seg.segment(word)) {
+        if (INVISIBLE.test(segment)) {
+            continue;
+        }
+        if (isWordLike && !(CLOSING.test(segment) && pieces.length)) {
+            pieces.push(prefix + segment);
+            prefix = "";
+        } else if (OPENING.test(segment) || !pieces.length) {
+            prefix += segment;
+        } else {
+            pieces[pieces.length - 1] += segment;
+        }
+    }
+    if (prefix) {
+        pieces.length ? (pieces[pieces.length - 1] += prefix) : pieces.push(prefix);
+    }
+    return pieces.length ? pieces : [word];
+}
+
+/**
+ * The words of a product name, as the receipt lays them out (see receipt_kh.scss section 6b):
+ * [{ t: "ក្រែម", sp: true }, { t: "BB", sp: false }], a long Khmer word with its pieces:
+ * { t: "ឡេការពារកម្តៅថ្ងៃ", sp: false, parts: ["ឡេ", "ការពារ", "កម្តៅ", "ថ្ងៃ"] }.
+ * - A line only breaks between words: at a space (sp: a space follows the word; a no-break space
+ *   is part of its word) or at a zero-width space typed as a break hint (no space printed). A
+ *   word is one no-wrap unit, as the person who typed the name wrote it:
+ *   "ក្រែមលាបយប់ឱ្យស្បែកភ្លឺថ្លា ជាមួយនីយ៉ាស៊ីណាមីត" breaks at the space, never inside ជាមួយ or a
+ *   transliterated name.
+ * - Only a word wider than the whole line breaks inside, between its parts: its Khmer word
+ *   boundaries (the browser's ICU dictionary). A Khmer word whose dictionary splits it carries them
+ *   in `parts`; a part wider than the line still wraps inside its own box (between grapheme clusters).
+ * - Punctuation never starts or ends a line on its own: "(" stays with the next word, ")" "," "។"
+ *   "ៗ" with the previous one.
+ * - A bracketed group without Khmer (the attribute values of a variant, "(Black, L)") is one word.
+ */
+export function khWords(text) {
+    const chunks = [];
+    for (const chunk of String(text ?? "").replace(/﻿/g, "").trim().split(BREAK_SPACES).filter(Boolean)) {
+        const open = chunks.length ? chunks[chunks.length - 1] : "";
+        // inside an unclosed "(...": append to it
+        if (open.startsWith("(") && !open.includes(")") && !hasKhmer(open) && !hasKhmer(chunk)) {
+            chunks[chunks.length - 1] = `${open} ${chunk}`;
+        } else {
+            chunks.push(chunk);
+        }
+    }
+    // a "(" that never closed: back to one word per chunk
+    if (chunks.length && chunks[chunks.length - 1].startsWith("(") && !chunks[chunks.length - 1].includes(")")) {
+        chunks.push(...chunks.pop().split(" "));
+    }
+    // the zero-width spaces of each chunk: its words (punctuation stays with its word)
+    const groups = chunks
+        .map((chunk) => {
+            const subs = [];
+            for (const sub of chunk.split(ZWSP)) {
+                if (!sub || INVISIBLE.test(sub)) {
+                    continue;
+                }
+                if (subs.length && (CLOSING_ANY.test(sub) || OPENING.test(subs[subs.length - 1]))) {
+                    subs[subs.length - 1] += sub;
+                } else {
+                    subs.push(sub);
+                }
+            }
+            return subs;
+        })
+        .filter((subs) => subs.length);
+    const words = [];
+    groups.forEach((subs, gi) => {
+        subs.forEach((sub, si) => {
+            const parts = khPieces(sub);
+            const word = { t: parts.join(""), sp: si === subs.length - 1 && gi < groups.length - 1 };
+            if (parts.length > 1) {
+                word.parts = parts;
+            }
+            words.push(word);
+        });
+    });
+    return words;
+}

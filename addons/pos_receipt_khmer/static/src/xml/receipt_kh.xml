@@ -78,9 +78,22 @@
             </div>
         </div>
     </xpath>
-    <!-- item lines: receipt-only rows in OrderReceipt's own <Orderline> slot (shared Orderline untouched) -->
+    <!-- item lines: receipt-only rows in OrderReceipt's own <Orderline> slots (shared Orderline untouched).
+         The product name of every line (the Khmer name when export_for_printing swapped the copy's
+         productName): its word boxes in the Orderline's "product-name" slot, after core's plain-text
+         name, which the stylesheet then hides (6b); the English name printed under a Khmer name
+         (kh_name_en, "Khmer + English") in the default slot. A word (span.kh-w) is one no-wrap unit; a
+         word wider than the line breaks between its parts (span.kh-g > span.kh-w). -->
     <xpath expr="//Orderline" position="inside">
+        <t t-set-slot="product-name">
+            <t t-set="kn" t-value="khLine(line)"/>
+            <span t-if="kn and kn.name_words and kn.name_words.length" class="kh-words" t-att-class="{'kh-km': kn.name_km}" t-translation="off"><t t-foreach="kn.name_words" t-as="w" t-key="w_index"><span t-if="w.parts" t-att-class="w.sp ? 'kh-g kh-sp' : 'kh-g'"><t t-foreach="w.parts" t-as="p" t-key="p_index"><span class="kh-w" t-esc="p"/></t></span><span t-else="" t-att-class="w.sp ? 'kh-w kh-sp' : 'kh-w'" t-esc="w.t"/></t></span>
+        </t>
         <t t-set="kl" t-value="khLine(line)"/>
+        <li t-if="line.kh_name_en" class="kh-name-en" t-att-class="{'kh-latin': kl?.en_latin}" t-translation="off">
+            <span t-if="kl and kl.en_words and kl.en_words.length" class="kh-words" t-att-class="{'kh-km': !kl.en_latin}"><t t-foreach="kl.en_words" t-as="w" t-key="w_index"><span t-if="w.parts" t-att-class="w.sp ? 'kh-g kh-sp' : 'kh-g'"><t t-foreach="w.parts" t-as="p" t-key="p_index"><span class="kh-w" t-esc="p"/></t></span><span t-else="" t-att-class="w.sp ? 'kh-w kh-sp' : 'kh-w'" t-esc="w.t"/></t></span>
+            <t t-else="" t-esc="line.kh_name_en"/>
+        </li>
         <li t-if="kl" class="kh-qty" t-translation="off"><t t-esc="kl.qty"/><t t-if="!props.basic_receipt"> × <t t-esc="kl.unit_price"/></t></li>
         <li t-if="kl and kl.disc_line and !props.basic_receipt" class="kh-disc" t-esc="kl.disc_line" t-translation="off"/>
     </xpath>
