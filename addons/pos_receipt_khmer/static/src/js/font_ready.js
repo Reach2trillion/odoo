@@ -186,18 +186,45 @@ export function guardRenderer(renderer) {
         return;
     }
     const rawToHtml = renderer.toHtml;
-    let queue = Promise.resolve();
+    const RENDER_TIMEOUT_MS = 6000;
+    const STUCK = Symbol("kh-render-stuck");
+    // two animation frames (plus a macrotask): lets OWL draw the renderer's emptied container after
+    // the previous render, so the next render mounts afresh and reports its element
+    const settle = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        for (let i = 0; i < 2; i++) {
+            await new Promise((resolve) =>
+                typeof requestAnimationFrame === "function"
+                    ? requestAnimationFrame(() => resolve())
+                    : setTimeout(resolve, 16)
+            );
+        }
+    };
+    const withTimeout = (promise) =>
+        Promise.race([
+            promise,
+            new Promise((resolve) => setTimeout(() => resolve(STUCK), RENDER_TIMEOUT_MS)),
+        ]);
     const renderOnce = async (component, props) => {
         for (let attempt = 0; attempt < 3; attempt++) {
-            const el = await rawToHtml(component, props);
+            await settle();
+            const el = await withTimeout(rawToHtml(component, props));
+            if (el === STUCK) {
+                // the renderer never reported this render: empty its container (not awaited, it
+                // never reports either), let the empty state be drawn, then render again
+                rawToHtml(null, {}).catch(() => {});
+                await new Promise((resolve) => setTimeout(resolve, 150));
+                continue;
+            }
             if (el && el.nodeType === Node.ELEMENT_NODE) {
                 return el;
             }
             // let the renderer's own delayed hook for the stale render pass, then render again
             await new Promise((resolve) => setTimeout(resolve, 250));
         }
-        return rawToHtml(component, props);
+        throw new Error("The receipt could not be rendered for printing. Please try again.");
     };
+    let queue = Promise.resolve();
     const toHtml = (component, props) => {
         const result = queue.then(
             () => renderOnce(component, props),

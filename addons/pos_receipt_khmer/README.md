@@ -242,7 +242,7 @@ container is flushed. Two overlapping prints (a double click, or a click while t
 still loading) could resolve with the empty placeholder text node, and printing failed with
 `TypeError: el.classList is not iterable` in `applyWhenMounted`, or a print never finished. The
 module now runs renderer calls one at a time and renders again when the result is not an element
-(`static/src/js/font_ready.js`, `guardRenderer`). The font wait before printing is capped at 2 s.
+(`static/src/js/font_ready.js`, `guardRenderer`). The font wait before printing is capped at 2 s. Since 18.0.1.2.1 each queued render first waits two animation frames so the renderer has drawn its emptied container, and a render that never reports back is abandoned after 6 s (the container is emptied and the render retried), so one stuck render can never block later prints.
 
 
 The module follows the design spec (`design/final/SPEC.md`). Deviations, each because the spec did
