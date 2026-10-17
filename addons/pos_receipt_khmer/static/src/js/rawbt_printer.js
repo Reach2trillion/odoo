@@ -14,9 +14,11 @@ import { getFontEmbedCSS, toCanvas } from "@point_of_sale/app/utils/html-to-imag
 
 const LAUNCH_GAP_MS = 1500; // between two receipts: one RawBT job at a time
 const GUARD_MS = 1000;
-// Android hands the link to RawBT in an Intent (Binder: about 1 MB, 2 bytes per character). A 1-bit
-// receipt image takes 9,000 to 17,000 characters per 1000 dots of paper (12.5 cm): this is 2 m or more
-const MAX_LINK_CHARS = 300000;
+// Android hands the link to RawBT in an Intent. On Android 7 (Sunmi V2 Pro) the launch is a one-way
+// Binder call: half of the ~1 MB buffer, 2 bytes per character, so about 240,000 characters at most.
+// A 1-bit receipt image takes 9,000 to 17,000 characters per 1000 dots of paper (12.5 cm): this
+// limit is about 1.5 m of paper or more.
+const MAX_LINK_CHARS = 200000;
 
 // Opening the link counts as leaving the page: point_of_sale's beforeunload handler (main.js, added
 // once the POS is mounted) would ask "Leave site?" while offline. This listener is added when the
@@ -33,12 +35,14 @@ export function khArmLeaveGuard(ms = GUARD_MS) {
 }
 
 /**
- * Chrome (or another browser) on Android. Not an Android WebView ("; wv)": the Odoo app, a vendor's
- * built-in browser): an app's WebView may show an unknown link as an error page in place of the POS.
+ * Chrome on Android (a Chromium browser: how it opens another app's link is known). Not an Android
+ * WebView ("; wv)": the Odoo app, a vendor's built-in browser), which may show an unknown link as an
+ * error page in place of the POS, nor Firefox.
  */
 export function khIsAndroidBrowser(userAgent, platform) {
-    const android = platform === "Android" || /Android/i.test(userAgent || "");
-    return android && !/; wv\)/.test(userAgent || "");
+    const ua = userAgent || "";
+    const android = platform === "Android" || /Android/i.test(ua);
+    return android && /Chrome\/\d/.test(ua) && !/; wv\)/.test(ua);
 }
 
 // Overridable by tests (the launch cannot be observed in a desktop browser).

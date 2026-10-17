@@ -46,7 +46,9 @@ registry.category("web_tour.tours").add("pos_receipt_khmer_rawbt_tour", {
                 const webview = "Mozilla/5.0 (Linux; Android 7.1.1; V2_PRO Build/NMF26F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
                 const desktop = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
                 assert(khIsAndroidBrowser(chrome), "Chrome on Android");
-                assert(khIsAndroidBrowser(desktop, "Android"), "Android by client hints");
+                const firefox = "Mozilla/5.0 (Android 11; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0";
+                assert(khIsAndroidBrowser(desktop.replace("X11; Linux x86_64", "Linux; Android 10; K"), "Android"), "Android by client hints");
+                assert(!khIsAndroidBrowser(firefox), "not Firefox (untested)");
                 assert(!khIsAndroidBrowser(webview), "not an app's WebView (the Odoo app)");
                 assert(!khIsAndroidBrowser(desktop), "not a computer");
                 const isAndroid = khRawbt.isAndroid;
