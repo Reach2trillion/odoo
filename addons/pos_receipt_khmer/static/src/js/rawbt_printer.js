@@ -12,15 +12,39 @@ import { getFontEmbedCSS, toCanvas } from "@point_of_sale/app/utils/html-to-imag
 // (1 px = 1 dot, receipt_kh.scss), and handed to the RawBT app (ru.a402d.rawbtprinter) as a
 // rawbt:data:image/...;base64 link (https://rawbt.ru/start.html), which prints it as it is.
 
-const LAUNCH_GAP_MS = 1500; // between two receipts of one print run: one RawBT job at a time
+const LAUNCH_GAP_MS = 1500; // between two receipts: one RawBT job at a time
 const GUARD_MS = 1000;
+// Android hands the link to RawBT in an Intent (Binder: about 1 MB, 2 bytes per character). A 1-bit
+// receipt image takes 9,000 to 17,000 characters per 1000 dots of paper (12.5 cm): this is 2 m or more
+const MAX_LINK_CHARS = 300000;
+
+// Opening the link counts as leaving the page: point_of_sale's beforeunload handler (main.js, added
+// once the POS is mounted) would ask "Leave site?" while offline. This listener is added when the
+// module loads, before that one, so it runs first: while a link is being opened it stops the event
+// there. (Clearing returnValue instead would itself ask on the Chrome of Android 7 handhelds.)
+let khLeaveGuardUntil = 0;
+window.addEventListener("beforeunload", (event) => {
+    if (Date.now() < khLeaveGuardUntil) {
+        event.stopImmediatePropagation();
+    }
+});
+export function khArmLeaveGuard(ms = GUARD_MS) {
+    khLeaveGuardUntil = Date.now() + ms;
+}
+
+/**
+ * Chrome (or another browser) on Android. Not an Android WebView ("; wv)": the Odoo app, a vendor's
+ * built-in browser): an app's WebView may show an unknown link as an error page in place of the POS.
+ */
+export function khIsAndroidBrowser(userAgent, platform) {
+    const android = platform === "Android" || /Android/i.test(userAgent || "");
+    return android && !/; wv\)/.test(userAgent || "");
+}
 
 // Overridable by tests (the launch cannot be observed in a desktop browser).
 export const khRawbt = {
     isAndroid() {
-        return (
-            navigator.userAgentData?.platform === "Android" || /Android/i.test(navigator.userAgent)
-        );
+        return khIsAndroidBrowser(navigator.userAgent, navigator.userAgentData?.platform);
     },
     // Chrome opens another app's link only shortly after a tap (transient user activation, ~5 s);
     // a receipt printed later (iface_print_auto after a slow sync) asks for a tap first
@@ -29,14 +53,7 @@ export const khRawbt = {
         return !activation || activation.isActive;
     },
     launch(url) {
-        // the browser treats the link as leaving the page: point_of_sale's beforeunload handler
-        // would ask "Leave site?" while offline. Clear its message for this navigation only (a
-        // listener added after it runs after it).
-        const guard = (event) => {
-            event.returnValue = "";
-        };
-        window.addEventListener("beforeunload", guard);
-        setTimeout(() => window.removeEventListener("beforeunload", guard), GUARD_MS);
+        khArmLeaveGuard();
         window.location.href = url;
     },
 };
@@ -45,7 +62,40 @@ export function khUsesRawbt(config) {
     return config?.kh_print_method === "rawbt" && khRawbt.isAndroid();
 }
 
+const blobToDataURL = (blob) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+    });
+
 const familyKey = (family) => family.trim().replace(/^["']|["']$/g, "").toLowerCase();
+
+// The receipt font (receipt_kh.scss), embedded by this module: html-to-image keeps a failed font
+// fetch as an empty font for the rest of the session, this one is fetched again at the next print.
+const KH_FAMILY = "abj khmer";
+const KH_FONT_URL = "/pos_receipt_khmer/static/fonts/KantumruyPro-subset.woff2";
+let khFontFace; // Promise<string>
+export function khReceiptFontFace() {
+    khFontFace ??= fetch(KH_FONT_URL)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`${KH_FONT_URL}: HTTP ${response.status}`);
+            }
+            return response.blob();
+        })
+        .then(blobToDataURL)
+        .then(
+            (url) =>
+                `@font-face { font-family: "ABJ Khmer"; src: url("${url}") format("woff2"); font-weight: 100 700; font-display: block; }`
+        )
+        .catch((error) => {
+            khFontFace = undefined;
+            throw error;
+        });
+    return khFontFace;
+}
 
 let khFontFaces; // Promise<Map<family, @font-face blocks with the font files as data URLs>>
 
@@ -93,8 +143,33 @@ async function khFontEmbedCSS(el) {
             }
         }
     }
-    const faces = await khFontFaceMap();
-    return [...used].flatMap((family) => faces.get(family) || []).join("\n");
+    const css = [];
+    let fromPage = [...used];
+    if (used.has(KH_FAMILY)) {
+        try {
+            css.push(await khReceiptFontFace());
+            fromPage = fromPage.filter((family) => family !== KH_FAMILY);
+        } catch (error) {
+            console.warn("pos_receipt_khmer: receipt font not loaded, using the page's copy", error);
+        }
+    }
+    let faces = new Map();
+    try {
+        faces = await khFontFaceMap();
+    } catch (error) {
+        console.warn("pos_receipt_khmer: page fonts not embedded", error);
+    }
+    for (const family of fromPage) {
+        for (const block of faces.get(family) || []) {
+            if (block.includes("url(data:") || block.includes('url("data:')) {
+                css.push(block);
+            } else {
+                // a font html-to-image could not fetch: the printer's fallback font is used
+                console.warn(`pos_receipt_khmer: font "${family}" not embedded`);
+            }
+        }
+    }
+    return css.join("\n");
 }
 
 // 1x1 white GIF: an image that cannot be loaded prints as blank space
@@ -161,8 +236,9 @@ const sanitizeNodeText = (node) => {
 /**
  * Core's htmlToCanvas (render_service.js: same class, clone in the render container, same
  * html-to-image options; the image is the same, pixel for pixel), with only the fonts the receipt
- * uses embedded: half the time once warm, and no 4 MB of fonts per print on a handheld, so the
- * image is ready while Chrome still counts the tap on Print.
+ * uses embedded and its images inlined: half the time once warm, no 4 MB of fonts per print on a
+ * handheld (so the image is ready while Chrome still counts the tap on Print), and no failed print
+ * because an image could not be fetched again.
  */
 export async function khReceiptCanvas(el) {
     const addClass = "pos-receipt-print";
@@ -181,6 +257,11 @@ export async function khReceiptCanvas(el) {
             console.warn("pos_receipt_khmer: fonts embedded the core way", error);
             return await htmlToCanvas(el, { addClass });
         }
+        // another render of a receipt (core's htmlToCanvas: the e-mail image) removes copies of the
+        // same classes from the container
+        if (!clone.isConnected) {
+            container.appendChild(clone);
+        }
         return await toCanvas(clone, {
             backgroundColor: "#ffffff",
             height: Math.ceil(clone.clientHeight),
@@ -195,43 +276,114 @@ export async function khReceiptCanvas(el) {
 }
 
 /**
- * The receipt image as a 1-bit PNG data URL: Floyd-Steinberg on the luminance with the weights and
- * threshold of pos_epson_printer (the receipt was designed against that output), so RawBT's own
- * image settings have nothing left to change and the print matches the Epson / IoT print.
+ * The printer dots of a receipt image (1 = black): Floyd-Steinberg on the luminance with the weights
+ * and threshold of pos_epson_printer's canvasToRaster (the receipt was designed against that output),
+ * so RawBT's own image settings have nothing left to change and the print matches the Epson / IoT
+ * print.
  */
-export function khMonochromePng(canvas) {
+export function khDither(canvas) {
     const { width, height } = canvas;
-    const out = document.createElement("canvas");
-    out.width = width;
-    out.height = height;
-    const ctx = out.getContext("2d");
-    ctx.drawImage(canvas, 0, 0);
-    const image = ctx.getImageData(0, 0, width, height);
-    const px = image.data;
+    const px = canvas.getContext("2d").getImageData(0, 0, width, height).data;
+    const dots = new Uint8Array(width * height);
     // error rows with one pixel of padding on each side (errors pushed past an edge are dropped)
     let row = new Float32Array(width + 2);
     let below = new Float32Array(width + 2);
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-            const i = (y * width + x) * 4;
-            let value = px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114 + row[x + 1];
+            const i = y * width + x;
+            let value =
+                px[i * 4] * 0.299 + px[i * 4 + 1] * 0.587 + px[i * 4 + 2] * 0.114 + row[x + 1];
             value = Math.min(255, Math.max(0, value));
-            const dot = value < 128 ? 0 : 255;
-            const error = value - dot;
+            const black = value < 128;
+            const error = value - (black ? 0 : 255);
+            dots[i] = black ? 1 : 0;
             if (error) {
                 row[x + 2] += (7 / 16) * error;
                 below[x] += (3 / 16) * error;
                 below[x + 1] += (5 / 16) * error;
                 below[x + 2] += (1 / 16) * error;
             }
-            px[i] = px[i + 1] = px[i + 2] = dot;
-            px[i + 3] = 255;
         }
         [row, below] = [below, row];
         below.fill(0);
     }
+    return { dots, width, height };
+}
+
+let crcTable;
+function crc32(bytes) {
+    crcTable ??= Array.from({ length: 256 }, (_, n) => {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        }
+        return c >>> 0;
+    });
+    let crc = 0xffffffff;
+    for (const byte of bytes) {
+        crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type, data) {
+    const chunk = new Uint8Array(12 + data.length);
+    const view = new DataView(chunk.buffer);
+    view.setUint32(0, data.length);
+    for (let i = 0; i < 4; i++) {
+        chunk[4 + i] = type.charCodeAt(i);
+    }
+    chunk.set(data, 8);
+    view.setUint32(8 + data.length, crc32(chunk.subarray(4, 8 + data.length)));
+    return chunk;
+}
+
+/**
+ * The dots as a PNG data URL: 1-bit greyscale (5 times smaller than the canvas's RGBA PNG, so the
+ * link stays far below Android's Intent size limit), compressed with the browser's
+ * CompressionStream (zlib, Chrome 80+); the canvas's own PNG where that is missing.
+ */
+export async function khDotsToPng({ dots, width, height }) {
+    if (typeof CompressionStream === "function") {
+        const stride = Math.ceil(width / 8);
+        const raw = new Uint8Array((stride + 1) * height); // each row: filter byte 0, then the bits
+        for (let y = 0; y < height; y++) {
+            const offset = y * (stride + 1) + 1;
+            for (let x = 0; x < width; x++) {
+                if (!dots[y * width + x]) {
+                    raw[offset + (x >> 3)] |= 0x80 >> (x & 7); // 1 = white
+                }
+            }
+        }
+        const header = new Uint8Array(13);
+        new DataView(header.buffer).setUint32(0, width);
+        new DataView(header.buffer).setUint32(4, height);
+        header[8] = 1; // bit depth; colour type 0 (greyscale), deflate, no filter, no interlace
+        const deflated = new Response(
+            new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))
+        );
+        const png = new Blob(
+            [
+                new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+                pngChunk("IHDR", header),
+                pngChunk("IDAT", new Uint8Array(await deflated.arrayBuffer())),
+                pngChunk("IEND", new Uint8Array(0)),
+            ],
+            { type: "image/png" }
+        );
+        return blobToDataURL(png);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    const image = ctx.createImageData(width, height);
+    for (let i = 0; i < dots.length; i++) {
+        const value = dots[i] ? 0 : 255;
+        image.data.set([value, value, value, 255], i * 4);
+    }
     ctx.putImageData(image, 0, 0);
-    return out.toDataURL("image/png");
+    return canvas.toDataURL("image/png");
 }
 
 export class KhRawbtPrinter extends BasePrinter {
@@ -239,33 +391,42 @@ export class KhRawbtPrinter extends BasePrinter {
         super.setup(...arguments);
         this.dialog = dialog;
         this.lastLaunch = 0;
+        this.jobs = Promise.resolve();
     }
 
-    /** BasePrinter.printReceipt with khReceiptCanvas instead of core's htmlToCanvas. */
-    async printReceipt(receipt) {
-        if (receipt) {
-            this.receiptQueue.push(receipt);
+    /**
+     * BasePrinter.printReceipt, one receipt at a time (an automatic print can still be drawing when
+     * the cashier taps Print), with khReceiptCanvas instead of core's htmlToCanvas.
+     */
+    printReceipt(receipt) {
+        const job = this.jobs.then(() => this.printOne(receipt));
+        this.jobs = job.catch(() => {});
+        return job;
+    }
+
+    async printOne(receipt) {
+        if (!receipt) {
+            return { successful: true };
         }
-        while (this.receiptQueue.length > 0) {
-            receipt = this.receiptQueue.shift();
-            const image = this.processCanvas(await khReceiptCanvas(receipt));
-            let printResult;
-            try {
-                printResult = await this.sendPrintingJob(image);
-            } catch {
-                this.receiptQueue.length = 0;
-                return this.getActionError();
-            }
-            if (!printResult || printResult.result === false) {
-                this.receiptQueue.length = 0;
-                return this.getResultsError(printResult);
-            }
+        const image = await this.processCanvas(await khReceiptCanvas(receipt));
+        if (image.length + "rawbt:".length > MAX_LINK_CHARS) {
+            return this.getResultsError({ tooLong: true });
+        }
+        let printResult;
+        try {
+            printResult = await this.sendPrintingJob(image);
+        } catch {
+            return this.getActionError();
+        }
+        if (!printResult || printResult.result === false) {
+            return this.getResultsError(printResult);
         }
         return { successful: true };
     }
 
+    /** @returns {Promise<string>} the image as a PNG data URL */
     processCanvas(canvas) {
-        return khMonochromePng(canvas);
+        return khDotsToPng(khDither(canvas));
     }
 
     async sendPrintingJob(dataUrl) {
@@ -325,19 +486,47 @@ export class KhRawbtPrinter extends BasePrinter {
         };
     }
 
-    getResultsError() {
+    getResultsError(printResult) {
+        if (printResult?.tooLong) {
+            return {
+                successful: false,
+                message: {
+                    title: _t("Too long for RawBT"),
+                    body: _t("This document is too long to send to RawBT in one piece. "),
+                },
+            };
+        }
         return this.getActionError();
     }
 }
 
+/**
+ * Use RawBT for this point of sale's receipts (setting "Print receipts with: RawBT app", Android
+ * browsers only: the same point of sale opened on a computer keeps its own printing).
+ */
+export function khInstallRawbt(pos) {
+    if (!khUsesRawbt(pos.config)) {
+        return false;
+    }
+    if (!(pos.hardwareProxy.printer instanceof KhRawbtPrinter)) {
+        pos.hardwareProxy.printer = new KhRawbtPrinter({ dialog: pos.dialog });
+    }
+    return true;
+}
+
 patch(PosStore.prototype, {
     async afterProcessServerData() {
+        // before core's server calls (a receipt printed meanwhile goes to RawBT too) and again after
+        // them: pos_epson_printer sets its ePOS printer in there, RawBT is the one chosen here
+        const rawbt = khInstallRawbt(this);
         const result = await super.afterProcessServerData(...arguments);
-        // only on Android: the same point of sale opened on a computer keeps its own printing
-        if (khUsesRawbt(this.config)) {
-            this.hardwareProxy.printer = new KhRawbtPrinter({ dialog: this.dialog });
+        if (rawbt) {
+            khInstallRawbt(this);
             // embed the fonts once, after the POS has loaded, so the first receipt is as quick
-            setTimeout(() => khFontFaceMap().catch(() => {}), 3000);
+            setTimeout(() => {
+                khReceiptFontFace().catch(() => {});
+                khFontFaceMap().catch(() => {});
+            }, 3000);
         }
         return result;
     },

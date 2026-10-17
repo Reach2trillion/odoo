@@ -103,14 +103,18 @@ receipt to a fraction of the paper (the "tiny receipt" of the V2 Pro); no Odoo s
 
 **What the option does.** With **Point of Sale > Configuration > Settings > (point of sale) > Bills &
 Receipts > Print receipts with = RawBT app (Android)** (`pos.config.kh_print_method = rawbt`), a POS
-opened on an **Android** device draws each receipt as the printer's image (the same 1 px = 1 dot
-image as the Epson / IoT path: 384 dots on 58 mm, black and white with the Epson dithering) and hands
-it to the free-standing **RawBT** app (`ru.a402d.rawbtprinter`, Google Play "RawBT print service")
-as a `rawbt:data:image/png;base64,...` link, the format RawBT documents for web pages
-(https://rawbt.ru/start.html). RawBT prints it as it is: full width, no print dialog. The receipt,
-the reprint from the order list, the cash in/out slip and the Daily Sales report all go through it.
-The same point of sale opened on a computer or an iPad keeps printing as before (browser, IoT box or
-ePOS printer). Default: `Browser` (no change).
+opened in a **browser on Android** (Chrome) draws each receipt as the printer's image (the same
+1 px = 1 dot image as the Epson / IoT path: 384 dots on 58 mm, black and white with the Epson
+dithering, sent as a 1-bit PNG of about 10-15 KB) and hands it to the free-standing **RawBT** app
+(`ru.a402d.rawbtprinter`, Google Play "RawBT print service") as a `rawbt:data:image/png;base64,...`
+link, the format RawBT documents for web pages (https://rawbt.ru/start.html). RawBT prints it as it
+is: full width, no print dialog. The receipt, the reprint from the order list, the cash in/out slip
+and the Daily Sales report all go through it. On Android it replaces an ePOS printer set on the same
+point of sale (do not combine it with an IoT box printer). The same point of sale opened on a
+computer or an iPad keeps printing as before (browser, IoT box or ePOS printer), and so does an
+app's built-in browser on Android (the Odoo app, a vendor browser: an Android WebView could show the
+link as an error page in place of the POS) and Chrome's "Desktop site" mode (it hides Android).
+Default: `Browser` (no change).
 
 **Set up the Sunmi V2 Pro (once).**
 
@@ -133,17 +137,24 @@ ePOS printer). Default: `Browser` (no change).
   **Validate** while the order syncs slowly), a small dialog `បោះពុម្ពបង្កាន់ដៃ / Print receipt`
   asks for one tap on `បោះពុម្ព / Print`; `បោះបង់ / Cancel` prints nothing and reports no error.
 - **Offline**: works (the image is made on the device), also when the connection drops before the
-  first receipt, and no "Leave site?" warning appears. The receipt's images (logo) are taken from the
+  first receipt, and no "Leave site?" warning appears (the module stops the POS's own warning while
+  the link is opened). The receipt's images (logo) are taken from the
   copies the browser has already loaded; one that cannot be loaded at all prints as blank space
   instead of failing the print. (Core's image printing fetches them again, and one failed fetch makes
   every later receipt of the session fail until the POS is reloaded.)
 - **Speed**: the image embeds only the fonts the receipt uses (core embeds all ~4 MB of the POS's
   fonts in every image) and is otherwise the same, pixel for pixel: about half the time, so the image
   is usually ready within Chrome's tap window even on a handheld. The fonts are prepared once, 3 s
-  after the POS has loaded.
-- **Nothing happens on Print**: RawBT is not installed, or Android was told to open the link with
-  another app (Android Settings > Apps > Chrome / RawBT > Open by default). Error dialog "RawBT could
-  not be opened": answer it to print with the browser instead.
+  after the POS has loaded; the receipt font is fetched again if that fails.
+- **One at a time**: a second print while one is being drawn (Print tapped during the automatic
+  print) waits for it, and RawBT gets 1.5 s between two documents.
+- **Nothing happens on Print**: the page cannot tell whether RawBT opened, so no error is shown.
+  RawBT is not installed, or Android was told to open the link with another app (Android Settings >
+  Apps > Chrome / RawBT > Open by default), or the POS is not open in Chrome (an app's browser and
+  Chrome's "Desktop site" mode print with the browser).
+- **Very long documents**: Android passes the link to RawBT in one piece (about 1 MB). A document
+  whose image would not fit (over about 2 m of paper, e.g. a huge Daily Sales report) is refused
+  with "Too long for RawBT", and a receipt can then be printed with the browser.
 - **80 mm Android devices**: the 80 mm image is 512 dots wide; a 576-dot printer prints it as RawBT's
   image settings say (centred or scaled), so keep 58 mm on 58 mm devices.
 - **Cash drawer**: RawBT only receives images; a drawer needs an IoT box or an ePOS printer.
@@ -282,11 +293,11 @@ black/white threshold; a light or pastel logo (lighter than about 40 % grey) can
 | Formatting helpers (riel, phone, web, dates in Asia/Phnom_Penh, `khWords()`: the words of a product name and their parts) | `static/src/js/kh_format.js` |
 | Data patches: `PosStore.getReceiptHeaderData`, `PosOrder.export_for_printing` (+ `_khProductNames`, `_khDetailNames`), `OrderReceipt` helpers, `CashMoveReceipt.khMove`, `Orderline.props.line.shape` (`kh_name_en`) | `static/src/js/receipt_kh.js` |
 | Printing: font readiness (`PosStore._loadFonts`, `PrinterService.print` await the Khmer font), renderer guard, `khFreezeWordLines` (`PrinterService.printHtml` on a raster printer, the e-mail image) | `static/src/js/font_ready.js` |
-| RawBT printing: `KhRawbtPrinter` (a `BasePrinter`: `khReceiptCanvas` = core's `htmlToCanvas` with only the used fonts embedded and the images inlined, 1-bit PNG, `rawbt:` link, tap dialog, `beforeunload` guard), installed as `hardwareProxy.printer` by `PosStore.afterProcessServerData` on Android only (`khUsesRawbt`) | `static/src/js/rawbt_printer.js` |
+| RawBT printing: `KhRawbtPrinter` (a `BasePrinter`, one print at a time: `khReceiptCanvas` = core's `htmlToCanvas` with only the used fonts embedded and the images inlined, `khDither` = pos_epson_printer's dithering, `khDotsToPng` 1-bit PNG, `rawbt:` link with a length limit, tap dialog), the `beforeunload` guard (added when the module loads, before point_of_sale's), installed as `hardwareProxy.printer` by `PosStore.afterProcessServerData` (`khInstallRawbt`, before and after core's part) in Android browsers only (`khIsAndroidBrowser`: not WebViews) | `static/src/js/rawbt_printer.js` |
 | Template extensions (`ReceiptHeader`, `OrderReceipt`, `CashMoveReceipt`, `SaleDetailsReport` root attributes; extension mode, attribute changes and insertions only) | `static/src/xml/receipt_kh.xml` |
 | Receipt stylesheet (em-based: 512 px / 27 px raster and 266 px / 14 px web print; then the 58 mm layer under `.o_kh_w58`: 384 or 360 px / 24 px raster and 181 px / 11.5 px web print on the named page `kh-w58`) | `static/src/scss/receipt_kh.scss` |
 | Font + licence, sample print logo | `static/fonts/`, `static/img/` |
-| Tests: POS data loaders, logo flag, label editing, paper settings and range, receipt tour (formatting helpers, 80 mm root; on 58 mm / 360 dots the receipt, cash slip, Daily Sales report and the no-Khmer-data fallback receipt get `o_kh_w58` and the raster width, and the printed images of the receipt, the fallback and the report are 360 dots wide); Khmer names: loaded fields, km_KH fallback (and its query count), a km_KH cashier's data (English line from `kh_pos_name_en`, variants), the fill helper on the 12 live ABJ descriptions, Khmer digits, trailing punctuation and no-break spaces, a translated Sales Description, the action and who sees it, the setting and views, names tour (words and their parts, no-break spaces, Khmer + English / Khmer only / English only, a km_KH cashier, the product screen unchanged, frozen lines, breaks at spaces only and words longer than the line with nothing outside the paper at 360 dots; every printed line is a live text line, also for a short word before a word that wraps onto 3+ lines: `ABJ Hyaluronic-Acid-Niacinamide-Ceramide-Serum`, `ក្រែម ABJ-SuperUltraWideNightRepairCream-50ml`); print method setting; RawBT tour (not installed on a computer, the receipt goes to RawBT as a 384-dot 1-bit PNG, the tap dialog, Cancel) | `tests/`, `static/tests/tours/` |
+| Tests: POS data loaders, logo flag, label editing, paper settings and range, receipt tour (formatting helpers, 80 mm root; on 58 mm / 360 dots the receipt, cash slip, Daily Sales report and the no-Khmer-data fallback receipt get `o_kh_w58` and the raster width, and the printed images of the receipt, the fallback and the report are 360 dots wide); Khmer names: loaded fields, km_KH fallback (and its query count), a km_KH cashier's data (English line from `kh_pos_name_en`, variants), the fill helper on the 12 live ABJ descriptions, Khmer digits, trailing punctuation and no-break spaces, a translated Sales Description, the action and who sees it, the setting and views, names tour (words and their parts, no-break spaces, Khmer + English / Khmer only / English only, a km_KH cashier, the product screen unchanged, frozen lines, breaks at spaces only and words longer than the line with nothing outside the paper at 360 dots; every printed line is a live text line, also for a short word before a word that wraps onto 3+ lines: `ABJ Hyaluronic-Acid-Niacinamide-Ceramide-Serum`, `ក្រែម ABJ-SuperUltraWideNightRepairCream-50ml`); print method setting; RawBT tour (Android browser detection incl. WebViews, installed on Android only and kept, the beforeunload guard, images inlined and a missing image printing blank, the receipt goes to RawBT as a 384-dot 1-bit greyscale PNG, the tap dialog, two prints at once one after the other, Cancel) | `tests/`, `static/tests/tours/` |
 
 Run the tests with
 `odoo-bin -d <db> -i pos_receipt_khmer --test-tags /pos_receipt_khmer --stop-after-init`.
