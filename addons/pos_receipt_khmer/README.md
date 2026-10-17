@@ -30,6 +30,9 @@ printer and for the browser's print dialog.
 - **58 mm paper** (per point of sale): the same receipt and cash slip in a narrower layout (design
   spec `design/final58/SPEC58.md`): a 384-dot raster (360 for 180-dpi printers such as the Epson
   TM-T88 in 58 mm mode) and a 48 mm browser print at 100 % scale.
+- **Android handhelds (Sunmi V2 Pro, ...)**: optional printing through the RawBT app, which prints
+  the receipt image at the printer's full width (no shrunken Android print dialog); see
+  [Android handhelds: print with RawBT](#android-handhelds-print-with-rawbt).
 - **Amounts** print in Odoo's own sign order without the space after the symbol: `$6.00`,
   `$-15.72` (what the cashier sees on the payment screen), riel as `-64,452 ៛`.
 - Ships the **Kantumruy Pro** Khmer font (subset, SIL Open Font License 1.1, see
@@ -91,6 +94,59 @@ the POS itself sells in riel (KHR), the KHR total, rate line and riel change are
 line names the POS currency (`1 USD = 4,100 ៛`).
 
 After changing settings, reload the POS (or close and reopen the session) so it loads the new values.
+
+## Android handhelds: print with RawBT
+
+**Why.** On an Android handheld (Sunmi V2 Pro, ...) Chrome prints a web page through the Android
+print dialog. The printer's print service lays the page out on its own page size and shrinks the
+receipt to a fraction of the paper (the "tiny receipt" of the V2 Pro); no Odoo setting changes that.
+
+**What the option does.** With **Point of Sale > Configuration > Settings > (point of sale) > Bills &
+Receipts > Print receipts with = RawBT app (Android)** (`pos.config.kh_print_method = rawbt`), a POS
+opened on an **Android** device draws each receipt as the printer's image (the same 1 px = 1 dot
+image as the Epson / IoT path: 384 dots on 58 mm, black and white with the Epson dithering) and hands
+it to the free-standing **RawBT** app (`ru.a402d.rawbtprinter`, Google Play "RawBT print service")
+as a `rawbt:data:image/png;base64,...` link, the format RawBT documents for web pages
+(https://rawbt.ru/start.html). RawBT prints it as it is: full width, no print dialog. The receipt,
+the reprint from the order list, the cash in/out slip and the Daily Sales report all go through it.
+The same point of sale opened on a computer or an iPad keeps printing as before (browser, IoT box or
+ePOS printer). Default: `Browser` (no change).
+
+**Set up the Sunmi V2 Pro (once).**
+
+1. Install **RawBT print service** from Google Play (check the app's own terms for its free version).
+2. In RawBT, choose the printer: the V2 Pro's built-in printer appears as the Bluetooth printer
+   **InnerPrinter** (Bluetooth must be on), or as RawBT's Sunmi / built-in printer option where your
+   version offers one. Paper **58 mm, 384 dots**; leave the image at its own size (no scaling).
+3. Print RawBT's **test page**. If it does not print, fix that in RawBT first: Odoo only hands it the
+   image.
+4. In Odoo, for the point of sale used on the V2 Pro: **Receipt paper = 58 mm**, print width **384**,
+   **Print receipts with = RawBT app (Android)**. Upload the thermal receipt logo (58 mm, see
+   [How to upload the print logo](#how-to-upload-the-print-logo)).
+5. On the V2 Pro, open the POS in **Chrome** (not the Odoo app) and reload it. Tap **Print Full
+   Receipt**. The first time, Android may ask which app opens the link: choose RawBT, **Always**.
+
+**Good to know.**
+
+- **A tap opens RawBT.** Chrome only lets a page open another app within a few seconds of a tap.
+  Tapping **Print** prints at once. When the print comes later (automatic printing after
+  **Validate** while the order syncs slowly), a small dialog `បោះពុម្ពបង្កាន់ដៃ / Print receipt`
+  asks for one tap on `បោះពុម្ព / Print`; `បោះបង់ / Cancel` prints nothing and reports no error.
+- **Offline**: works (the image is made on the device), also when the connection drops before the
+  first receipt, and no "Leave site?" warning appears. The receipt's images (logo) are taken from the
+  copies the browser has already loaded; one that cannot be loaded at all prints as blank space
+  instead of failing the print. (Core's image printing fetches them again, and one failed fetch makes
+  every later receipt of the session fail until the POS is reloaded.)
+- **Speed**: the image embeds only the fonts the receipt uses (core embeds all ~4 MB of the POS's
+  fonts in every image) and is otherwise the same, pixel for pixel: about half the time, so the image
+  is usually ready within Chrome's tap window even on a handheld. The fonts are prepared once, 3 s
+  after the POS has loaded.
+- **Nothing happens on Print**: RawBT is not installed, or Android was told to open the link with
+  another app (Android Settings > Apps > Chrome / RawBT > Open by default). Error dialog "RawBT could
+  not be opened": answer it to print with the browser instead.
+- **80 mm Android devices**: the 80 mm image is 512 dots wide; a 576-dot printer prints it as RawBT's
+  image settings say (centred or scaled), so keep 58 mm on 58 mm devices.
+- **Cash drawer**: RawBT only receives images; a drawer needs an IoT box or an ePOS printer.
 
 ## Khmer product names
 
@@ -219,17 +275,18 @@ black/white threshold; a light or pastel logo (lighter than about 40 % grey) can
 | Company settings, `_load_pos_data_fields` (+ `l10n_kh_exchange_rate` only if that field exists) | `models/res_company.py` |
 | Load the KHR currency into the POS | `models/res_currency.py` |
 | Payment-method receipt label (+ loaded into the POS, editable with an open session) | `models/pos_payment_method.py` |
-| Receipt paper and product names per point of sale (`kh_paper_width`, `kh_raster_dots` 360-384, `kh_product_names`) and their POS settings fields | `models/pos_config.py`, `models/res_config_settings.py` |
+| Receipt paper, product names and print method per point of sale (`kh_paper_width`, `kh_raster_dots` 360-384, `kh_product_names`, `kh_print_method`) and their POS settings fields | `models/pos_config.py`, `models/res_config_settings.py` |
 | Khmer product names: `product.template.kh_receipt_name`, the fill helper (`_kh_name_from_description`, `_kh_fill_receipt_name`, `action_kh_fill_receipt_name`), `product.product.kh_pos_name_km` (receipt name, else km_KH translation) and `kh_pos_name_en` (its en_US display name), both loaded into the POS | `models/product.py` |
 | Views (company page "POS Receipt (Khmer)", payment-method field, "Receipt paper" and "Product names on the receipt" settings, product form / list field, the fill action and its groups) | `views/*.xml` |
 | Back-end font of the Khmer receipt name field (`web.assets_backend`) | `static/backend/kh_receipt_name.scss` |
 | Formatting helpers (riel, phone, web, dates in Asia/Phnom_Penh, `khWords()`: the words of a product name and their parts) | `static/src/js/kh_format.js` |
 | Data patches: `PosStore.getReceiptHeaderData`, `PosOrder.export_for_printing` (+ `_khProductNames`, `_khDetailNames`), `OrderReceipt` helpers, `CashMoveReceipt.khMove`, `Orderline.props.line.shape` (`kh_name_en`) | `static/src/js/receipt_kh.js` |
 | Printing: font readiness (`PosStore._loadFonts`, `PrinterService.print` await the Khmer font), renderer guard, `khFreezeWordLines` (`PrinterService.printHtml` on a raster printer, the e-mail image) | `static/src/js/font_ready.js` |
+| RawBT printing: `KhRawbtPrinter` (a `BasePrinter`: `khReceiptCanvas` = core's `htmlToCanvas` with only the used fonts embedded and the images inlined, 1-bit PNG, `rawbt:` link, tap dialog, `beforeunload` guard), installed as `hardwareProxy.printer` by `PosStore.afterProcessServerData` on Android only (`khUsesRawbt`) | `static/src/js/rawbt_printer.js` |
 | Template extensions (`ReceiptHeader`, `OrderReceipt`, `CashMoveReceipt`, `SaleDetailsReport` root attributes; extension mode, attribute changes and insertions only) | `static/src/xml/receipt_kh.xml` |
 | Receipt stylesheet (em-based: 512 px / 27 px raster and 266 px / 14 px web print; then the 58 mm layer under `.o_kh_w58`: 384 or 360 px / 24 px raster and 181 px / 11.5 px web print on the named page `kh-w58`) | `static/src/scss/receipt_kh.scss` |
 | Font + licence, sample print logo | `static/fonts/`, `static/img/` |
-| Tests: POS data loaders, logo flag, label editing, paper settings and range, receipt tour (formatting helpers, 80 mm root; on 58 mm / 360 dots the receipt, cash slip, Daily Sales report and the no-Khmer-data fallback receipt get `o_kh_w58` and the raster width, and the printed images of the receipt, the fallback and the report are 360 dots wide); Khmer names: loaded fields, km_KH fallback (and its query count), a km_KH cashier's data (English line from `kh_pos_name_en`, variants), the fill helper on the 12 live ABJ descriptions, Khmer digits, trailing punctuation and no-break spaces, a translated Sales Description, the action and who sees it, the setting and views, names tour (words and their parts, no-break spaces, Khmer + English / Khmer only / English only, a km_KH cashier, the product screen unchanged, frozen lines, breaks at spaces only and words longer than the line with nothing outside the paper at 360 dots; every printed line is a live text line, also for a short word before a word that wraps onto 3+ lines: `ABJ Hyaluronic-Acid-Niacinamide-Ceramide-Serum`, `ក្រែម ABJ-SuperUltraWideNightRepairCream-50ml`) | `tests/`, `static/tests/tours/` |
+| Tests: POS data loaders, logo flag, label editing, paper settings and range, receipt tour (formatting helpers, 80 mm root; on 58 mm / 360 dots the receipt, cash slip, Daily Sales report and the no-Khmer-data fallback receipt get `o_kh_w58` and the raster width, and the printed images of the receipt, the fallback and the report are 360 dots wide); Khmer names: loaded fields, km_KH fallback (and its query count), a km_KH cashier's data (English line from `kh_pos_name_en`, variants), the fill helper on the 12 live ABJ descriptions, Khmer digits, trailing punctuation and no-break spaces, a translated Sales Description, the action and who sees it, the setting and views, names tour (words and their parts, no-break spaces, Khmer + English / Khmer only / English only, a km_KH cashier, the product screen unchanged, frozen lines, breaks at spaces only and words longer than the line with nothing outside the paper at 360 dots; every printed line is a live text line, also for a short word before a word that wraps onto 3+ lines: `ABJ Hyaluronic-Acid-Niacinamide-Ceramide-Serum`, `ក្រែម ABJ-SuperUltraWideNightRepairCream-50ml`); print method setting; RawBT tour (not installed on a computer, the receipt goes to RawBT as a 384-dot 1-bit PNG, the tap dialog, Cancel) | `tests/`, `static/tests/tours/` |
 
 Run the tests with
 `odoo-bin -d <db> -i pos_receipt_khmer --test-tags /pos_receipt_khmer --stop-after-init`.

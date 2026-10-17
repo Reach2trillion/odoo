@@ -1,6 +1,6 @@
 {
     'name': 'POS Khmer Bilingual Receipt (ABJ)',
-    'version': '18.0.1.2.1',
+    'version': '18.0.1.3.0',
     'category': 'Sales/Point of Sale',
     'summary': 'Khmer / English customer receipt and cash in/out slip for the Point of Sale, '
                'with the KHR total, exchange rate and riel change.',
@@ -19,6 +19,9 @@ Bilingual Khmer / English POS receipt
 * Khmer product names: a "Khmer name (receipt)" per product (or the Khmer translation of the
   name) printed as the item line, with the product name under it (or Khmer only / English only,
   per point of sale), and a helper that fills the names from the Sales Description.
+* Android handhelds (Sunmi V2 Pro, ...): optional printing through the RawBT app (POS settings >
+  Bills & Receipts > Print receipts with), which prints the receipt image at the printer's full
+  width instead of the shrunken Android print dialog.
 * Bundled Khmer font (Kantumruy Pro, SIL OFL 1.1) so the receipt prints the same on every device.
 * Odoo 18.0: renders on every 18.0 build; fully bilingual totals from the 2024-11-29 builds on
   (on older builds core's TOTAL / CHANGE labels stay English, see README).

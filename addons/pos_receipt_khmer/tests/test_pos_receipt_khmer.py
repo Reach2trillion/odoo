@@ -138,6 +138,22 @@ class TestPosReceiptKhmer(TestPointOfSaleHttpCommon):
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour('pos_receipt_khmer_tour', login='pos_user')
 
+    def test_print_method_setting(self):
+        """Browser printing by default; RawBT is set from the POS settings and loaded into the POS."""
+        config = self.main_pos_config
+        self.assertEqual(config.kh_print_method, 'browser')
+        self.env['res.config.settings'].create({'pos_config_id': config.id, 'pos_kh_print_method': 'rawbt'})
+        self.assertEqual(config.kh_print_method, 'rawbt')
+        arch = self.env['res.config.settings'].get_views([(False, 'form')])['views']['form']['arch']
+        self.assertIn('pos_kh_print_method', arch)
+        self.assertEqual(self._load_data()['pos.config']['data'][0]['kh_print_method'], 'rawbt')
+
+    def test_rawbt_tour(self):
+        """RawBT printing: only on Android; the receipt goes to RawBT as a 384-dot 1-bit PNG, after a tap."""
+        self.main_pos_config.write({'kh_print_method': 'rawbt', 'kh_paper_width': '58', 'kh_raster_dots': 384})
+        self.main_pos_config.with_user(self.pos_user).open_ui()
+        self.start_pos_tour('pos_receipt_khmer_rawbt_tour', login='pos_user')
+
 
 # Sales Descriptions of the ABJ products on the live shop (English product name -> description_sale)
 # and the Khmer receipt name the fill helper takes from each of them

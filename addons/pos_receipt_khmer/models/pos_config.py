@@ -21,6 +21,13 @@ class PosConfig(models.Model):
              'printed (a product without a Khmer name still prints its English name). English only: the '
              'product name only. The Khmer name is the product\'s "Khmer name (receipt)", else the Khmer '
              'translation of its name. Reload the POS (or reopen the session) to apply.')
+    kh_print_method = fields.Selection(
+        [('browser', 'Browser'), ('rawbt', 'RawBT app (Android)')],
+        string='Print receipts with', default='browser', required=True,
+        help='Browser: the browser\'s print dialog, or the IoT box / ePOS printer when one is set. '
+             'RawBT app: on Android devices (Sunmi V2 Pro and other handheld POS), the receipt is sent '
+             'as the printer\'s image straight to the RawBT app, which prints it at full width with no '
+             'print dialog. Other devices keep browser printing. Reload the POS to apply.')
 
     @api.constrains('kh_raster_dots')
     def _check_kh_raster_dots(self):
@@ -33,4 +40,4 @@ class PosConfig(models.Model):
     def _load_pos_data_fields(self, config_id):
         # core loads every pos.config field ([]); only add ours if someone restricted the list
         fields_list = super()._load_pos_data_fields(config_id)
-        return fields_list + ['kh_paper_width', 'kh_raster_dots', 'kh_product_names'] if fields_list else fields_list
+        return fields_list + ['kh_paper_width', 'kh_raster_dots', 'kh_product_names', 'kh_print_method'] if fields_list else fields_list
