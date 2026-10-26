@@ -43,6 +43,13 @@ class TestCheckinLocation(TransactionCase):
         self.assertIn('visit %s' % checkin.name, self.customer.message_ids[0].body)
         self.assertIn('was saved from this check-in', checkin.message_ids[0].body)
         self.assertEqual(checkin.location_status, 'verified')
+        # the ABJ phone screen and the managers' Telegram message say where the location came from
+        self.assertEqual(checkin.with_user(self.seller)._mobile_vals()['location_status_label'],
+                         'Customer location saved')
+        self.assertIn('it was saved from this visit',
+                      self.env['checkinme.telegram']._format_checkin_message(checkin, 'checkin'))
+        self.assertNotIn('saved from this visit',
+                         self.env['checkinme.telegram']._format_checkin_message(checkin, event='checkout'))
 
     def test_no_location_from_imprecise_gps_or_phone_call(self):
         self.check_in(accuracy=80.0)
@@ -63,6 +70,8 @@ class TestCheckinLocation(TransactionCase):
         checkin = self.check_in(position=FAR_AWAY)
         self.assertAlmostEqual(self.customer.partner_latitude, SHOP[0], places=7)
         self.assertEqual(checkin.location_status, 'far')
+        self.assertEqual(checkin._mobile_vals()['location_status_label'], 'Far From Customer')
+        self.assertNotIn('saved from this visit', self.env['checkinme.telegram']._format_checkin_message(checkin))
         checkin.with_user(self.seller).action_abj_use_as_customer_location()
         self.assertAlmostEqual(self.customer.partner_latitude, FAR_AWAY[0], places=7)
         self.assertEqual(self.customer.abj_location_source, 'checkin')
@@ -75,3 +84,16 @@ class TestCheckinLocation(TransactionCase):
         partner = self.env['res.partner'].browse(values['id'])
         self.assertAlmostEqual(partner.partner_latitude, SHOP[0], places=7)
         self.assertEqual(partner.abj_location_source, 'checkin')
+
+    def test_customer_created_from_the_office(self):
+        """Created in the ABJ app at the office: the office is not the customer's location."""
+        self.env.company.partner_id.write({'partner_latitude': SHOP[0], 'partner_longitude': SHOP[1]})
+        values = self.env['checkinme.checkin'].with_user(self.seller).mobile_create_customer(
+            'Shop created at the office', latitude=SHOP[0] + 0.0003, longitude=SHOP[1])
+        partner = self.env['res.partner'].browse(values['id'])
+        self.assertFalse(partner.abj_has_location)
+        self.assertIn('that position was not saved', partner.message_ids[0].body)
+        # the first visit at the customer saves it
+        self.customer = partner
+        self.check_in(position=FAR_AWAY)
+        self.assertAlmostEqual(partner.partner_latitude, FAR_AWAY[0], places=7)

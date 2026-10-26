@@ -44,6 +44,7 @@ class TestPartnerLocation(TransactionCase):
         self.assertEqual(customer.abj_location_display, '11.5563738, 104.9282099')
         self.assertIn('query=11.5563738,104.9282099', customer.abj_maps_url)
         self.assertIn('destination=11.5563738,104.9282099', customer.abj_navigate_url)
+        self.assertTrue(customer.abj_location_info.startswith('Map link / coordinates · %s · ' % self.office_user.name))
         note = self.last_note(customer)
         self.assertIn('Map location saved', note)
         self.assertIn('11.5563738, 104.9282099', note)

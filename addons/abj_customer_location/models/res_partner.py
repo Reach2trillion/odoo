@@ -2,6 +2,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.tools.misc import format_datetime
 
 from ..tools import location as loc
 
@@ -51,6 +52,7 @@ class ResPartner(models.Model):
     abj_location_display = fields.Char(string='Map location', compute='_compute_abj_location_links')
     abj_maps_url = fields.Char(string='Google Maps link', compute='_compute_abj_location_links')
     abj_navigate_url = fields.Char(string='Directions link', compute='_compute_abj_location_links')
+    abj_location_info = fields.Char(string='Location saved', compute='_compute_abj_location_info')
 
     # ------------------------------------------------------------------
     # Compute
@@ -76,6 +78,17 @@ class ResPartner(models.Model):
             partner.abj_location_display = display
             partner.abj_maps_url = loc.maps_url(latitude, longitude)
             partner.abj_navigate_url = loc.directions_url(latitude, longitude)
+
+    @api.depends('abj_location_source', 'abj_location_user_id', 'abj_location_date')
+    def _compute_abj_location_info(self):
+        """'Phone GPS on site · Nary Rath · 10/26/26 2:05 PM': one text, wraps well on phones."""
+        sources = dict(self._fields['abj_location_source']._description_selection(self.env))
+        for partner in self:
+            parts = [sources.get(partner.abj_location_source), partner.abj_location_user_id.sudo().name]
+            if partner.abj_location_date:
+                parts.append(format_datetime(self.env, partner.abj_location_date, dt_format='short'))
+            info = ' · '.join(part for part in parts if part)
+            partner.abj_location_info = info if partner.abj_location_source else False
 
     @api.onchange('abj_location_paste')
     def _onchange_abj_location_paste(self):

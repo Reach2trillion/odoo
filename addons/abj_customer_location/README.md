@@ -9,6 +9,26 @@ fields of the contact, in two ways:
 | Delivery person | Delivery order (Inventory › Deliveries), on the phone | The order shows **No map location for this customer yet**. At the customer's door, tap **I'm here: save customer location**. |
 | Salesperson | Sale Check / ABJ app | Check in at a customer without a location: the visit saves it (bridge module `abj_customer_location_checkin`, installed automatically with Sale Check). |
 
+## On the phone
+
+| Who | Where | What happens |
+|---|---|---|
+| Salesperson or delivery person with the **ABJ app** (or the *Install on phone* web app) | *Check In Now* › customer › *Delivery* (or any visit type) › *Check In* | A customer without a map location gets the check-in position. The result screen says **Customer location saved** and the managers' Telegram message adds *it was saved from this visit*. A customer who already has a location is never changed from the app. |
+| Delivery person in **Odoo** (Chrome / Safari, or the Odoo app) | Inventory › Deliveries › the order | Yellow box with **I'm here: save customer location**; once saved, **Navigate with Google Maps**. |
+| Anyone who received the customer's link on Telegram | Telegram: touch and hold the link › *Copy*. Odoo: the customer › *Map location* › paste › *Save* | Same as on a computer. |
+
+A customer created in the ABJ app (*New customer*) gets the phone position, except when the phone
+is at the company or warehouse address: then the first visit at the customer saves it.
+
+The ABJ app itself has no field to paste a link and no button to replace a wrong location (its
+screens belong to the Sale Check module): use the customer or check-in form in Odoo for that.
+
+Phone checklist: open Odoo with its `https://` address, switch on Location (GPS), and allow
+location for the browser / ABJ app / Odoo app when asked. If it was refused once: phone
+*Settings › Apps › (Chrome, ABJ or Odoo) › Permissions › Location › Allow*.
+
+## Checking a saved location
+
 When the customer already has a location, the delivery button **checks** it instead:
 within 100 m it only says *You are at the saved location*. Further away, it asks *Replace the
 saved location with where you are now?* before changing anything. Once saved, the delivery

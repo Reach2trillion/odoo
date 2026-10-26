@@ -32,6 +32,21 @@ class CheckinmeCheckin(models.Model):
         self._message_log(body=_("📍 The map location of %(partner)s was saved from this check-in.",
                                  partner=partner.display_name))
 
+    def _abj_saved_customer_location(self):
+        """True when the customer's map location is this check-in position, saved by a visit."""
+        self.ensure_one()
+        partner = self.partner_id
+        return bool(partner and self.has_location and partner.abj_location_source == 'checkin'
+                    and abs(partner.partner_latitude - self.latitude) < 1e-7
+                    and abs(partner.partner_longitude - self.longitude) < 1e-7)
+
+    def _mobile_vals(self, *args, **kwargs):
+        # ABJ phone screen: say so instead of "Verified On Site" (0 m from itself)
+        vals = super()._mobile_vals(*args, **kwargs)
+        if self._abj_saved_customer_location():
+            vals['location_status_label'] = _("Customer location saved")
+        return vals
+
     def action_abj_use_as_customer_location(self):
         """Save this check-in position as the customer's map location (replaces the saved one)."""
         self.ensure_one()
@@ -45,5 +60,17 @@ class CheckinmeCheckin(models.Model):
 
     @api.model
     def mobile_create_customer(self, name, phone='', street='', city='', latitude=None, longitude=None):
-        return super(CheckinmeCheckin, self.with_context(abj_location_source='checkin')).mobile_create_customer(
+        """The phone position becomes the new customer's location, unless the phone is at the
+        company / warehouse address (customer created from the office)."""
+        office = self.env['res.partner']
+        if latitude and longitude:
+            office = office._abj_office_near(float(latitude), float(longitude))
+        if office:
+            latitude = longitude = None
+        result = super(CheckinmeCheckin, self.with_context(abj_location_source='checkin')).mobile_create_customer(
             name, phone=phone, street=street, city=city, latitude=latitude, longitude=longitude)
+        if office:
+            self.env['res.partner'].browse(result['id'])._message_log(body=_(
+                "Created from the phone at %(place)s: that position was not saved as the customer's map "
+                "location. The first visit at the customer will save it.", place=office.display_name))
+        return result

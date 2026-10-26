@@ -16,8 +16,10 @@ Installed automatically with *Customer Map Location* when the Sale Check app is 
 * A customer who already has a map location is never changed automatically: a check-in far
   from it shows *Far From Customer*, and the check-in form offers **Replace the customer's map
   location with this position** (asks for a confirmation first).
-* Customers created from the phone screen (the position becomes their location) are marked
-  as located by a Sale Check visit.
+* The phone screen (ABJ app) shows **Customer location saved** instead of *Verified On Site*
+  for the visit that saved it, and the managers' Telegram message says so.
+* Customers created from the phone screen get the phone position as their location, except
+  when the phone is at the company / warehouse address (customer created from the office).
 """,
     'author': 'ABJ SkinCare',
     'license': 'LGPL-3',

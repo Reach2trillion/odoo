@@ -18,13 +18,8 @@
                         <field name="abj_location_display" class="oe_inline fw-bold"/>
                         <field name="abj_maps_url" widget="url" text="Open in Google Maps" class="oe_inline"/>
                     </div>
-                    <div class="text-muted small d-flex flex-wrap gap-1" invisible="not abj_has_location or not abj_location_source">
-                        <field name="abj_location_source" class="oe_inline"/>
-                        <span>·</span>
-                        <field name="abj_location_user_id" class="oe_inline" options="{'no_open': True}"/>
-                        <span>·</span>
-                        <field name="abj_location_date" class="oe_inline"/>
-                    </div>
+                    <field name="abj_location_info" class="text-muted small"
+                           invisible="not abj_has_location or not abj_location_info"/>
                     <div class="text-warning small" invisible="abj_has_location">
                         <i class="fa fa-exclamation-triangle me-1" title="No map location"/>No map location yet.
                     </div>
