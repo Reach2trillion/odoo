@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="abj_customer_location.LocationGpsButton">
+        <button type="button"
+                t-attf-class="btn o_abj_location_gps #{props.highlight ? 'btn-primary' : 'btn-secondary'}"
+                t-att-disabled="state.busy"
+                t-on-click="onClick">
+            <i t-if="state.busy" class="fa fa-spinner fa-spin me-1" role="img" aria-label="Reading the GPS"/>
+            <i t-else="" class="fa fa-crosshairs me-1" role="img" aria-label="GPS"/>
+            <t t-if="state.busy">Reading the GPS...</t>
+            <t t-else="" t-esc="props.string"/>
+        </button>
+    </t>
+
+</templates>

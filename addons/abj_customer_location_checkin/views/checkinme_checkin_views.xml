@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_checkinme_checkin_form_abj_location" model="ir.ui.view">
+        <field name="name">checkinme.checkin.form.abj.location</field>
+        <field name="model">checkinme.checkin</field>
+        <field name="inherit_id" ref="checkinme_sales_activity.view_checkinme_checkin_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='gps_location']/field[@name='distance_to_partner']" position="after">
+                <button name="action_abj_use_as_customer_location" type="object" icon="fa-map-marker"
+                        class="btn-link p-0" colspan="2"
+                        string="Save this position as the customer's map location"
+                        invisible="not partner_id or not has_location or location_status != 'unknown' or state not in ('checked_in', 'done')"/>
+                <button name="action_abj_use_as_customer_location" type="object" icon="fa-map-marker"
+                        class="btn-link p-0" colspan="2"
+                        string="Replace the customer's map location with this position"
+                        confirm="The customer's saved map location is far from this check-in. Only replace it if this check-in was really at the customer's place. Replace it?"
+                        invisible="not partner_id or not has_location or location_status != 'far' or state not in ('checked_in', 'done')"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

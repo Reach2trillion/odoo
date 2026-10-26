@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_abj_location" model="ir.ui.view">
+        <field name="name">res.partner.form.abj.location</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Main form: right under the address -->
+            <xpath expr="//span[@name='address_name']/following-sibling::div[hasclass('o_address_format')][1]" position="after">
+                <label for="abj_location_paste" string="Map location"/>
+                <div name="abj_location" class="d-flex flex-column gap-1 mb-2">
+                    <field name="abj_has_location" invisible="1"/>
+                    <field name="abj_location_paste"
+                           placeholder="Paste the Google Maps link from Telegram, or 11.5564, 104.9282"/>
+                    <div class="d-flex flex-wrap align-items-center gap-2" invisible="not abj_has_location">
+                        <i class="fa fa-map-marker text-success" title="Map location"/>
+                        <field name="abj_location_display" class="oe_inline fw-bold"/>
+                        <field name="abj_maps_url" widget="url" text="Open in Google Maps" class="oe_inline"/>
+                    </div>
+                    <div class="text-muted small d-flex flex-wrap gap-1" invisible="not abj_has_location or not abj_location_source">
+                        <field name="abj_location_source" class="oe_inline"/>
+                        <span>·</span>
+                        <field name="abj_location_user_id" class="oe_inline" options="{'no_open': True}"/>
+                        <span>·</span>
+                        <field name="abj_location_date" class="oe_inline"/>
+                    </div>
+                    <div class="text-warning small" invisible="abj_has_location">
+                        <i class="fa fa-exclamation-triangle me-1" title="No map location"/>No map location yet.
+                    </div>
+                    <div invisible="not id">
+                        <widget name="abj_location_gps"
+                                method="abj_action_save_gps_location"
+                                string="I'm at this customer: save my GPS position"
+                                confirm="Are you at this customer's place right now? Your phone's position will be saved as their map location."/>
+                    </div>
+                </div>
+            </xpath>
+            <!-- "Contact / Address" pop-up of the Contacts & Addresses tab (delivery addresses) -->
+            <xpath expr="//field[@name='child_ids']/form//div[@name='div_address']/.." position="after">
+                <field name="abj_has_location" invisible="1"/>
+                <field name="abj_location_paste" string="Map location" invisible="type == 'contact'"
+                       placeholder="Paste the Google Maps link from Telegram, or 11.5564, 104.9282"/>
+                <field name="abj_location_display" string="Saved location"
+                       invisible="type == 'contact' or not abj_has_location"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_abj_location" model="ir.ui.view">
+        <field name="name">res.partner.search.abj.location</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="No map location" name="abj_no_location"
+                        domain="[('partner_latitude', '=', 0), ('partner_longitude', '=', 0)]"/>
+                <filter string="Has map location" name="abj_has_location"
+                        domain="['|', ('partner_latitude', '!=', 0), ('partner_longitude', '!=', 0)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

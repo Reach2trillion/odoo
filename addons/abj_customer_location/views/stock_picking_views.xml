@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_picking_form_abj_location" model="ir.ui.view">
+        <field name="name">stock.picking.form.abj.location</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <field name="abj_partner_has_location" invisible="1"/>
+                <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert"
+                     invisible="not id or picking_type_code != 'outgoing' or not partner_id or abj_partner_has_location or state == 'cancel'">
+                    <span><i class="fa fa-map-marker me-1" title="Map location"/>No map location for this customer yet. At the customer's door, tap the button to save it.</span>
+                    <widget name="abj_location_gps" method="abj_action_save_arrival_location"
+                            string="I'm here: save customer location" highlight="1"/>
+                </div>
+                <div class="alert alert-success d-flex flex-wrap align-items-center justify-content-between gap-2" role="status"
+                     invisible="not id or picking_type_code != 'outgoing' or not partner_id or not abj_partner_has_location or state == 'cancel'">
+                    <span>
+                        <i class="fa fa-map-marker me-1" title="Map location"/>The customer's map location is saved.
+                        <field name="abj_partner_navigate_url" widget="url" text="Navigate with Google Maps" class="ms-1"/>
+                    </span>
+                    <widget name="abj_location_gps" method="abj_action_save_arrival_location"
+                            string="I'm here: check the location"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_internal_search_abj_location" model="ir.ui.view">
+        <field name="name">stock.picking.search.abj.location</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='backorder']" position="after">
+                <separator/>
+                <filter string="Customer without map location" name="abj_partner_no_location"
+                        domain="[('partner_id', '!=', False), ('partner_id.partner_latitude', '=', 0), ('partner_id.partner_longitude', '=', 0)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
