@@ -1,0 +1,1 @@
+<data><xpath expr="//div[@t-if='use_delivery_as_billing and not only_services and partner_sudo']" position="replace"/><xpath expr="//input[@id='o_phone']" position="after"><div id="abj_phone_hint" class="alert alert-info py-2 px-3 mt-2 mb-0 small">សូមដាក់លេខទូរសព្ទបានត្រឹមត្រូវឬភ្ជាប់ Telegram</div></xpath></data>

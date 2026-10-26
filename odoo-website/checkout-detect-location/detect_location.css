@@ -1,0 +1,37 @@
+/* "Use my current location" under the Location field. Messages are <div>s:
+   the dark theme (view 5020) recolours every span / p / a / label with
+   #wrapwrap x4 specificity, which would wipe the status colours. It also sets
+   an inherited -webkit-text-fill-color, which beats `color`, hence the resets. */
+#abj_geo_box{margin-top:.6rem}
+#abj_geo_box .abj_geo_btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:46px;margin:0;padding:.6rem 1.1rem;border:1px solid rgba(0,0,0,.16);border-radius:999px;background:rgba(255,255,255,.94);color:#111;-webkit-text-fill-color:currentColor;font:inherit;font-weight:600;font-size:.95rem;line-height:1.3;text-align:center;cursor:pointer;box-shadow:0 6px 16px -10px rgba(0,0,0,.35);transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease;-webkit-tap-highlight-color:transparent}
+#abj_geo_box .abj_geo_kh{white-space:nowrap}
+#abj_geo_box .abj_geo_btn:hover{background:#fff;box-shadow:0 10px 22px -12px rgba(0,0,0,.45)}
+#abj_geo_box .abj_geo_btn:active{transform:scale(.97)}
+#abj_geo_box .abj_geo_btn:focus-visible{outline:3px solid rgba(84,169,235,.55);outline-offset:2px}
+#abj_geo_box .abj_geo_btn[disabled]{opacity:.7;cursor:progress}
+#abj_geo_box .abj_geo_ico{width:20px;height:20px;flex:0 0 auto}
+#abj_geo_box .abj_geo_btn.is_busy .abj_geo_ico{animation:abj_geo_pulse 1s ease-in-out infinite}
+@keyframes abj_geo_pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.82)}}
+@media (min-width:768px){#abj_geo_box .abj_geo_btn{width:auto}}
+@media (prefers-reduced-motion:reduce){#abj_geo_box .abj_geo_btn,#abj_geo_box .abj_geo_btn.is_busy .abj_geo_ico{transition:none;animation:none}}
+#abj_geo_box .abj_geo_msg{margin-top:.5rem;font-size:.86rem;line-height:1.5}
+#abj_geo_box .abj_geo_msg,#abj_geo_box .abj_geo_msg div{-webkit-text-fill-color:currentColor}
+#abj_geo_box .abj_geo_msg:empty{display:none}
+#abj_geo_box .abj_geo_sub{opacity:.85}
+#abj_geo_box .abj_geo_place{margin-bottom:.15rem;color:#111;font-weight:600}
+#abj_geo_box .abj_geo_msg.is_info{color:#475569}
+#abj_geo_box .abj_geo_msg.is_ok{color:#15803d}
+#abj_geo_box .abj_geo_msg.is_warn{color:#b45309}
+#abj_geo_box .abj_geo_msg.is_err{color:#b91c1c}
+#abj_geo_box .abj_geo_links{display:flex;flex-wrap:wrap;gap:.25rem 1rem;margin-top:.25rem}
+#abj_geo_box .abj_geo_links a{color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+#abj_geo_box .abj_geo_attr{margin-top:.2rem;font-size:.72rem;color:#64748b}
+#abj_geo_box .abj_geo_attr a{color:inherit;text-decoration:underline}
+body.abjgl-lite #abj_geo_box .abj_geo_btn{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.22);color:#ECEAE4;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 24px -14px rgba(0,0,0,.8)}
+body.abjgl-lite #abj_geo_box .abj_geo_btn:hover{background:rgba(255,255,255,.12)}
+body.abjgl-lite #abj_geo_box .abj_geo_msg.is_info{color:rgba(236,234,228,.78)}
+body.abjgl-lite #abj_geo_box .abj_geo_msg.is_ok{color:#4ADE80}
+body.abjgl-lite #abj_geo_box .abj_geo_msg.is_warn{color:#FBBF24}
+body.abjgl-lite #abj_geo_box .abj_geo_msg.is_err{color:#F87171}
+body.abjgl-lite #abj_geo_box .abj_geo_attr{color:rgba(236,234,228,.6)}
+body.abjgl-lite #abj_geo_box .abj_geo_place{color:#ECEAE4}

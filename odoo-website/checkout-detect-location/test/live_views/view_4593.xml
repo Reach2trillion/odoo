@@ -1,0 +1,7 @@
+<data inherit_id="website_sale.address">
+        <input name="street" position="attributes">
+            <attribute name="t-att-data-autocomplete-enabled">
+                1 if website.has_google_places_api_key() else 0
+            </attribute>
+        </input>
+    </data>
