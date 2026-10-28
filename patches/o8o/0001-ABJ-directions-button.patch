@@ -1,0 +1,204 @@
+From 357d89594da8da3913c8b53aa3e51ecb819e2a98 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 28 Oct 2026 10:45:03 +0000
+Subject: [PATCH] ABJ: directions button to geolocated customers (Google Maps)
+
+On the phone screen, customers with a geolocation get a round directions
+button (arrow icon) that opens the route to the customer in Google Maps
+(the Google Maps app on phones):
+
+- check-in customer step: Customers near you, Recently visited, search;
+- home: Planned visits and Follow-ups today.
+
+The button never selects the customer nor opens the visit. Server side:
+_mobile_partner_vals() returns maps_url and _mobile_vals() returns
+partner_maps_url (Google Maps "dir" URL, '' without geolocation).
+
+Version 18.0.1.2.0.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CDf1bwMVzBpzAmEtw1oK6V
+---
+ checkinme_sales_activity/README.md                    |  1 +
+ checkinme_sales_activity/__manifest__.py              |  2 +-
+ checkinme_sales_activity/models/checkinme_checkin.py  |  6 ++++++
+ checkinme_sales_activity/models/checkinme_mobile.py   | 11 ++++++++++-
+ .../static/src/screen/screen.scss                     |  5 +++++
+ .../static/src/screen_templates/screen.xml            |  6 ++++++
+ checkinme_sales_activity/tests/test_mobile.py         |  7 +++++++
+ 7 files changed, 36 insertions(+), 2 deletions(-)
+
+diff --git a/checkinme_sales_activity/README.md b/checkinme_sales_activity/README.md
+index aa86b55..6ea827a 100644
+--- a/checkinme_sales_activity/README.md
++++ b/checkinme_sales_activity/README.md
+@@ -58,6 +58,7 @@ The first menu of the app is a dedicated phone screen, built the same way as a q
+ 
+ 1. **Home**: today's *Visits / Verified / Customers / Check-ins* counters, the currently open visit with a big **Check Out** button, **Check In Now**, the month's targets with progress bars (*This month*), the planned visits with **Check In** buttons, *Follow-ups today* (done visits whose follow-up date is today; **Check In** starts a new visit at that customer) and *Today's visits*. The top bar opens *My visits* (history icon) and the app settings (gear icon); in the web app, a *Turn on notifications* banner shows until notifications are enabled or the banner is dismissed.
+ 2. **Check in** in three taps: the position is captured automatically (**Retry** if needed), then the customer is picked from *Customers near you* (sorted by distance from the phone's position), *Recently visited* or a search by name / phone, or created on the spot (the phone's position becomes the customer's geolocation), then the activity type is chosen from large tiles, with purpose, notes and a photo from the camera.
++   Customers with a geolocation show a round **directions** button (arrow icon) in these lists, in the planned visits and in *Follow-ups today*: it opens the route to the customer in Google Maps (the Google Maps app on phones), without selecting the customer.
+ 3. **Check out** with the outcome tiles, sales amount, follow-up date and notes; the check-out position is captured again.
+ 4. **Result** card with the reference, the verification badge (distance to the customer), the Telegram status, a Google Maps link, the print buttons (see [Printing receipts](#printing-receipts)) and **Edit in Odoo**; **My visits** lists the recent history. A teammate's visit (e.g. a manager tapping a team notification) opens as a read-only card.
+ 
+diff --git a/checkinme_sales_activity/__manifest__.py b/checkinme_sales_activity/__manifest__.py
+index 31cfcaa..012d9e5 100644
+--- a/checkinme_sales_activity/__manifest__.py
++++ b/checkinme_sales_activity/__manifest__.py
+@@ -18,7 +18,7 @@ Mobile-friendly sales activity management and tracking for outside sales teams.
+ * Performance Reports: daily, weekly, monthly and yearly results per employee
+   (pivot / graph analysis, printable PDF activity report).
+ """,
+-    'version': '18.0.1.1.0',
++    'version': '18.0.1.2.0',
+     'category': 'Sales/Sales',
+     'author': 'Reach2trillion',
+     'website': 'https://github.com/Reach2trillion/o8o',
+diff --git a/checkinme_sales_activity/models/checkinme_checkin.py b/checkinme_sales_activity/models/checkinme_checkin.py
+index 6d3eb62..ceb2eba 100644
+--- a/checkinme_sales_activity/models/checkinme_checkin.py
++++ b/checkinme_sales_activity/models/checkinme_checkin.py
+@@ -15,6 +15,7 @@ from odoo.tools.misc import format_datetime
+ _logger = logging.getLogger(__name__)
+ 
+ GOOGLE_MAPS_URL = "https://www.google.com/maps?q=%s,%s"
++GOOGLE_MAPS_DIRECTIONS_URL = "https://www.google.com/maps/dir/?api=1&destination=%s,%s"
+ EARTH_RADIUS_M = 6371000.0
+ 
+ CHECKIN_STATES = [
+@@ -64,6 +65,11 @@ def google_maps_url(lat, lng):
+     return GOOGLE_MAPS_URL % (('%.7f' % lat).rstrip('0').rstrip('.'), ('%.7f' % lng).rstrip('0').rstrip('.'))
+ 
+ 
++def google_maps_directions_url(lat, lng):
++    """Google Maps route from where the phone is to the point (opens the Maps app on phones)."""
++    return GOOGLE_MAPS_DIRECTIONS_URL % (('%.7f' % lat).rstrip('0').rstrip('.'), ('%.7f' % lng).rstrip('0').rstrip('.'))
++
++
+ def safe_timezone(tz_name):
+     try:
+         return pytz.timezone(tz_name or 'UTC')
+diff --git a/checkinme_sales_activity/models/checkinme_mobile.py b/checkinme_sales_activity/models/checkinme_mobile.py
+index 5660766..fdad8cc 100644
+--- a/checkinme_sales_activity/models/checkinme_mobile.py
++++ b/checkinme_sales_activity/models/checkinme_mobile.py
+@@ -11,7 +11,7 @@ from odoo import api, fields, models, _
+ from odoo.exceptions import UserError
+ from odoo.tools.misc import formatLang, format_date
+ 
+-from .checkinme_checkin import haversine_distance, OUTCOMES
++from .checkinme_checkin import google_maps_directions_url, haversine_distance, OUTCOMES
+ 
+ NEARBY_RADIUS_M = 3000
+ RECENT_DAYS = 90
+@@ -46,6 +46,7 @@ class CheckinmeCheckinMobile(models.Model):
+             'partner_name': self.partner_id.display_name or '',
+             'partner_address': ' '.join((self.partner_id._display_address(without_company=True) or '').split()) if self.partner_id else '',
+             'partner_phone': self.partner_id.phone or self.partner_id.mobile or '',
++            'partner_maps_url': self._mobile_maps_url(self.partner_id),
+             'type_id': self.checkin_type_id.id,
+             'type_name': self.checkin_type_id.name,
+             'type_icon': self.checkin_type_id.icon or 'fa-map-marker',
+@@ -116,6 +117,13 @@ class CheckinmeCheckinMobile(models.Model):
+             'server_version': '18.0',
+         }
+ 
++    @api.model
++    def _mobile_maps_url(self, partner):
++        """Google Maps route to a geolocated customer ('' when the customer has no geolocation)."""
++        if not (partner.partner_latitude or partner.partner_longitude):
++            return ''
++        return google_maps_directions_url(partner.partner_latitude, partner.partner_longitude)
++
+     @api.model
+     def _mobile_partner_vals(self, partner, latitude=None, longitude=None, last_visits=None):
+         distance = None
+@@ -128,6 +136,7 @@ class CheckinmeCheckinMobile(models.Model):
+             'address': ' '.join((partner._display_address(without_company=True) or '').split()),
+             'phone': partner.phone or partner.mobile or '',
+             'geolocated': bool(partner.partner_latitude or partner.partner_longitude),
++            'maps_url': self._mobile_maps_url(partner),
+             'distance_m': distance,
+             'last_visit': fields.Date.to_string(last_visit) if last_visit else '',
+         }
+diff --git a/checkinme_sales_activity/static/src/screen/screen.scss b/checkinme_sales_activity/static/src/screen/screen.scss
+index b149cda..5fac32f 100644
+--- a/checkinme_sales_activity/static/src/screen/screen.scss
++++ b/checkinme_sales_activity/static/src/screen/screen.scss
+@@ -126,6 +126,11 @@ $abj-serif: 'Playfair Display', 'Noto Serif', 'DejaVu Serif', Georgia, serif;
+         &:first-of-type { border-top: 0; }
+     }
+     .o_checkinme_list_item > .btn { flex: 0 0 auto; white-space: nowrap; }
++    // route in Google Maps to a geolocated customer (customer lists, planned visits, follow-ups)
++    .o_checkinme_nav_btn {
++        width: 44px; height: 44px; padding: 0; border-radius: 999px; font-size: 1.1rem;
++        display: inline-flex; align-items: center; justify-content: center;
++    }
+     .o_checkinme_clickable { cursor: pointer; &:active { background: $abj-cream; } }
+     .o_checkinme_list_main { flex: 1 1 auto; min-width: 0; }
+     .o_checkinme_list_title { font-weight: 700; color: $abj-slate; overflow: hidden; text-overflow: ellipsis; overflow-wrap: anywhere; }
+diff --git a/checkinme_sales_activity/static/src/screen_templates/screen.xml b/checkinme_sales_activity/static/src/screen_templates/screen.xml
+index 2b9a719..6b10727 100644
+--- a/checkinme_sales_activity/static/src/screen_templates/screen.xml
++++ b/checkinme_sales_activity/static/src/screen_templates/screen.xml
+@@ -109,6 +109,8 @@
+                     <div class="o_checkinme_list_title" t-esc="visit.partner_name or visit.type_name"/>
+                     <div class="o_checkinme_muted"><i t-attf-class="fa {{ visit.type_icon }} me-1"/><t t-esc="visit.type_name"/><t t-if="visit.purpose"> &#183; <t t-esc="visit.purpose"/></t></div>
+                 </div>
++                <a t-if="visit.partner_maps_url" t-att-href="visit.partner_maps_url" target="_blank" rel="noopener" class="btn btn-outline-primary o_checkinme_nav_btn"
++                   aria-label="Directions in Google Maps" title="Directions in Google Maps"><i class="fa fa-location-arrow"/></a>
+                 <button type="button" class="btn btn-primary btn-sm o_checkinme_btn_md" t-on-click="() => this.startCheckin(visit)">Check In</button>
+             </div>
+         </section>
+@@ -120,6 +122,8 @@
+                     <div class="o_checkinme_list_title" t-esc="visit.partner_name or visit.type_name"/>
+                     <div class="o_checkinme_muted">Last visit <t t-esc="visit.checkin_date_local"/><t t-if="visit.outcome_label"> &#183; <t t-esc="visit.outcome_label"/></t></div>
+                 </div>
++                <a t-if="visit.partner_maps_url" t-att-href="visit.partner_maps_url" target="_blank" rel="noopener" class="btn btn-outline-primary o_checkinme_nav_btn" t-on-click.stop=""
++                   aria-label="Directions in Google Maps" title="Directions in Google Maps"><i class="fa fa-location-arrow"/></a>
+                 <button type="button" class="btn btn-primary btn-sm o_checkinme_btn_md" t-att-disabled="!d.employee.has_employee"
+                         t-on-click.stop="() => this.startFollowUp(visit)">Check In</button>
+             </div>
+@@ -212,6 +216,8 @@
+                         <div class="o_checkinme_muted" t-if="customer.last_visit">Last visit <t t-esc="customer.last_visit"/></div>
+                     </div>
+                     <span t-if="customer.distance_m !== null and customer.distance_m !== undefined" class="o_checkinme_badge o_checkinme_badge_distance" t-esc="formatDistance(customer.distance_m)"/>
++                    <a t-if="customer.maps_url" t-att-href="customer.maps_url" target="_blank" rel="noopener" class="btn btn-outline-primary o_checkinme_nav_btn" t-on-click.stop=""
++                       aria-label="Directions in Google Maps" title="Directions in Google Maps"><i class="fa fa-location-arrow"/></a>
+                     <i class="fa fa-chevron-right o_checkinme_muted ms-2"/>
+                 </div>
+             </t>
+diff --git a/checkinme_sales_activity/tests/test_mobile.py b/checkinme_sales_activity/tests/test_mobile.py
+index 270d1e7..c3df4aa 100644
+--- a/checkinme_sales_activity/tests/test_mobile.py
++++ b/checkinme_sales_activity/tests/test_mobile.py
+@@ -37,6 +37,9 @@ class TestMobileScreen(CheckinmeCommon):
+         self.assertEqual(data['open_visit']['id'], visit.id)
+         self.assertEqual(data['open_visit']['location_status'], 'verified')
+         self.assertEqual([p['id'] for p in data['planned_today']], [planned.id])
++        self.assertEqual(data['planned_today'][0]['partner_maps_url'], '')
++        self.assertEqual(data['open_visit']['partner_maps_url'],
++                         'https://www.google.com/maps/dir/?api=1&destination=11.5564,104.9282')
+         self.assertEqual([v['id'] for v in data['today_visits']], [visit.id])
+         self.assertEqual(data['today_stats'], {'checkins': 1, 'visits': 1, 'verified': 1, 'customers': 1})
+         self.assertEqual(data['target']['id'], target.id)
+@@ -68,6 +71,9 @@ class TestMobileScreen(CheckinmeCommon):
+         self.assertNotIn(far.id, [r['id'] for r in result])
+         self.assertLess(nearby[0]['distance_m'], 50)
+         self.assertGreater(nearby[1]['distance_m'], 400)
++        # directions button: Google Maps route to the customer
++        self.assertEqual(nearby[0]['maps_url'],
++                         'https://www.google.com/maps/dir/?api=1&destination=11.5564,104.9282')
+         # recent: visited customers without geolocation show up with the last visit date
+         self._create_checkin(self.rep, partner_id=self.partner_nogeo.id)
+         result = Checkin.mobile_search_customers('', CHECKIN_LAT, CHECKIN_LNG)
+@@ -75,6 +81,7 @@ class TestMobileScreen(CheckinmeCommon):
+         self.assertEqual([r['id'] for r in recent], [self.partner_nogeo.id])
+         self.assertTrue(recent[0]['last_visit'])
+         self.assertIsNone(recent[0]['distance_m'])
++        self.assertEqual(recent[0]['maps_url'], '', "no directions to a customer without geolocation")
+         # query: text search only
+         result = Checkin.mobile_search_customers('zyxcorner')
+         self.assertEqual([(r['id'], r['section']) for r in result], [(close.id, 'search')])
+-- 
+2.43.0
+
