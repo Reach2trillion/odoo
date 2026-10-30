@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_auto_reply_view_list" model="ir.ui.view">
+        <field name="name">telegram.auto.reply.view.list</field>
+        <field name="model">telegram.auto.reply</field>
+        <field name="arch" type="xml">
+            <list string="Auto Reply Rules">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="keywords"/>
+                <field name="match_type"/>
+                <field name="bot_id" optional="show"/>
+                <field name="hit_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_auto_reply_view_form" model="ir.ui.view">
+        <field name="name">telegram.auto.reply.view.form</field>
+        <field name="model">telegram.auto.reply</field>
+        <field name="arch" type="xml">
+            <form string="Auto Reply Rule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Price question"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="bot_id" options="{'no_create': True}"/>
+                            <field name="keywords" placeholder="price, តម្លៃ, how much"/>
+                            <field name="match_type"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="hit_count"/>
+                        </group>
+                    </group>
+                    <group string="Reply">
+                        <field name="reply_body" nolabel="1" colspan="2"
+                               placeholder="The answer sent automatically. Placeholders like {{ object.first_name ||| there }} work here too."/>
+                    </group>
+                    <group>
+                        <group string="Attachment">
+                            <field name="attachment_filename" invisible="1"/>
+                            <field name="attachment" filename="attachment_filename"/>
+                        </group>
+                        <group string="Link Button">
+                            <field name="button_text" placeholder="e.g. Open our shop"/>
+                            <field name="button_url" widget="url" placeholder="https://"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_auto_reply_view_search" model="ir.ui.view">
+        <field name="name">telegram.auto.reply.view.search</field>
+        <field name="model">telegram.auto.reply</field>
+        <field name="arch" type="xml">
+            <search string="Auto Reply Rules">
+                <field name="name"/>
+                <field name="keywords"/>
+                <field name="bot_id"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_bot" string="Bot" context="{'group_by': 'bot_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="telegram_auto_reply_action" model="ir.actions.act_window">
+        <field name="name">Auto Replies</field>
+        <field name="res_model">telegram.auto.reply</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="telegram_auto_reply_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Answer frequent questions automatically</p>
+            <p>
+                When a customer message contains one of the keywords (in any language), the bot answers
+                immediately with your reply. Rules are checked in order; the first match wins.
+            </p>
+        </field>
+    </record>
+</odoo>

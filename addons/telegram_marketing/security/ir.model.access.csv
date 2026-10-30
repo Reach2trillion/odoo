@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_telegram_bot_user,telegram.bot user,model_telegram_bot,group_telegram_user,1,0,0,0
+access_telegram_bot_manager,telegram.bot manager,model_telegram_bot,group_telegram_manager,1,1,1,1
+access_telegram_chat_user,telegram.chat user,model_telegram_chat,group_telegram_user,1,1,1,0
+access_telegram_chat_manager,telegram.chat manager,model_telegram_chat,group_telegram_manager,1,1,1,1
+access_telegram_chat_tag_user,telegram.chat.tag user,model_telegram_chat_tag,group_telegram_user,1,1,1,0
+access_telegram_chat_tag_manager,telegram.chat.tag manager,model_telegram_chat_tag,group_telegram_manager,1,1,1,1
+access_telegram_message_user,telegram.message user,model_telegram_message,group_telegram_user,1,1,1,0
+access_telegram_message_manager,telegram.message manager,model_telegram_message,group_telegram_manager,1,1,1,1
+access_telegram_campaign_user,telegram.campaign user,model_telegram_campaign,group_telegram_user,1,1,1,1
+access_telegram_campaign_button_user,telegram.campaign.button user,model_telegram_campaign_button,group_telegram_user,1,1,1,1
+access_telegram_auto_reply_user,telegram.auto.reply user,model_telegram_auto_reply,group_telegram_user,1,0,0,0
+access_telegram_auto_reply_manager,telegram.auto.reply manager,model_telegram_auto_reply,group_telegram_manager,1,1,1,1
+access_telegram_compose_user,telegram.compose user,model_telegram_compose,group_telegram_user,1,1,1,1

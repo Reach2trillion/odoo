@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_telegram" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.telegram</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_telegram_chats" type="object" class="oe_stat_button" icon="fa-paper-plane"
+                        invisible="telegram_chat_count == 0" groups="telegram_marketing.group_telegram_user">
+                    <field name="telegram_chat_count" widget="statinfo" string="Telegram"/>
+                </button>
+            </div>
+            <field name="website" position="after">
+                <field name="telegram_username" placeholder="username (without @)" groups="telegram_marketing.group_telegram_user"/>
+            </field>
+        </field>
+    </record>
+</odoo>

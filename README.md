@@ -1,3 +1,14 @@
+# ABJ automation tools
+
+This repository contains two independent projects:
+
+| Project | Location | What it does |
+|---|---|---|
+| **Telegram Marketing & Live Chat** (Odoo 18 module) | [`addons/telegram_marketing`](addons/telegram_marketing/README.md) | Broadcast promotions and announcements to Telegram subscribers, chat with customers instantly from the Odoo *Inbox*, keyword auto-replies, welcome / unsubscribe messages, contacts integration. Run Odoo 18 with it using [`docker-compose.odoo.yml`](docker-compose.odoo.yml). |
+| **Facebook Auto-Reply Bot** (Khmer voice) | repository root (`app.py`, `Dockerfile`, `docker-compose.yml`) | Dockerized Flask service answering Facebook Page messages and comments in Khmer text + voice. Documented below. |
+
+---
+
 # Facebook Auto-Reply Bot — Khmer Voice 🇰🇭🔊
 
 A small Dockerized service that automatically answers your Facebook Page:

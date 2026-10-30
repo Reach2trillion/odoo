@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_campaign_view_list" model="ir.ui.view">
+        <field name="name">telegram.campaign.view.list</field>
+        <field name="model">telegram.campaign</field>
+        <field name="arch" type="xml">
+            <list string="Telegram Campaigns" decoration-muted="state == 'cancelled'" decoration-info="state == 'sending'">
+                <field name="name"/>
+                <field name="campaign_type" optional="show"/>
+                <field name="bot_id" optional="show"/>
+                <field name="scheduled_date" optional="show"/>
+                <field name="sent_date" optional="hide"/>
+                <field name="recipient_count" string="Recipients"/>
+                <field name="sent_count" string="Sent"/>
+                <field name="failed_count" string="Failed"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'sending'"
+                       decoration-warning="state == 'scheduled'" decoration-muted="state in ('draft', 'cancelled')"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_campaign_view_kanban" model="ir.ui.view">
+        <field name="name">telegram.campaign.view.kanban</field>
+        <field name="model">telegram.campaign</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false" sample="1">
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold fs-5"/>
+                        <div class="text-muted small">
+                            <field name="campaign_type"/> · <field name="bot_id"/>
+                        </div>
+                        <div class="small mt-1" t-if="record.scheduled_date.raw_value">
+                            <i class="fa fa-clock-o me-1" role="img" aria-label="Scheduled"/><field name="scheduled_date"/>
+                        </div>
+                        <footer class="pt-1">
+                            <span class="small text-muted">
+                                <field name="recipient_count"/> recipients
+                            </span>
+                            <span class="ms-auto small">
+                                <span class="text-success"><field name="sent_count"/> sent</span>
+                                <span t-if="record.failed_count.raw_value" class="text-danger ms-2"><field name="failed_count"/> failed</span>
+                            </span>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="telegram_campaign_view_form" model="ir.ui.view">
+        <field name="name">telegram.campaign.view.form</field>
+        <field name="model">telegram.campaign</field>
+        <field name="arch" type="xml">
+            <form string="Telegram Campaign">
+                <header>
+                    <button name="action_send_now" type="object" string="Send Now" class="btn-primary"
+                            invisible="state not in ('draft', 'scheduled')"
+                            confirm="Send this campaign to all matching recipients now?"/>
+                    <button name="action_schedule" type="object" string="Schedule" class="btn-secondary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_send_test" type="object" string="Send Test" icon="fa-flask"
+                            invisible="state == 'cancelled'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state not in ('scheduled', 'sending')"
+                            confirm="Stop this campaign? Messages not yet sent will be cancelled."/>
+                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+                            invisible="state not in ('scheduled', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sending,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_recipients" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="recipient_count" widget="statinfo" string="Recipients"/>
+                        </button>
+                        <button name="action_view_messages" type="object" class="oe_stat_button" icon="fa-envelope-o"
+                                invisible="telegram_message_count == 0">
+                            <field name="telegram_message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Khmer New Year Promotion"/></h1>
+                    </div>
+                    <group>
+                        <group string="Campaign">
+                            <field name="bot_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="campaign_type"/>
+                            <field name="scheduled_date" readonly="state not in ('draft', 'scheduled')"
+                                   help="Leave empty and click Send Now, or set a date and click Schedule."/>
+                            <field name="sent_date" invisible="not sent_date"/>
+                            <field name="test_chat_id" options="{'no_create': True}"
+                                   domain="[('bot_id', '=', bot_id), ('chat_type', '=', 'private')]"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Recipients">
+                            <field name="recipient_mode" widget="radio" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="include_groups" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"
+                                   invisible="recipient_mode != 'tags'" required="recipient_mode == 'tags'"
+                                   readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="recipient_domain" widget="domain" options="{'model': 'telegram.chat', 'in_dialog': True}"
+                                   invisible="recipient_mode != 'domain'" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="chat_ids" widget="many2many_tags" invisible="recipient_mode != 'manual'"
+                                   required="recipient_mode == 'manual'" domain="[('bot_id', '=', bot_id)]"
+                                   readonly="state not in ('draft', 'scheduled')"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Message" name="message">
+                            <div class="alert alert-info" role="alert">
+                                Personalize with placeholders:
+                                <code>{{ object.first_name ||| there }}</code>,
+                                <code>{{ object.name }}</code>,
+                                <code>{{ object.partner_id.name }}</code>.
+                                Bold, italic, underline, strikethrough, code and links are kept; other layout becomes plain text.
+                                Telegram limits a message to 4096 characters (1024 with an image).
+                            </div>
+                            <field name="body" nolabel="1" placeholder="Write your promotion or announcement..."
+                                   readonly="state not in ('draft', 'scheduled')"/>
+                            <group>
+                                <group string="Image or File">
+                                    <field name="attachment_filename" invisible="1"/>
+                                    <field name="attachment" filename="attachment_filename" nolabel="1" colspan="2"
+                                           readonly="state not in ('draft', 'scheduled')"/>
+                                    <field name="disable_preview" readonly="state not in ('draft', 'scheduled')"/>
+                                </group>
+                                <group string="Link Buttons">
+                                    <field name="button_ids" nolabel="1" colspan="2" readonly="state not in ('draft', 'scheduled')">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name" placeholder="e.g. Shop now"/>
+                                            <field name="url" widget="url" placeholder="https://"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Preview" name="preview">
+                            <field name="preview_text" nolabel="1"/>
+                        </page>
+                        <page string="Statistics" name="statistics" invisible="state in ('draft', 'scheduled')">
+                            <group>
+                                <group>
+                                    <field name="telegram_message_count" string="Total"/>
+                                    <field name="sent_count"/>
+                                    <field name="failed_count"/>
+                                    <field name="pending_count"/>
+                                    <field name="cancelled_count"/>
+                                </group>
+                                <group>
+                                    <field name="progress" widget="progressbar"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_campaign_view_search" model="ir.ui.view">
+        <field name="name">telegram.campaign.view.search</field>
+        <field name="model">telegram.campaign</field>
+        <field name="arch" type="xml">
+            <search string="Telegram Campaigns">
+                <field name="name"/>
+                <field name="bot_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="sending" string="Sending" domain="[('state', '=', 'sending')]"/>
+                <filter name="done" string="Sent" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="promotions" string="Promotions" domain="[('campaign_type', '=', 'promotion')]"/>
+                <filter name="announcements" string="Announcements" domain="[('campaign_type', '=', 'announcement')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'campaign_type'}"/>
+                    <filter name="group_by_bot" string="Bot" context="{'group_by': 'bot_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="telegram_campaign_action" model="ir.actions.act_window">
+        <field name="name">Campaigns</field>
+        <field name="res_model">telegram.campaign</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="telegram_campaign_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first Telegram campaign</p>
+            <p>
+                Write a promotion or an announcement, choose who receives it (all subscribers, tags,
+                a filter or a hand-picked list), send a test to yourself, then send now or schedule it.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_message_view_list" model="ir.ui.view">
+        <field name="name">telegram.message.view.list</field>
+        <field name="model">telegram.message</field>
+        <field name="arch" type="xml">
+            <list string="Telegram Messages" decoration-danger="state == 'failed'" decoration-muted="state == 'cancelled'"
+                  decoration-info="state == 'queued'" create="false">
+                <field name="date"/>
+                <field name="direction" widget="badge" decoration-info="direction == 'in'" decoration-success="direction == 'out'"/>
+                <field name="chat_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="preview" string="Message"/>
+                <field name="message_type" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'sent'" decoration-danger="state == 'failed'"
+                       decoration-warning="state == 'queued'"/>
+                <field name="campaign_id" optional="show"/>
+                <field name="author_id" optional="hide"/>
+                <field name="is_auto" optional="hide"/>
+                <field name="bot_id" optional="hide"/>
+                <field name="error" optional="hide"/>
+                <button name="action_retry" type="object" string="Retry" icon="fa-refresh"
+                        invisible="state not in ('failed', 'cancelled') or direction != 'out'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_message_view_form" model="ir.ui.view">
+        <field name="name">telegram.message.view.form</field>
+        <field name="model">telegram.message</field>
+        <field name="arch" type="xml">
+            <form string="Telegram Message" create="false">
+                <header>
+                    <button name="action_retry" type="object" string="Retry" class="btn-primary"
+                            invisible="state not in ('failed', 'cancelled') or direction != 'out'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'queued'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="chat_id"/>
+                            <field name="partner_id"/>
+                            <field name="bot_id"/>
+                            <field name="direction"/>
+                            <field name="message_type"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="sent_date" invisible="direction != 'out'"/>
+                            <field name="campaign_id" invisible="not campaign_id"/>
+                            <field name="auto_reply_id" invisible="not auto_reply_id"/>
+                            <field name="author_id" invisible="not author_id"/>
+                            <field name="is_auto" invisible="direction != 'out'"/>
+                            <field name="telegram_message_id"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-danger" role="alert" invisible="not error">
+                        <field name="error" readonly="1" nolabel="1"/>
+                    </div>
+                    <group string="Content">
+                        <field name="body" nolabel="1" colspan="2" readonly="1"/>
+                        <field name="attachment_id" readonly="1" invisible="not attachment_id"/>
+                        <field name="buttons_json" readonly="1" invisible="not buttons_json"/>
+                        <field name="disable_link_preview" invisible="direction != 'out'"/>
+                    </group>
+                    <group string="Raw Telegram Data" groups="telegram_marketing.group_telegram_manager" invisible="not raw_json">
+                        <field name="raw_json" nolabel="1" colspan="2" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_message_view_search" model="ir.ui.view">
+        <field name="name">telegram.message.view.search</field>
+        <field name="model">telegram.message</field>
+        <field name="arch" type="xml">
+            <search string="Telegram Messages">
+                <field name="preview" string="Message" filter_domain="[('body', 'ilike', self)]"/>
+                <field name="chat_id"/>
+                <field name="partner_id"/>
+                <field name="campaign_id"/>
+                <filter name="incoming" string="Received" domain="[('direction', '=', 'in')]"/>
+                <filter name="outgoing" string="Sent" domain="[('direction', '=', 'out')]"/>
+                <separator/>
+                <filter name="queued" string="Queued" domain="[('state', '=', 'queued')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <separator/>
+                <filter name="automatic" string="Automatic Replies" domain="[('is_auto', '=', True)]"/>
+                <filter name="campaigns" string="Campaign Messages" domain="[('campaign_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_date" string="Date" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
+                    <filter name="group_by_campaign" string="Campaign" context="{'group_by': 'campaign_id'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_direction" string="Direction" context="{'group_by': 'direction'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="telegram_message_action" model="ir.actions.act_window">
+        <field name="name">Messages</field>
+        <field name="res_model">telegram.message</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="telegram_message_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Telegram message yet</p>
+            <p>Every message received from or sent to Telegram is logged here.</p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="telegram_marketing.TelegramConversationField">
+        <div class="o_telegram_conversation" t-ref="root">
+            <t t-out="markupHtml"/>
+        </div>
+    </t>
+</templates>

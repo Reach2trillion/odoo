@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_telegram_root" name="Telegram" sequence="75"
+              web_icon="telegram_marketing,static/description/icon.png"
+              groups="telegram_marketing.group_telegram_user"/>
+
+    <menuitem id="menu_telegram_inbox" name="Inbox" parent="menu_telegram_root" sequence="10"
+              action="telegram_chat_action"/>
+    <menuitem id="menu_telegram_campaigns" name="Campaigns" parent="menu_telegram_root" sequence="20"
+              action="telegram_campaign_action"/>
+    <menuitem id="menu_telegram_messages" name="Messages" parent="menu_telegram_root" sequence="30"
+              action="telegram_message_action"/>
+
+    <menuitem id="menu_telegram_configuration" name="Configuration" parent="menu_telegram_root" sequence="90"/>
+    <menuitem id="menu_telegram_bots" name="Bots" parent="menu_telegram_configuration" sequence="10"
+              action="telegram_bot_action" groups="telegram_marketing.group_telegram_manager"/>
+    <menuitem id="menu_telegram_auto_replies" name="Auto Replies" parent="menu_telegram_configuration" sequence="20"
+              action="telegram_auto_reply_action"/>
+    <menuitem id="menu_telegram_tags" name="Chat Tags" parent="menu_telegram_configuration" sequence="30"
+              action="telegram_chat_tag_action"/>
+</odoo>

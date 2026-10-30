@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_bot_view_form" model="ir.ui.view">
+        <field name="name">telegram.bot.view.form</field>
+        <field name="model">telegram.bot</field>
+        <field name="arch" type="xml">
+            <form string="Telegram Bot">
+                <header>
+                    <button name="action_check_connection" type="object" string="Check Connection"
+                            class="btn-primary" icon="fa-plug" groups="telegram_marketing.group_telegram_manager"/>
+                    <button name="action_set_webhook" type="object" string="Activate Webhook"
+                            invisible="state == 'draft' or (update_mode == 'webhook' and webhook_set)"
+                            groups="telegram_marketing.group_telegram_manager"
+                            help="Register the webhook URL on Telegram so that messages arrive instantly."/>
+                    <button name="action_use_polling" type="object" string="Use Polling Instead"
+                            invisible="state == 'draft' or update_mode == 'polling'"
+                            groups="telegram_marketing.group_telegram_manager"/>
+                    <button name="action_refresh_webhook_info" type="object" string="Refresh Webhook Status"
+                            invisible="state == 'draft' or update_mode != 'webhook'"
+                            groups="telegram_marketing.group_telegram_manager"/>
+                    <button name="action_open_compose" type="object" string="Send a Message" icon="fa-paper-plane"
+                            invisible="state != 'connected'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_chats" type="object" class="oe_stat_button" icon="fa-comments">
+                            <field name="chat_count" widget="statinfo" string="Chats"/>
+                        </button>
+                        <button name="action_view_subscribers" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="subscriber_count" widget="statinfo" string="Subscribers"/>
+                        </button>
+                        <button name="action_view_campaigns" type="object" class="oe_stat_button" icon="fa-bullhorn">
+                            <field name="campaign_count" widget="statinfo" string="Campaigns"/>
+                        </button>
+                        <button name="action_view_messages" type="object" class="oe_stat_button" icon="fa-envelope-o">
+                            <field name="telegram_message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. ABJ Shop Bot"/></h1>
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="not connection_error">
+                        <field name="connection_error" readonly="1" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group string="Connection">
+                            <field name="token" password="True" placeholder="123456789:AAH..."/>
+                            <field name="username"/>
+                            <field name="telegram_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Receiving Messages">
+                            <field name="update_mode" widget="radio"/>
+                            <field name="webhook_url" widget="CopyClipboardChar" invisible="update_mode != 'webhook'"/>
+                            <field name="webhook_set" invisible="update_mode != 'webhook'"/>
+                            <field name="last_update_id" invisible="update_mode != 'polling'"/>
+                        </group>
+                    </group>
+                    <group string="Grow Your Audience" invisible="not username">
+                        <group>
+                            <field name="start_link" widget="CopyClipboardChar"/>
+                            <div colspan="2" class="text-muted">
+                                Telegram only lets a bot write to people who pressed <b>Start</b> once.
+                                Share this link or print the QR code in your shop, on invoices and on social media.
+                                Add <code>?start=shop</code> (any word) to the link to know where subscribers come from.
+                            </div>
+                        </group>
+                        <group>
+                            <field name="start_qr_html" nolabel="1" colspan="2"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Automatic Messages" name="automatic">
+                            <group>
+                                <group>
+                                    <field name="auto_create_partner"/>
+                                    <field name="download_media"/>
+                                </group>
+                                <group>
+                                    <field name="auto_reply_enabled"/>
+                                    <field name="auto_reply_in_groups" invisible="not auto_reply_enabled"/>
+                                </group>
+                            </group>
+                            <group string="Welcome message, sent on /start">
+                                <field name="welcome_body" nolabel="1" colspan="2"/>
+                            </group>
+                            <group string="Confirmation sent on /stop">
+                                <field name="stop_body" nolabel="1" colspan="2"/>
+                            </group>
+                            <group string="Default reply when no rule matches" invisible="not auto_reply_enabled">
+                                <field name="default_reply_body" nolabel="1" colspan="2"
+                                       placeholder="Leave empty to stay silent and answer from the Inbox."/>
+                            </group>
+                        </page>
+                        <page string="Auto Reply Rules" name="rules" invisible="not auto_reply_enabled">
+                            <field name="auto_reply_ids" context="{'default_bot_id': id}">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="keywords"/>
+                                    <field name="match_type"/>
+                                    <field name="hit_count"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Webhook Details" name="webhook" groups="telegram_marketing.group_telegram_manager"
+                              invisible="update_mode != 'webhook'">
+                            <field name="webhook_info" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_bot_view_list" model="ir.ui.view">
+        <field name="name">telegram.bot.view.list</field>
+        <field name="model">telegram.bot</field>
+        <field name="arch" type="xml">
+            <list string="Telegram Bots">
+                <field name="name"/>
+                <field name="username"/>
+                <field name="state" widget="badge" decoration-success="state == 'connected'"
+                       decoration-danger="state == 'error'" decoration-muted="state == 'draft'"/>
+                <field name="update_mode"/>
+                <field name="webhook_set" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="chat_count" string="Chats"/>
+                <field name="subscriber_count" string="Subscribers"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_bot_action" model="ir.actions.act_window">
+        <field name="name">Telegram Bots</field>
+        <field name="res_model">telegram.bot</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Connect your first Telegram bot</p>
+            <p>
+                Open Telegram, talk to <b>@BotFather</b>, send <code>/newbot</code> and paste the token here.
+                Then click <i>Check Connection</i> and activate the webhook (or polling).
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_chat_view_kanban" model="ir.ui.view">
+        <field name="name">telegram.chat.view.kanban</field>
+        <field name="model">telegram.chat</field>
+        <field name="arch" type="xml">
+            <kanban default_order="last_message_date desc nulls last, id desc" quick_create="false" sample="1"
+                    class="o_telegram_chat_kanban">
+                <field name="unread_count"/>
+                <field name="blocked"/>
+                <field name="subscribed"/>
+                <field name="chat_type"/>
+                <field name="username"/>
+                <field name="partner_id"/>
+                <field name="last_message_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <field name="name" class="fw-bold fs-5 text-truncate"/>
+                            <span t-if="record.unread_count.raw_value" class="badge rounded-pill text-bg-danger ms-2"
+                                  title="Unread messages">
+                                <t t-out="record.unread_count.raw_value"/>
+                            </span>
+                        </div>
+                        <div class="text-muted small">
+                            <i t-if="record.chat_type.raw_value == 'private'" class="fa fa-user me-1" title="Private chat" role="img" aria-label="Private chat"/>
+                            <i t-elif="record.chat_type.raw_value == 'channel'" class="fa fa-bullhorn me-1" title="Channel" role="img" aria-label="Channel"/>
+                            <i t-else="" class="fa fa-users me-1" title="Group" role="img" aria-label="Group"/>
+                            <t t-if="record.username.raw_value">@<t t-out="record.username.raw_value"/></t>
+                            <t t-if="record.partner_id.raw_value"> · <t t-out="record.partner_id.value"/></t>
+                        </div>
+                        <div class="text-truncate small mt-1">
+                            <field name="last_message_preview"/>
+                        </div>
+                        <footer class="pt-1">
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <div class="ms-auto small text-muted d-flex align-items-center gap-2">
+                                <span t-if="record.blocked.raw_value" class="badge text-bg-danger">Blocked</span>
+                                <span t-elif="!record.subscribed.raw_value" class="badge text-bg-warning">Unsubscribed</span>
+                                <field name="last_message_date"/>
+                            </div>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="telegram_chat_view_list" model="ir.ui.view">
+        <field name="name">telegram.chat.view.list</field>
+        <field name="model">telegram.chat</field>
+        <field name="arch" type="xml">
+            <list string="Telegram Chats" decoration-bf="unread_count > 0" decoration-muted="not subscribed"
+                  decoration-danger="blocked" multi_edit="1">
+                <field name="name"/>
+                <field name="username" optional="show"/>
+                <field name="partner_id" optional="show"/>
+                <field name="chat_type" optional="show"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+                <field name="last_message_preview" optional="show"/>
+                <field name="unread_count" string="Unread" optional="show"/>
+                <field name="last_message_date" optional="show"/>
+                <field name="subscribed" widget="boolean_toggle" optional="show"/>
+                <field name="blocked" optional="hide" readonly="1"/>
+                <field name="start_payload" optional="hide"/>
+                <field name="language_code" optional="hide"/>
+                <field name="bot_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_chat_view_form" model="ir.ui.view">
+        <field name="name">telegram.chat.view.form</field>
+        <field name="model">telegram.chat</field>
+        <field name="arch" type="xml">
+            <form string="Telegram Chat" class="o_telegram_chat_form">
+                <header>
+                    <button name="action_mark_read" type="object" string="Mark as Read" icon="fa-check"
+                            invisible="unread_count == 0"/>
+                    <button name="action_unsubscribe" type="object" string="Unsubscribe" invisible="not subscribed"
+                            confirm="This chat will no longer receive campaigns. Continue?"/>
+                    <button name="action_subscribe" type="object" string="Subscribe" invisible="subscribed"/>
+                    <button name="action_refresh_info" type="object" string="Refresh Info"
+                            groups="telegram_marketing.group_telegram_manager"
+                            help="Fetch the latest name, username and type of this chat from Telegram."/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_partner" type="object" class="oe_stat_button" icon="fa-address-card-o"
+                                invisible="not partner_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Contact</span>
+                            </div>
+                        </button>
+                        <button name="action_view_messages" type="object" class="oe_stat_button" icon="fa-envelope-o">
+                            <field name="telegram_message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Blocked" bg_color="text-bg-danger" invisible="not blocked"/>
+                    <widget name="web_ribbon" title="Unsubscribed" bg_color="text-bg-warning" invisible="subscribed or blocked"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Chat name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Telegram">
+                            <field name="bot_id" options="{'no_create': True}"/>
+                            <field name="chat_type"/>
+                            <field name="chat_id"/>
+                            <field name="username"/>
+                            <field name="language_code"/>
+                            <field name="start_payload"/>
+                        </group>
+                        <group string="Customer">
+                            <field name="partner_id"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="subscribed"/>
+                            <field name="blocked" readonly="1"/>
+                            <field name="last_message_date"/>
+                            <field name="unread_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Conversation" name="conversation">
+                            <field name="conversation_html" widget="telegram_conversation" nolabel="1"/>
+                            <div class="o_telegram_reply_box mt-3" invisible="blocked">
+                                <field name="reply_text" nolabel="1"
+                                       placeholder="Type your message... It is sent as written (no formatting). Use the Rich Message button for bold text, images or buttons."/>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                                    <field name="reply_attachment_name" invisible="1"/>
+                                    <field name="reply_attachment" filename="reply_attachment_name" nolabel="1"/>
+                                    <button name="action_send_reply" type="object" string="Send" class="btn btn-primary"
+                                            icon="fa-paper-plane"/>
+                                    <button name="action_open_compose" type="object" string="Rich Message"
+                                            class="btn btn-secondary" icon="fa-magic"/>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger mt-3" role="alert" invisible="not blocked">
+                                This chat is blocked: the customer stopped the bot or the bot was removed from the group.
+                                Telegram will refuse any new message until they start the bot again.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_chat_view_search" model="ir.ui.view">
+        <field name="name">telegram.chat.view.search</field>
+        <field name="model">telegram.chat</field>
+        <field name="arch" type="xml">
+            <search string="Telegram Chats">
+                <field name="name" filter_domain="['|', '|', ('name', 'ilike', self), ('username', 'ilike', self), ('chat_id', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="tag_ids"/>
+                <field name="bot_id"/>
+                <filter name="unread" string="Unread" domain="[('unread_count', '>', 0)]"/>
+                <separator/>
+                <filter name="subscribed" string="Subscribed" domain="[('subscribed', '=', True), ('blocked', '=', False)]"/>
+                <filter name="unsubscribed" string="Unsubscribed" domain="[('subscribed', '=', False)]"/>
+                <filter name="blocked" string="Blocked" domain="[('blocked', '=', True)]"/>
+                <separator/>
+                <filter name="private" string="Private Chats" domain="[('chat_type', '=', 'private')]"/>
+                <filter name="groups" string="Groups &amp; Channels" domain="[('chat_type', '!=', 'private')]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_bot" string="Bot" context="{'group_by': 'bot_id'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'chat_type'}"/>
+                    <filter name="group_by_partner" string="Contact" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_language" string="Language" context="{'group_by': 'language_code'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="telegram_chat_action" model="ir.actions.act_window">
+        <field name="name">Inbox</field>
+        <field name="res_model">telegram.chat</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="telegram_chat_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Telegram conversation yet</p>
+            <p>
+                Every customer who starts your bot appears here. Open a chat to read the conversation
+                and answer instantly, or use the <i>Action</i> menu to message several chats at once.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_chat_tag_view_list" model="ir.ui.view">
+        <field name="name">telegram.chat.tag.view.list</field>
+        <field name="model">telegram.chat.tag</field>
+        <field name="arch" type="xml">
+            <list string="Chat Tags" editable="bottom">
+                <field name="name"/>
+                <field name="color" widget="color_picker"/>
+                <field name="chat_count" string="Chats"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="telegram_chat_tag_action" model="ir.actions.act_window">
+        <field name="name">Chat Tags</field>
+        <field name="res_model">telegram.chat.tag</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create tags to segment your subscribers</p>
+            <p>For example: VIP, Wholesale, Phnom Penh, Interested in product X. Campaigns can target tags.</p>
+        </field>
+    </record>
+</odoo>

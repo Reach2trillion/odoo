@@ -1,0 +1,40 @@
+# Odoo 18 + PostgreSQL with the custom addons of this repository mounted.
+#
+#   docker compose -f docker-compose.odoo.yml up -d
+#   open http://localhost:8069, create a database, then Apps > Update Apps List > install
+#   "Telegram Marketing & Live Chat".
+#
+# For Telegram webhooks Odoo must be reachable on a public https:// URL (reverse proxy such as
+# nginx / Caddy / Traefik in front of port 8069, and set the system parameter web.base.url).
+# Without a public URL, switch the bot to polling mode in Odoo - no extra setup needed.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:18.0
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+      - "8072:8072"   # websocket (live conversation refresh) when running with workers
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - odoo-web-data:/var/lib/odoo
+    # Behind a reverse proxy (needed for https webhooks) add: command: ["--proxy-mode"]
+    restart: unless-stopped
+
+volumes:
+  odoo-db-data:
+  odoo-web-data:

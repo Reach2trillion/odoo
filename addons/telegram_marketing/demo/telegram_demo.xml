@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_bot" model="telegram.bot">
+        <field name="name">ABJ Demo Bot</field>
+        <field name="token">123456789:DEMO_TOKEN_replace_with_a_real_BotFather_token</field>
+        <field name="username">abj_demo_bot</field>
+        <field name="update_mode">webhook</field>
+        <field name="welcome_body"><![CDATA[<p>សួស្តី {{ object.first_name ||| there }}! 👋<br/>អរគុណដែលបានតាមដាន ABJ។ យើងនឹងផ្ញើព័ត៌មាន និងការបញ្ចុះតម្លៃថ្មីៗមកកាន់អ្នកនៅទីនេះ។<br/>Hello {{ object.first_name ||| there }}! Thanks for subscribing to ABJ. Send /stop to unsubscribe.</p>]]></field>
+    </record>
+
+    <record id="demo_tag_vip" model="telegram.chat.tag">
+        <field name="name">VIP</field>
+        <field name="color">2</field>
+    </record>
+    <record id="demo_tag_wholesale" model="telegram.chat.tag">
+        <field name="name">Wholesale</field>
+        <field name="color">5</field>
+    </record>
+    <record id="demo_tag_phnom_penh" model="telegram.chat.tag">
+        <field name="name">Phnom Penh</field>
+        <field name="color">7</field>
+    </record>
+
+    <record id="demo_auto_reply_greeting" model="telegram.auto.reply">
+        <field name="name">Greeting</field>
+        <field name="sequence">1</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">hello, hi, hey, សួស្តី, ជំរាបសួរ</field>
+        <field name="match_type">contains</field>
+        <field name="reply_body"><![CDATA[<p>សួស្តី! អរគុណដែលបានទាក់ទងមកកាន់ ABJ។ តើយើងអាចជួយអ្វីបានខ្លះ?</p>]]></field>
+    </record>
+    <record id="demo_auto_reply_product" model="telegram.auto.reply">
+        <field name="name">ABJ products</field>
+        <field name="sequence">5</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">abj, product, ផលិតផល</field>
+        <field name="reply_body"><![CDATA[<p>អរគុណសម្រាប់ការចាប់អារម្មណ៍លើផលិតផល ABJ! សូមប្រាប់យើងពីអ្វីដែលអ្នកចង់ដឹងបន្ថែម ក្រុមការងារយើងនឹងឆ្លើយតបភ្លាមៗ។</p>]]></field>
+    </record>
+    <record id="demo_auto_reply_price" model="telegram.auto.reply">
+        <field name="name">Price</field>
+        <field name="sequence">10</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">price, how much, cost, តម្លៃ, ថ្លៃប៉ុន្មាន</field>
+        <field name="reply_body"><![CDATA[<p>សម្រាប់តម្លៃផលិតផល ABJ សូមទុកសារ ឬលេខទូរស័ព្ទរបស់អ្នក ក្រុមការងារនឹងទាក់ទងទៅវិញឆាប់ៗ។</p>]]></field>
+    </record>
+    <record id="demo_auto_reply_location" model="telegram.auto.reply">
+        <field name="name">Location</field>
+        <field name="sequence">20</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">location, address, where, ទីតាំង, អាសយដ្ឋាន, នៅឯណា</field>
+        <field name="reply_body"><![CDATA[<p>ហាងយើងខ្ញុំបើកជារៀងរាល់ថ្ងៃ។ សូមទុកសារ ដើម្បីទទួលបានអាសយដ្ឋាន និងផែនទីលម្អិត។</p>]]></field>
+    </record>
+    <record id="demo_auto_reply_delivery" model="telegram.auto.reply">
+        <field name="name">Delivery</field>
+        <field name="sequence">30</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">delivery, ship, ដឹកជញ្ជូន, ដឹក</field>
+        <field name="reply_body"><![CDATA[<p>យើងមានសេវាដឹកជញ្ជូនដល់ទីតាំងរបស់អ្នក។ សូមផ្ញើអាសយដ្ឋានរបស់អ្នក ដើម្បីឱ្យយើងគណនាថ្លៃដឹកជញ្ជូន។</p>]]></field>
+    </record>
+    <record id="demo_auto_reply_thanks" model="telegram.auto.reply">
+        <field name="name">Thanks</field>
+        <field name="sequence">40</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="keywords">thank, អរគុណ</field>
+        <field name="reply_body"><![CDATA[<p>អរគុណច្រើន! សូមទាក់ទងមកយើងខ្ញុំបានគ្រប់ពេល។</p>]]></field>
+    </record>
+
+    <record id="demo_partner_sokha" model="res.partner">
+        <field name="name">Sokha Chan</field>
+        <field name="phone">+855 12 345 678</field>
+        <field name="telegram_username">sokha_chan</field>
+        <field name="city">Phnom Penh</field>
+    </record>
+
+    <record id="demo_chat_sokha" model="telegram.chat">
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="chat_id">100000001</field>
+        <field name="chat_type">private</field>
+        <field name="first_name">Sokha</field>
+        <field name="last_name">Chan</field>
+        <field name="username">sokha_chan</field>
+        <field name="language_code">km</field>
+        <field name="partner_id" ref="demo_partner_sokha"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('demo_tag_vip'), ref('demo_tag_phnom_penh')])]"/>
+        <field name="start_payload">shop_qr</field>
+        <field name="last_message_date" eval="(DateTime.now() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="last_inbound_date" eval="(DateTime.now() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="last_message_preview">តម្លៃប៉ុន្មាន?</field>
+        <field name="unread_count">1</field>
+    </record>
+    <record id="demo_chat_dara" model="telegram.chat">
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="chat_id">100000002</field>
+        <field name="chat_type">private</field>
+        <field name="first_name">Dara</field>
+        <field name="username">dara_kh</field>
+        <field name="language_code">en</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('demo_tag_wholesale')])]"/>
+        <field name="last_message_date" eval="(DateTime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="last_message_preview">Thanks, see you tomorrow!</field>
+    </record>
+    <record id="demo_chat_channel" model="telegram.chat">
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="chat_id">-1001000000001</field>
+        <field name="chat_type">channel</field>
+        <field name="title">ABJ Announcements</field>
+        <field name="username">abj_announcements</field>
+    </record>
+
+    <record id="demo_message_sokha_1" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_sokha"/>
+        <field name="direction">in</field>
+        <field name="state">received</field>
+        <field name="message_type">text</field>
+        <field name="body">/start shop_qr</field>
+        <field name="telegram_message_id">1</field>
+        <field name="date" eval="(DateTime.now() - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <record id="demo_message_sokha_2" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_sokha"/>
+        <field name="direction">out</field>
+        <field name="state">sent</field>
+        <field name="is_auto" eval="True"/>
+        <field name="body">សួស្តី Sokha! 👋
+អរគុណដែលបានតាមដាន ABJ។ យើងនឹងផ្ញើព័ត៌មាន និងការបញ្ចុះតម្លៃថ្មីៗមកកាន់អ្នកនៅទីនេះ។</field>
+        <field name="telegram_message_id">2</field>
+        <field name="date" eval="(DateTime.now() - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="sent_date" eval="(DateTime.now() - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <record id="demo_message_sokha_3" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_sokha"/>
+        <field name="direction">in</field>
+        <field name="state">received</field>
+        <field name="message_type">text</field>
+        <field name="body">តម្លៃប៉ុន្មាន?</field>
+        <field name="telegram_message_id">3</field>
+        <field name="date" eval="(DateTime.now() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <record id="demo_message_dara_1" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_dara"/>
+        <field name="direction">in</field>
+        <field name="state">received</field>
+        <field name="message_type">text</field>
+        <field name="body">Do you deliver to Siem Reap?</field>
+        <field name="telegram_message_id">10</field>
+        <field name="date" eval="(DateTime.now() - timedelta(days=2, hours=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <record id="demo_message_dara_2" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_dara"/>
+        <field name="direction">out</field>
+        <field name="state">sent</field>
+        <field name="author_id" ref="base.user_admin"/>
+        <field name="body">Yes! Delivery to Siem Reap takes 1-2 days. Send us your address and we will quote the fee.</field>
+        <field name="telegram_message_id">11</field>
+        <field name="date" eval="(DateTime.now() - timedelta(days=2, minutes=50)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="sent_date" eval="(DateTime.now() - timedelta(days=2, minutes=50)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <record id="demo_message_dara_3" model="telegram.message">
+        <field name="chat_id" ref="demo_chat_dara"/>
+        <field name="direction">in</field>
+        <field name="state">received</field>
+        <field name="message_type">text</field>
+        <field name="body">Thanks, see you tomorrow!</field>
+        <field name="telegram_message_id">12</field>
+        <field name="date" eval="(DateTime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="demo_campaign_promo" model="telegram.campaign">
+        <field name="name">Khmer New Year Promotion</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="campaign_type">promotion</field>
+        <field name="recipient_mode">all</field>
+        <field name="test_chat_id" ref="demo_chat_sokha"/>
+        <field name="body"><![CDATA[<p>🎉 <b>Happy Khmer New Year, {{ object.first_name ||| dear customer }}!</b></p><p>Enjoy <b>20% off</b> all ABJ products until April 16.<br/>Show this message in our shop or order online.</p><p>សួស្តីឆ្នាំថ្មី! បញ្ចុះតម្លៃ 20% លើផលិតផល ABJ ទាំងអស់ រហូតដល់ថ្ងៃទី 16 ខែមេសា។</p>]]></field>
+    </record>
+    <record id="demo_campaign_promo_button" model="telegram.campaign.button">
+        <field name="campaign_id" ref="demo_campaign_promo"/>
+        <field name="name">🛍 Shop now</field>
+        <field name="url">https://example.com/shop</field>
+    </record>
+    <record id="demo_campaign_announcement" model="telegram.campaign">
+        <field name="name">Opening hours during holidays</field>
+        <field name="bot_id" ref="demo_bot"/>
+        <field name="campaign_type">announcement</field>
+        <field name="recipient_mode">tags</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('demo_tag_phnom_penh')])]"/>
+        <field name="body"><![CDATA[<p>📢 <b>Holiday opening hours</b></p><p>Our Phnom Penh shop is open from 9:00 to 17:00 during the holidays. See you there!</p>]]></field>
+    </record>
+</odoo>

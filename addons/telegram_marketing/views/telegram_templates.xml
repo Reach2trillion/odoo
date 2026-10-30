@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="conversation" name="Telegram Conversation">
+        <div class="o_telegram_conversation_inner">
+            <div t-if="truncated" class="text-center text-muted small mb-2">
+                Only the most recent messages are shown. Open the Messages list for the full history.
+            </div>
+            <div t-if="not messages" class="o_telegram_empty text-center text-muted p-4">
+                <i class="fa fa-paper-plane-o fa-2x mb-2" role="img" aria-label="No messages"/>
+                <div>No messages yet. Write below to start the conversation.</div>
+            </div>
+            <t t-foreach="messages" t-as="msg">
+                <div t-attf-class="o_telegram_msg o_telegram_msg_#{msg.direction} #{'o_telegram_msg_failed' if msg.state == 'failed' else ''}">
+                    <div class="o_telegram_bubble">
+                        <div t-if="msg.direction == 'out'" class="o_telegram_msg_author small text-muted">
+                            <t t-if="msg.campaign_id">📣 <t t-out="msg.campaign_id.name"/></t>
+                            <t t-elif="msg.is_auto">🤖 Automatic reply</t>
+                            <t t-elif="msg.author_id"><t t-out="msg.author_id.name"/></t>
+                        </div>
+                        <t t-if="msg.attachment_id">
+                            <a t-if="(msg.attachment_id.mimetype or '').startswith('image/')"
+                               t-attf-href="/web/content/#{msg.attachment_id.id}?download=true" target="_blank" rel="noopener">
+                                <img class="o_telegram_msg_image" t-attf-src="/web/image/#{msg.attachment_id.id}/600x600"
+                                     t-att-alt="msg.attachment_id.name"/>
+                            </a>
+                            <div t-else="" class="o_telegram_msg_file">
+                                <i class="fa fa-paperclip me-1" role="img" aria-label="Attachment"/>
+                                <a t-attf-href="/web/content/#{msg.attachment_id.id}?download=true" target="_blank" rel="noopener"
+                                   t-out="msg.attachment_id.name"/>
+                            </div>
+                        </t>
+                        <div t-if="msg.body" class="o_telegram_msg_body" t-out="msg._get_display_html()"/>
+                        <div t-elif="not msg.attachment_id" class="o_telegram_msg_body fst-italic text-muted">
+                            [<t t-out="msg.message_type"/>]
+                        </div>
+                        <div class="o_telegram_msg_meta small text-muted">
+                            <span t-field="msg.date" t-options="{'widget': 'datetime'}"/>
+                            <t t-if="msg.direction == 'out'">
+                                <i t-if="msg.state == 'sent'" class="fa fa-check text-success ms-1" title="Sent" role="img" aria-label="Sent"/>
+                                <i t-elif="msg.state == 'queued'" class="fa fa-clock-o ms-1" title="Queued" role="img" aria-label="Queued"/>
+                                <i t-elif="msg.state == 'failed'" class="fa fa-exclamation-triangle text-danger ms-1" title="Failed" role="img" aria-label="Failed"/>
+                                <i t-elif="msg.state == 'cancelled'" class="fa fa-ban ms-1" title="Cancelled" role="img" aria-label="Cancelled"/>
+                            </t>
+                        </div>
+                        <div t-if="msg.state == 'failed' and msg.error" class="o_telegram_msg_error small text-danger" t-out="msg.error"/>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </template>
+</odoo>

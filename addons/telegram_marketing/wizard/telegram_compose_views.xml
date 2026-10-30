@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="telegram_compose_view_form" model="ir.ui.view">
+        <field name="name">telegram.compose.view.form</field>
+        <field name="model">telegram.compose</field>
+        <field name="arch" type="xml">
+            <form string="Send Telegram Message">
+                <group>
+                    <group>
+                        <field name="bot_id" options="{'no_create': True}"/>
+                        <field name="chat_ids" widget="many2many_tags" domain="[('bot_id', '=', bot_id), ('blocked', '=', False)]"
+                               options="{'no_create': True}"/>
+                        <field name="manual_chat_id" placeholder="@channel, @group or -1001234567890"/>
+                        <field name="recipient_count"/>
+                    </group>
+                    <group>
+                        <field name="attachment_filename" invisible="1"/>
+                        <field name="attachment" filename="attachment_filename"/>
+                        <field name="button_text" placeholder="e.g. Open our shop"/>
+                        <field name="button_url" widget="url" placeholder="https://"/>
+                        <field name="disable_preview"/>
+                    </group>
+                </group>
+                <field name="body" nolabel="1" placeholder="Your message... Bold, italic, links and {{ object.first_name ||| there }} placeholders are supported."/>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn-primary" icon="fa-paper-plane" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="telegram_compose_action" model="ir.actions.act_window">
+        <field name="name">Send Telegram Message</field>
+        <field name="res_model">telegram.compose</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- "Action" menu entries -->
+    <record id="telegram_compose_action_chat" model="ir.actions.act_window">
+        <field name="name">Send Telegram Message</field>
+        <field name="res_model">telegram.compose</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_telegram_chat"/>
+        <field name="binding_view_types">list,kanban,form</field>
+    </record>
+
+    <record id="telegram_compose_action_partner" model="ir.actions.act_window">
+        <field name="name">Send Telegram Message</field>
+        <field name="res_model">telegram.compose</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">list,kanban,form</field>
+        <field name="groups_id" eval="[(4, ref('telegram_marketing.group_telegram_user'))]"/>
+    </record>
+</odoo>
