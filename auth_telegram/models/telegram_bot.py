@@ -1,4 +1,6 @@
 # Part of the auth_telegram module. License LGPL-3.
+import functools
+import hmac
 import logging
 import secrets
 
@@ -22,48 +24,72 @@ MSG_AUTH_REQUEST = (
     "🔐 <b>សំណើសុំការផ្ទៀងផ្ទាត់</b>\n\n"
     "App / កម្មវិធី: {company}\n"
     "Account / គណនី: {account}\n"
-    "Username / ឈ្មោះអ្នកប្រើ: {username}\n\n"
+    "Username / ឈ្មោះអ្នកប្រើ: {username}\n"
+    "Device / ឧបករណ៍: {device}\n"
+    "IP: {ip}\n\n"
+    "{question}\n\n"
+    "⚠️ If you did not start this login on the website, tap Cancel.\n"
+    "⚠️ បើអ្នកមិនបានចាប់ផ្តើមការចូលនេះទេ សូមចុច បោះបង់។"
+)
+QUESTION_LOGIN = (
     "Do you want to login to {company}?\n"
     "តើអ្នកចង់ចូលប្រើ {company} ទេ?"
 )
-BTN_YES = "✅ Yes, Login / បាទ ចូល"
+QUESTION_LINK = (
+    "Link this Telegram to the account <b>{login}</b>?\n"
+    "ភ្ជាប់ Telegram នេះទៅគណនី <b>{login}</b>?"
+)
+QUESTION_CODE = (
+    "👇 Tap the number shown on the website.\n"
+    "👇 ចុចលេខដែលបង្ហាញនៅលើគេហទំព័រ។"
+)
+BTN_YES = "✅ Yes, Login / យល់ព្រម ចូល"
 BTN_NO = "❌ Cancel / បោះបង់"
 MSG_LOGIN_OK_BACK = (
     "✅ <b>Login Successful!</b>\n"
     "✅ <b>ចូលប្រើដោយជោគជ័យ!</b>\n\n"
     "Welcome back, {first}! 🎉\n"
     "សូមស្វាគមន៍ការត្រឡប់មកវិញ {first}! 🎉\n\n"
-    "Your account has been successfully logged in.\n"
-    "គណនីរបស់អ្នកត្រូវបានចូលប្រើដោយជោគជ័យ។\n\n"
-    "👇 <b>Tap the button below to return to app</b>\n"
-    "👇 ចុចប៊ូតុងខាងក្រោមដើម្បីត្រឡប់ទៅកម្មវិធី"
+    "👈 Go back to the website: you are now signed in.\n"
+    "👈 ត្រឡប់ទៅគេហទំព័រវិញ៖ អ្នកបានចូលប្រើរួចហើយ។"
 )
 MSG_LOGIN_OK_NEW = (
     "✅ <b>Login Successful!</b>\n"
     "✅ <b>ចូលប្រើដោយជោគជ័យ!</b>\n\n"
     "Welcome, {first}! 🎉\n"
     "សូមស្វាគមន៍ {first}! 🎉\n\n"
-    "Your account has been successfully created.\n"
+    "Your account has been created.\n"
     "គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។\n\n"
-    "👇 <b>Tap the button below to return to app</b>\n"
-    "👇 ចុចប៊ូតុងខាងក្រោមដើម្បីត្រឡប់ទៅកម្មវិធី"
+    "👈 Go back to the website: you are now signed in.\n"
+    "👈 ត្រឡប់ទៅគេហទំព័រវិញ៖ អ្នកបានចូលប្រើរួចហើយ។"
+)
+MSG_LINK_CONFIRMED = (
+    "✅ <b>Confirmed!</b>\n"
+    "✅ <b>បានបញ្ជាក់!</b>\n\n"
+    "👈 Go back to the website to finish linking your Telegram to your {company} account, {first}.\n"
+    "👈 ត្រឡប់ទៅគេហទំព័រវិញ ដើម្បីបញ្ចប់ការភ្ជាប់ Telegram ជាមួយគណនី {company} របស់អ្នក {first}។"
 )
 MSG_LINK_OK = (
     "✅ <b>Telegram account linked!</b>\n"
     "✅ <b>គណនី Telegram ត្រូវបានភ្ជាប់!</b>\n\n"
-    "Your Telegram is now linked to your {company} account, {first}.\n"
-    "Telegram របស់អ្នកត្រូវបានភ្ជាប់ជាមួយគណនី {company} របស់អ្នកហើយ {first}។\n\n"
-    "👇 Tap the button below to return to app\n"
-    "👇 ចុចប៊ូតុងខាងក្រោមដើម្បីត្រឡប់ទៅកម្មវិធី"
+    "Your Telegram is now linked to your {company} account. You will receive your order updates here.\n"
+    "Telegram របស់អ្នកត្រូវបានភ្ជាប់ជាមួយគណនី {company} របស់អ្នកហើយ។ អ្នកនឹងទទួលបានព័ត៌មានអំពីការបញ្ជាទិញនៅទីនេះ។"
 )
-BTN_OPEN_APP = "🚀 Open App Automatically / បើកកម្មវិធីដោយស្វ័យប្រវត្តិ"
 MSG_CANCELLED = (
     "❌ Login cancelled.\n"
     "❌ ការចូលប្រើត្រូវបានបោះបង់។"
 )
+MSG_WRONG_CODE = (
+    "❌ Wrong number, login cancelled. Please try again from the website.\n"
+    "❌ លេខមិនត្រឹមត្រូវ ការចូលប្រើត្រូវបានបោះបង់។ សូមព្យាយាមម្តងទៀតពីគេហទំព័រ។"
+)
 MSG_EXPIRED = (
     "⚠️ This login link has expired. Please try again from the website.\n"
     "⚠️ តំណភ្ជាប់នេះផុតកំណត់ហើយ។ សូមព្យាយាមម្តងទៀតពីគេហទំព័រ។"
+)
+MSG_CONFLICT = (
+    "⚠️ This login link was opened by another Telegram account, so it has been cancelled. Please start again from the website.\n"
+    "⚠️ តំណភ្ជាប់នេះត្រូវបានបើកដោយគណនី Telegram ផ្សេងទៀត ដូច្នេះវាត្រូវបានបោះបង់។ សូមចាប់ផ្តើមម្តងទៀតពីគេហទំព័រ។"
 )
 MSG_NO_ACCOUNT = (
     "❌ No account is linked to this Telegram account and sign up is not allowed. Please contact us.\n"
@@ -72,6 +98,10 @@ MSG_NO_ACCOUNT = (
 MSG_TAKEN = (
     "❌ This Telegram account is already linked to another user.\n"
     "❌ គណនី Telegram នេះត្រូវបានភ្ជាប់ជាមួយអ្នកប្រើផ្សេងទៀតរួចហើយ។"
+)
+MSG_UNLINKED = (
+    "ℹ️ Your Telegram account has been unlinked from {company}. If this was not you, please contact us.\n"
+    "ℹ️ គណនី Telegram របស់អ្នកត្រូវបានផ្តាច់ចេញពី {company}។ បើមិនមែនអ្នកទេ សូមទាក់ទងមកយើង។"
 )
 MSG_WELCOME = (
     "👋 Welcome to {company}!\n"
@@ -96,6 +126,43 @@ MSG_PHONE_SAVED = (
 )
 
 
+def _redact(exc, token):
+    """ Exception text safe for the logs: requests/urllib3 connection errors
+        embed the request path, i.e. the bot token. """
+    text = '%s: %s' % (type(exc).__name__, exc)
+    return text.replace(token, '<token>') if token else text
+
+
+def _api_call(token, method, payload):
+    """ Call a Bot API method. Returns the `result` or False, never raises. """
+    try:
+        response = requests.post(TELEGRAM_API % (token, method), json=payload, timeout=TIMEOUT)
+        data = response.json()
+    except (requests.RequestException, ValueError) as e:
+        # never log the exception object / traceback itself: it contains the token
+        _logger.warning("Telegram API %s failed: %s", method, _redact(e, token))
+        return False
+    if not data.get('ok'):
+        _logger.warning("Telegram API %s refused: %s", method, data.get('description'))
+        return False
+    return data.get('result', True)
+
+
+def _message_payload(chat_id, text, reply_markup=None):
+    payload = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML',
+               'link_preview_options': {'is_disabled': True}}
+    if reply_markup is not None:
+        payload['reply_markup'] = reply_markup
+    return payload
+
+
+def _as_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return value
+
+
 class TelegramBot(models.AbstractModel):
     """ Telegram Bot API client + handlers for the chat-based login flow. """
     _name = 'telegram.bot'
@@ -115,24 +182,24 @@ class TelegramBot(models.AbstractModel):
         token = self._token()
         if not token:
             return False
-        try:
-            response = requests.post(TELEGRAM_API % (token, method), json=payload, timeout=TIMEOUT)
-            data = response.json()
-        except (requests.RequestException, ValueError):
-            _logger.warning("Telegram API %s failed", method, exc_info=True)
-            return False
-        if not data.get('ok'):
-            _logger.warning("Telegram API %s refused: %s", method, data.get('description'))
-            return False
-        return data.get('result', True)
+        return _api_call(token, method, payload)
 
     @api.model
     def _send_message(self, chat_id, text, reply_markup=None):
-        payload = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML',
-                   'disable_web_page_preview': True}
-        if reply_markup is not None:
-            payload['reply_markup'] = reply_markup
-        return self._api('sendMessage', **payload)
+        if not chat_id:
+            return False
+        return self._api('sendMessage', **_message_payload(chat_id, text, reply_markup))
+
+    @api.model
+    def _send_message_after_commit(self, chat_id, text, reply_markup=None):
+        """ Send the message once the current transaction is committed, so the
+            user never reads about a state that was rolled back and never
+            acts on it before the database reflects it. """
+        token = self._token()
+        if not token or not chat_id:
+            return
+        self.env.cr.postcommit.add(functools.partial(
+            _api_call, token, 'sendMessage', _message_payload(chat_id, text, reply_markup)))
 
     # ------------------------------------------------------------------
     # Webhook management
@@ -140,12 +207,16 @@ class TelegramBot(models.AbstractModel):
 
     @api.model
     def _base_url(self):
-        """ Public base URL: the host of the current request when there is
-            one (settings saved from the browser, Telegram calling the
-            webhook), otherwise web.base.url. """
-        if request and request.httprequest:
-            return request.httprequest.url_root.rstrip('/')
-        return (self.get_base_url() or '').rstrip('/')
+        """ Public base URL for links sent to Telegram and for the webhook:
+            web.base.url when it is https (what the setup guide asks for),
+            otherwise the origin of the current request when that is https,
+            otherwise whichever of the two is set. """
+        configured = (self.get_base_url() or '').rstrip('/')
+        current = request.httprequest.url_root.rstrip('/') if request and request.httprequest else ''
+        for url in (configured, current):
+            if url.startswith('https://'):
+                return url
+        return configured or current
 
     @api.model
     def _webhook_url(self):
@@ -153,19 +224,26 @@ class TelegramBot(models.AbstractModel):
 
     @api.model
     def _set_webhook(self):
-        """ Register the webhook with a fresh secret. Returns (ok, message). """
+        """ Register the webhook with a fresh secret. Returns (ok, message);
+            the outcome is also stored in the Status shown in Settings. """
         ICP = self.env['ir.config_parameter'].sudo()
         if not self._token():
-            return False, "Bot token is not configured"
+            status = "Not registered: bot token is not configured"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
         url = self._webhook_url()
         if not url.startswith('https://'):
-            return False, "Telegram requires an https:// web.base.url (currently %s)" % url
+            status = ("Not registered: Telegram requires a public https:// URL "
+                      "(web.base.url is currently %s)" % (self.get_base_url() or 'unset'))
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
         secret = secrets.token_urlsafe(32)
         result = self._api('setWebhook', url=url, secret_token=secret,
                            allowed_updates=['message', 'callback_query'])
         if not result:
-            ICP.set_param('auth_telegram.webhook_status', "Registration failed, see server log")
-            return False, "Telegram refused the webhook registration (see server log)"
+            status = "Registration failed: Telegram refused the webhook (see server log)"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
         ICP.set_param('auth_telegram.webhook_secret', secret)
         ICP.set_param('auth_telegram.webhook_status', "Registered: %s" % url)
         return True, url
@@ -208,7 +286,11 @@ class TelegramBot(models.AbstractModel):
         message = update.get('message')
         if isinstance(callback, dict):
             self._handle_callback(callback)
-        elif isinstance(message, dict) and isinstance(message.get('from'), dict):
+        elif isinstance(message, dict) and isinstance(message.get('from'), dict) \
+                and isinstance(message.get('chat'), dict):
+            # the login flow only makes sense in the user's private chat
+            if message['chat'].get('type', 'private') != 'private':
+                return
             if isinstance(message.get('contact'), dict):
                 self._handle_contact(message)
             else:
@@ -233,6 +315,14 @@ class TelegramBot(models.AbstractModel):
     @api.model
     def _first_name(self, tg_user, fallback=''):
         return tg_user.get('first_name') or tg_user.get('username') or fallback
+
+    @api.model
+    def _match_code_enabled(self):
+        return self.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_match_code') == '1'
+
+    @api.model
+    def _phone_request_enabled(self):
+        return self.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_request_phone', '1') != '0'
 
     # ------------------------------------------------------------------
     # /start
@@ -259,13 +349,35 @@ class TelegramBot(models.AbstractModel):
         if not login:
             self._send_message(chat_id, MSG_EXPIRED)
             return
+        login._lock()
+        if login.state != 'pending':
+            self._send_message(chat_id, MSG_EXPIRED)
+            return
 
         identity = self._identity(tg_user)
+        if login.telegram_uid and login.telegram_uid != identity['id']:
+            # another Telegram account already opened this link (e.g. a
+            # photographed QR code): fail closed so neither can complete it,
+            # and tell both sides
+            login.state = 'cancelled'
+            self._edit_buttons(login.telegram_chat_id, login.telegram_message_id)
+            self._send_message_after_commit(login.telegram_chat_id, MSG_CONFLICT)
+            self._send_message_after_commit(chat_id, MSG_CONFLICT)
+            _logger.info("Telegram login: request %s claimed by Telegram uid %s was opened by uid %s, cancelled",
+                         login.id, login.telegram_uid, identity['id'])
+            return
+
         if login.link_user_id:
             account = login.link_user_id.name
+            question = QUESTION_LINK.format(login=html_escape(login.link_user_id.login))
         else:
             existing = Users.search([('telegram_uid', '=', identity['id'])], limit=1)
             account = existing.name if existing else identity['name'] or '-'
+            question = QUESTION_LOGIN.format(company=company)
+        match_code = self._match_code_enabled()
+        if match_code:
+            question += "\n\n" + QUESTION_CODE
+
         login.write({
             'telegram_uid': identity['id'],
             'telegram_name': identity['name'] or False,
@@ -276,17 +388,35 @@ class TelegramBot(models.AbstractModel):
             company=company,
             account=html_escape(account),
             username=html_escape('@%s' % identity['username']) if identity['username'] else '-',
+            device=html_escape(login.requester_device or '-'),
+            ip=html_escape(login.requester_ip or '-'),
+            question=question,
         )
-        keyboard = {'inline_keyboard': [[
-            {'text': BTN_YES, 'callback_data': '%sy:%s' % (CALLBACK_PREFIX, login.token)},
-            {'text': BTN_NO, 'callback_data': '%sn:%s' % (CALLBACK_PREFIX, login.token)},
-        ]]}
-        sent = self._send_message(chat_id, text, reply_markup=keyboard)
+        cancel = {'text': BTN_NO, 'callback_data': '%sn:%s' % (CALLBACK_PREFIX, login.token)}
+        if match_code:
+            rows = [
+                [{'text': number, 'callback_data': '%sc:%s:%s' % (CALLBACK_PREFIX, login.token, number)}
+                 for number in self._code_choices(login.code)],
+                [cancel],
+            ]
+        else:
+            rows = [[{'text': BTN_YES, 'callback_data': '%sy:%s' % (CALLBACK_PREFIX, login.token)}, cancel]]
+        sent = self._send_message(chat_id, text, reply_markup={'inline_keyboard': rows})
         if isinstance(sent, dict) and sent.get('message_id'):
             login.telegram_message_id = str(sent['message_id'])
 
+    @api.model
+    def _code_choices(self, code):
+        """ The real code plus two decoys, shuffled. """
+        choices = {code}
+        while len(choices) < 3:
+            choices.add('%02d' % secrets.randbelow(100))
+        choices = list(choices)
+        secrets.SystemRandom().shuffle(choices)
+        return choices
+
     # ------------------------------------------------------------------
-    # Yes / Cancel buttons
+    # Yes / number / Cancel buttons
     # ------------------------------------------------------------------
 
     @api.model
@@ -294,73 +424,114 @@ class TelegramBot(models.AbstractModel):
         data = callback.get('data') or ''
         tg_user = callback.get('from') or {}
         message = callback.get('message') or {}
-        chat_id = (message.get('chat') or {}).get('id')
+        chat = message.get('chat') or {}
+        chat_id = chat.get('id')
+        # a callback query must be answered exactly once, do it right away
         self._api('answerCallbackQuery', callback_query_id=callback.get('id'))
         if not data.startswith(CALLBACK_PREFIX) or not chat_id or 'id' not in tg_user:
             return
-        action, _, token = data[len(CALLBACK_PREFIX):].partition(':')
-        login = self.env['auth.telegram.login'].sudo()._get_by_token(token, states=('pending',))
-        if not login:
+        if chat.get('type', 'private') != 'private':
+            return
+        parts = data[len(CALLBACK_PREFIX):].split(':')
+        action = parts[0]
+        token = parts[1] if len(parts) > 1 else ''
+        answer = parts[2] if len(parts) > 2 else ''
+
+        login = self.env['auth.telegram.login'].sudo()._get_by_token(token)
+        if login:
+            login._lock()
+            # only the Telegram user who sent /start may answer
+            if login.telegram_uid != str(tg_user['id']):
+                return
+            if login.state in ('confirmed', 'done', 'cancelled'):
+                # already answered (double tap, redelivered update): the first
+                # handler removed the buttons and sent the outcome, stay silent
+                return
+        if not login or login.state != 'pending':
             self._edit_buttons(chat_id, message.get('message_id'))
             self._send_message(chat_id, MSG_EXPIRED)
             return
-        # only the Telegram user who sent /start may answer
-        if login.telegram_uid != str(tg_user['id']):
-            return
+
         self._edit_buttons(chat_id, message.get('message_id'))
-        if action != 'y':
+        if action == 'c':
+            if not (answer and login.code and hmac.compare_digest(login.code, answer)):
+                login.state = 'cancelled'
+                self._send_message_after_commit(chat_id, MSG_WRONG_CODE)
+                return
+        elif action == 'y':
+            if self._match_code_enabled():
+                # a plain "Yes" is not enough once number matching is on
+                login.state = 'cancelled'
+                self._send_message_after_commit(chat_id, MSG_EXPIRED)
+                return
+        else:
             login.state = 'cancelled'
-            self._send_message(chat_id, MSG_CANCELLED)
+            self._send_message_after_commit(chat_id, MSG_CANCELLED)
             return
         self._confirm_login(login, tg_user, chat_id)
 
     @api.model
     def _edit_buttons(self, chat_id, message_id, keyboard=None):
-        if message_id:
-            self._api('editMessageReplyMarkup', chat_id=chat_id, message_id=message_id,
+        if chat_id and message_id:
+            self._api('editMessageReplyMarkup', chat_id=_as_int(chat_id), message_id=_as_int(message_id),
                       reply_markup=keyboard or {'inline_keyboard': []})
 
     @api.model
     def _confirm_login(self, login, tg_user, chat_id):
         Users = self.env['res.users'].sudo()
         identity = login._validation()
-        identity['picture'], identity['picture_key'] = self._profile_photo(tg_user['id'])
         company = html_escape(self.env.company.name)
         first = html_escape(self._first_name(tg_user, identity['name'] or ''))
-        open_url = '%s/auth/telegram/complete?token=%s' % (self._base_url(), login.token)
-        open_button = {'inline_keyboard': [[{'text': BTN_OPEN_APP, 'url': open_url}]]}
 
         if login.link_user_id:
-            user = Users._auth_telegram_link(login.link_user_id.id, identity)
-            if not user:
+            # the Telegram account is only linked when the browser that
+            # started the request completes it (/auth/telegram/complete),
+            # after proving it belongs to that user's session
+            existing = Users.with_context(active_test=False).search(
+                [('telegram_uid', '=', identity['id'])], limit=1)
+            if existing and existing.id != login.link_user_id.id:
                 login.state = 'cancelled'
-                self._send_message(chat_id, MSG_TAKEN)
+                self._send_message_after_commit(chat_id, MSG_TAKEN)
                 return
-            login.write({'state': 'confirmed', 'user_id': user.id})
-            self._send_message(chat_id, MSG_LINK_OK.format(first=first, company=company),
-                               reply_markup=open_button)
-        else:
-            existed = bool(Users.search([('telegram_uid', '=', identity['id'])], limit=1))
-            try:
-                user = Users._auth_telegram_get_or_create_user(identity)
-            except AccessDenied:
-                login.state = 'cancelled'
-                self._send_message(chat_id, MSG_NO_ACCOUNT)
-                return
-            login.write({'state': 'confirmed', 'user_id': user.id, 'user_created': not existed})
-            text = (MSG_LOGIN_OK_BACK if existed else MSG_LOGIN_OK_NEW).format(first=first)
-            self._send_message(chat_id, text, reply_markup=open_button)
+            login.state = 'confirmed'
+            self._send_message_after_commit(chat_id, MSG_LINK_CONFIRMED.format(first=first, company=company))
+            return
 
+        existed = bool(Users.search([('telegram_uid', '=', identity['id'])], limit=1))
+        identity['picture'], identity['picture_key'] = self._profile_photo(tg_user['id'])
+        try:
+            user = Users._auth_telegram_get_or_create_user(identity)
+        except AccessDenied:
+            login.state = 'cancelled'
+            self._send_message_after_commit(chat_id, MSG_NO_ACCOUNT)
+            return
+        login.write({'state': 'confirmed', 'user_id': user.id, 'user_created': not existed})
+        text = (MSG_LOGIN_OK_BACK if existed else MSG_LOGIN_OK_NEW).format(first=first)
+        self._send_message_after_commit(chat_id, text)
+        self._ask_phone_after_commit(user, chat_id)
+
+    @api.model
+    def _notify_linked(self, login, user):
+        """ Called by /auth/telegram/complete once a link request is done. """
+        company = html_escape(self.env.company.name)
+        self._send_message_after_commit(login.telegram_chat_id, MSG_LINK_OK.format(company=company))
+        self._ask_phone_after_commit(user, login.telegram_chat_id)
+
+    @api.model
+    def _notify_unlinked(self, chat_id):
+        """ Tell a Telegram account it is no longer linked (unlink, or the
+            user linked another Telegram account). """
+        company = html_escape(self.env.company.name)
+        self._send_message_after_commit(chat_id, MSG_UNLINKED.format(company=company))
+
+    @api.model
+    def _ask_phone_after_commit(self, user, chat_id):
         if self._phone_request_enabled() and not (user.partner_id.phone or user.partner_id.mobile):
-            self._send_message(chat_id, MSG_ASK_PHONE, reply_markup={
+            self._send_message_after_commit(chat_id, MSG_ASK_PHONE, reply_markup={
                 'keyboard': [[{'text': BTN_SHARE_PHONE, 'request_contact': True}]],
                 'resize_keyboard': True,
                 'one_time_keyboard': True,
             })
-
-    @api.model
-    def _phone_request_enabled(self):
-        return self.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_request_phone', '1') != '0'
 
     # ------------------------------------------------------------------
     # Shared contact (phone number)
@@ -383,7 +554,7 @@ class TelegramBot(models.AbstractModel):
         user.write({'telegram_phone': phone})
         if not user.partner_id.phone:
             user.partner_id.phone = phone
-        self._send_message(chat_id, MSG_PHONE_SAVED, reply_markup={'remove_keyboard': True})
+        self._send_message_after_commit(chat_id, MSG_PHONE_SAVED, reply_markup={'remove_keyboard': True})
 
     # ------------------------------------------------------------------
     # Profile photo
@@ -394,7 +565,7 @@ class TelegramBot(models.AbstractModel):
         """ Return (download_url, stable_key) of the user's current profile
             photo, or (False, False). The download URL embeds the bot token,
             so only `stable_key` must ever be stored. """
-        photos = self._api('getUserProfilePhotos', user_id=telegram_user_id, limit=1)
+        photos = self._api('getUserProfilePhotos', user_id=_as_int(telegram_user_id), limit=1)
         try:
             sizes = photos['photos'][0]
             best = sizes[-1]

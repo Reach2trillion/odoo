@@ -9,8 +9,7 @@ class ResConfigSettings(models.TransientModel):
         ('bot', "Telegram chat: customer taps Start in the bot and confirms (recommended)"),
         ('oidc', "OpenID Connect (Telegram authorization page)"),
         ('widget', "Legacy Login Widget (deprecated by Telegram)"),
-    ], string="Telegram Login Method", default='bot',
-        config_parameter='auth_telegram.login_mode')
+    ], string="Telegram Login Method", config_parameter='auth_telegram.login_mode')
     auth_telegram_bot_username = fields.Char(
         string="Telegram Bot Username",
         config_parameter='auth_telegram.bot_username',
@@ -33,22 +32,37 @@ class ResConfigSettings(models.TransientModel):
         string="Ask for phone number after login", default=True,
         help="After a successful chat login, the bot asks the customer to share "
              "their phone number with one tap (only when the contact has none).")
+    auth_telegram_bot_match_code = fields.Boolean(
+        string="Number matching (recommended)",
+        help="The website shows a two-digit number and the bot offers three numbers "
+             "instead of a plain \"Yes\": the customer taps the one shown on the website. "
+             "This stops someone from tricking a customer into approving a login the "
+             "customer did not start (for example by sending them the login link).")
     auth_telegram_webhook_url = fields.Char(compute='_compute_auth_telegram_webhook')
     auth_telegram_webhook_status = fields.Char(compute='_compute_auth_telegram_webhook')
+    auth_telegram_webhook_ok = fields.Boolean(compute='_compute_auth_telegram_webhook')
 
     def _compute_auth_telegram_webhook(self):
         Bot = self.env['telegram.bot']
-        status = self.env['ir.config_parameter'].sudo().get_param(
-            'auth_telegram.webhook_status', "Not registered")
+        ICP = self.env['ir.config_parameter'].sudo()
+        status = ICP.get_param('auth_telegram.webhook_status', "Not registered")
+        ok = bool(ICP.get_param('auth_telegram.webhook_secret')) and status.startswith('Registered')
         for settings in self:
             settings.auth_telegram_webhook_url = Bot._webhook_url()
             settings.auth_telegram_webhook_status = status
+            settings.auth_telegram_webhook_ok = ok
 
     @api.model
     def get_values(self):
         res = super().get_values()
         ICP = self.env['ir.config_parameter'].sudo()
         res['auth_telegram_bot_request_phone'] = ICP.get_param('auth_telegram.bot_request_phone', '1') != '0'
+        res['auth_telegram_bot_match_code'] = ICP.get_param('auth_telegram.bot_match_code') == '1'
+        if not res.get('auth_telegram_login_mode'):
+            # nothing chosen yet: propose the method matching what is
+            # configured, the chat login on a fresh install
+            has_oidc = ICP.get_param('auth_telegram.client_id') and ICP.get_param('auth_telegram.client_secret')
+            res['auth_telegram_login_mode'] = 'oidc' if has_oidc else 'bot'
         return res
 
     def set_values(self):
@@ -63,11 +77,12 @@ class ResConfigSettings(models.TransientModel):
         # stored as explicit '1'/'0': an unchecked boolean config_parameter is
         # deleted, which would be indistinguishable from "never configured"
         ICP.set_param('auth_telegram.bot_request_phone', '1' if self.auth_telegram_bot_request_phone else '0')
+        ICP.set_param('auth_telegram.bot_match_code', '1' if self.auth_telegram_bot_match_code else '0')
         # chat login needs the webhook: register it automatically when the
         # method is selected and the webhook is missing or the token changed
         if self.auth_telegram_login_mode == 'bot' and self.auth_telegram_bot_token:
-            status = ICP.get_param('auth_telegram.webhook_status') or ''
-            if previous_token != self.auth_telegram_bot_token or not status.startswith('Registered'):
+            if previous_token != self.auth_telegram_bot_token or not ICP.get_param('auth_telegram.webhook_secret') \
+                    or not (ICP.get_param('auth_telegram.webhook_status') or '').startswith('Registered'):
                 self.env['telegram.bot']._set_webhook()
 
     def action_auth_telegram_register_webhook(self):

@@ -48,8 +48,8 @@ class ResUsers(models.Model):
     telegram_username = fields.Char(string='Telegram Username', copy=False, readonly=True)
     telegram_phone = fields.Char(
         string='Telegram Phone', copy=False, readonly=True,
-        help="Verified phone number shared by Telegram at login (requires the "
-             "user's consent, OpenID Connect flow only).")
+        help="Phone number shared by the user through Telegram: the bot's "
+             "\"Share phone number\" button (chat login) or the OpenID Connect consent.")
     telegram_photo_url = fields.Char(
         string='Telegram Photo URL', copy=False, readonly=True,
         help="Last Telegram profile photo applied as avatar; used to keep the "
@@ -70,24 +70,36 @@ class ResUsers(models.Model):
     def _auth_telegram_mode(self):
         """ Active login flow:
             - 'bot': the user confirms the login in the bot chat (/start),
-              needs the bot token + username
+              needs the bot token + username and a registered webhook
             - 'oidc': Telegram OpenID Connect, needs Client ID/Secret
             - 'widget': legacy Login Widget (deprecated by Telegram)
-            - False: not configured
+            - False: not configured / the chosen method is not usable
         """
         ICP = self.env['ir.config_parameter'].sudo()
         has_bot = bool(ICP.get_param('auth_telegram.bot_token') and ICP.get_param('auth_telegram.bot_username'))
         has_oidc = bool(ICP.get_param('auth_telegram.client_id') and ICP.get_param('auth_telegram.client_secret'))
+        usable = {
+            'bot': has_bot and bool(ICP.get_param('auth_telegram.webhook_secret')),
+            'oidc': has_oidc,
+            'widget': has_bot,
+        }
         mode = ICP.get_param('auth_telegram.login_mode')
-        if mode in ('bot', 'widget') and has_bot:
+        if mode in usable and usable[mode]:
             return mode
-        if mode == 'oidc' and has_oidc:
+        if mode:
+            # chosen method not fully configured (e.g. webhook registration
+            # failed): only fall back to another complete, non-deprecated flow
+            for fallback in ('oidc', 'bot'):
+                if fallback != mode and usable[fallback]:
+                    _logger.info("Telegram login: method %r is not usable, falling back to %r", mode, fallback)
+                    return fallback
+            return False
+        # no explicit choice yet (database upgraded from an older version):
+        # keep the behaviour of those versions
+        if has_oidc:
             return 'oidc'
-        if not mode:
-            if has_bot:
-                return 'bot'
-            if has_oidc:
-                return 'oidc'
+        if has_bot:
+            return 'widget'
         return False
 
     @api.model
@@ -313,6 +325,7 @@ class ResUsers(models.Model):
         user = Users.browse(uid)
         if existing and existing.id != user.id:
             return False
+        previous_uid = user.telegram_uid
         user.write({
             'telegram_uid': telegram_uid,
             'telegram_username': validation.get('username') or False,
@@ -322,7 +335,25 @@ class ResUsers(models.Model):
             user.partner_id.phone = validation['phone']
         user._auth_telegram_apply_photo(validation)
         user._auth_telegram_apply_tag()
+        if previous_uid and previous_uid != telegram_uid:
+            # the Telegram account that could sign in until now is told it
+            # no longer can (in case this was not done by the account owner)
+            self.env['telegram.bot']._notify_unlinked(previous_uid)
         return user
+
+    def _auth_telegram_unlink(self):
+        """ Detach the Telegram account; the detached account is notified. """
+        for user in self.sudo():
+            previous_uid = user.telegram_uid
+            user.write({
+                'telegram_uid': False,
+                'telegram_username': False,
+                'telegram_phone': False,
+                'telegram_photo_url': False,
+            })
+            user._auth_telegram_remove_tag()
+            if previous_uid:
+                self.env['telegram.bot']._notify_unlinked(previous_uid)
 
     def _auth_telegram_tag(self):
         return self.env.ref('auth_telegram.partner_category_telegram', raise_if_not_found=False)

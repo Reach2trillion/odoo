@@ -33,6 +33,7 @@
                             <div class="row">
                                 <label for="auth_telegram_webhook_status" string="Status" class="col-lg-3 o_light_label"/>
                                 <field name="auth_telegram_webhook_status" readonly="1"/>
+                                <field name="auth_telegram_webhook_ok" invisible="1"/>
                             </div>
                             <div class="mt8">
                                 <button type="object" name="action_auth_telegram_register_webhook"
@@ -42,15 +43,25 @@
                                 <button type="object" name="action_auth_telegram_remove_webhook"
                                         string="Remove" class="btn-link text-danger" icon="fa-times"/>
                             </div>
+                            <div class="alert alert-warning mt8 mb0" role="alert"
+                                 invisible="auth_telegram_webhook_ok">
+                                The chat login stays hidden from the login page until the webhook is
+                                registered. Check the Status line above, then save or use Register Webhook.
+                            </div>
                             <div class="mt8">
                                 <field name="auth_telegram_bot_request_phone" class="me-2"/>
                                 <label for="auth_telegram_bot_request_phone"/>
                             </div>
+                            <div class="mt8">
+                                <field name="auth_telegram_bot_match_code" class="me-2"/>
+                                <label for="auth_telegram_bot_match_code"/>
+                            </div>
                             <div class="mt8 text-muted">
                                 The customer taps "Log in with Telegram", the bot asks them to confirm,
-                                and they are signed in. Requires a public https:// web.base.url so
-                                Telegram can call the webhook; the webhook is registered automatically
-                                when you save.
+                                and they are signed in. Telegram must be able to call the webhook URL
+                                above: web.base.url must be your public https:// address (freeze it with
+                                the web.base.url.freeze system parameter when Odoo runs behind a proxy).
+                                The webhook is registered automatically when you save.
                             </div>
                         </div>
 

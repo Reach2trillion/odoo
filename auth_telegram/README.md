@@ -26,27 +26,32 @@ Common to all methods:
 ## Telegram chat login
 
 ```
-Website                      Telegram bot chat                     Website tab
+Website                      Telegram bot chat                       Website tab
 "Log in with Telegram"  ──►  /start <token> (sent automatically)
    (page polls status)       🔐 Authentication Request
-                             App / Account / Username
-                             [✅ Yes, Login] [❌ Cancel]
+                             App / Account / Username / Device / IP
+                             [✅ Yes, Login] [❌ Cancel]   (or 3 numbers, see below)
                              ✅ Login Successful! Welcome, X!
-                             [🚀 Open App Automatically]    ──►  signed in, redirected
+                             👈 Go back to the website            ──►  signed in, redirected
                              📱 Share phone number? (optional)
 ```
 
 1. The website creates a short-lived login request (10 minutes) and shows a
    waiting page with an **Open Telegram** button (and a QR code on desktop).
-   The page polls the request status every 2 seconds.
+   The request token is kept in the browser session and in the Telegram deep
+   link only, never in a URL the browser requests. The page polls the request
+   status every 2 seconds.
 2. Telegram opens your bot with `/start <token>`; the bot (via webhook) sends
-   the **Authentication Request** message with Yes / Cancel buttons. Only the
-   Telegram user who sent `/start` can answer them.
+   the **Authentication Request** message, showing the device and IP address
+   the request came from, with Yes / Cancel buttons. Only the Telegram user who
+   sent `/start` can answer; if a second Telegram account opens the same link
+   (e.g. a photographed QR code) the request is cancelled and both are told.
 3. On **Yes**, the bot resolves (or creates) the Odoo user, marks the request
-   confirmed and sends **Login Successful** with an **Open App** button.
-4. The polling tab completes the login automatically; the Open App button does
-   the same from Telegram's in-app browser. A confirmed request can be
-   completed at most twice and only within its validity.
+   confirmed and sends **Login Successful**.
+4. The website tab that started the request completes the login automatically.
+   Only that browser session can complete it, exactly once; afterwards the
+   request is spent. Users with two-factor authentication are sent to the TOTP
+   step like after a password login.
 5. Optionally the bot then asks the customer to **share their phone number**
    (one tap, Telegram's `request_contact`), which is saved on the user and
    contact. Because the customer pressed Start, the bot can now message them
@@ -55,18 +60,45 @@ Website                      Telegram bot chat                     Website tab
 Messages are bilingual English / Khmer; edit the `MSG_*` constants in
 `models/telegram_bot.py` to change them.
 
+### Number matching (recommended)
+
+With *Number matching* enabled in Settings, the waiting page shows a two-digit
+number and the bot offers **three numbers** instead of a plain "Yes": the
+customer taps the one shown on the website. This defeats the classic trick of
+sending a customer somebody else's login link and asking them to approve it,
+because the attacker would also have to relay the right number in real time.
+Without it, the prompt still shows the requesting device / IP and warns the
+customer to tap Cancel if they did not start the login themselves.
+
+### Linking from an existing account
+
+Logged-in users link / unlink Telegram at `/auth/telegram/link`. Because this
+adds or removes a way to sign in, users who have a password must re-enter it
+first (valid for 10 minutes, like Odoo's own identity check). The Telegram
+account that was linked before is notified when it is unlinked or replaced.
+An account that can only sign in with Telegram (no password, no e-mail) cannot
+be unlinked, only switched to another Telegram account.
+
 ### Setup (chat login)
 
 1. Create a bot with [@BotFather](https://t.me/BotFather) (`/newbot`) and note
    its **username** and **token**.
 2. Make sure Odoo's `web.base.url` is your public **https** address (Settings →
    Technical → System Parameters). Telegram calls
-   `https://yourdomain/auth/telegram/webhook`.
+   `https://yourdomain/auth/telegram/webhook`. When Odoo runs behind a reverse
+   proxy, also set `web.base.url.freeze` to `True` (or enable `proxy_mode` and
+   forward `X-Forwarded-Proto` / `X-Forwarded-Host`), otherwise Odoo rewrites
+   `web.base.url` from an internal address at each administrator login.
 3. Settings → General Settings → *Telegram Authentication*: choose
    **Telegram chat**, enter the bot username and token, save. The webhook is
    registered automatically; the *Status* line shows the result (use *Check
-   Status* / *Register Webhook* if needed).
-4. Optional: enable **Free sign up** so new customers get an account on the fly.
+   Status* / *Register Webhook* if needed). The "Log in with Telegram" button
+   only appears once the webhook is registered.
+4. Optional: enable **Number matching** and **Free sign up** (so new customers
+   get an account on the fly).
+
+Upgrading from a version before 3.0 keeps your current method (OpenID Connect
+or the legacy widget); switch to **Telegram chat** in Settings when ready.
 
 Note: a bot uses either a webhook or long polling — if another program polls
 this bot with `getUpdates`, the webhook will conflict with it.
@@ -112,3 +144,5 @@ have never been switched to OIDC).
 - The *Telegram User ID* is unique per user (SQL constraint).
 - Login tokens sent to the browser are random, single-use, short-lived, and
   only their SHA-256 hash is stored.
+- Bot API errors are logged without the bot token (connection errors from the
+  HTTP library would otherwise include it).

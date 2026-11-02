@@ -86,11 +86,14 @@ class TelegramNotifier(models.AbstractModel):
                 'chat_id': chat_id,
                 'text': body,
                 'parse_mode': 'HTML',
-                'disable_web_page_preview': True,
+                'link_preview_options': {'is_disabled': True},
             }, timeout=TIMEOUT)
             if not response.ok:
                 # 403 means the user never allowed the bot to message them
                 _logger.warning("Telegram sendMessage to chat %s failed: %s",
                                 chat_id, response.text[:300])
-        except Exception:
-            _logger.warning("Telegram sendMessage to chat %s errored", chat_id, exc_info=True)
+        except Exception as e:  # noqa: BLE001
+            # never log the exception object / traceback: requests embeds the
+            # request path, i.e. the bot token, in connection error messages
+            _logger.warning("Telegram sendMessage to chat %s errored: %s: %s",
+                            chat_id, type(e).__name__, str(e).replace(token, '<token>'))

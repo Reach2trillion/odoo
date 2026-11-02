@@ -1,7 +1,7 @@
 # Part of the telegram_notification module. License LGPL-3.
 {
     'name': 'Telegram Notifications',
-    'version': '18.0.1.1.0',
+    'version': '18.0.1.1.1',
     'category': 'Sales',
     'summary': 'Notify customers on Telegram: quotations, orders, deliveries, invoices',
     'description': """
