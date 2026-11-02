@@ -36,9 +36,13 @@ when there is a problem with an order.
 
 Telegram only lets a bot message people who allowed it:
 
-- customers who ticked **"Allow ... to message me"** when they used the
-  Telegram login button (the button requests this by default), or
-- customers who opened your bot and pressed **Start**.
+- customers who signed in or linked their account with the **Telegram chat**
+  login: they pressed **Start** on your bot, so the bot can always message them;
+- customers who signed in with **OpenID Connect** and accepted the "allow the
+  bot to message you" consent on Telegram's authorization page;
+- customers who ticked **"Allow ... to message me"** on the legacy Login
+  Widget (requested by default);
+- anyone who opened your bot and pressed **Start**.
 
 Anyone else is silently skipped (a warning is logged). Messages are sent
 after the database transaction commits and never block or roll back the
@@ -46,6 +50,12 @@ business flow if Telegram is unreachable.
 
 ## About phone numbers
 
-The Telegram Login Widget shares only: Telegram ID, name, username and
-photo. **Telegram never shares the user's phone number through login** —
-keep collecting the phone at checkout if you need it.
+After a **Telegram chat** login or link, the bot asks the customer to share
+their phone number with one tap (Settings → *Ask for phone number after
+login*, on by default, only when the contact has no phone yet). The
+**OpenID Connect** login includes the phone number when the customer
+consents. The number is stored on the user (*Telegram Phone*) and copied to
+the contact's phone field when that is empty, and is shown in the staff
+payment alert. The legacy Login Widget shares only Telegram ID, name,
+username and photo, never the phone number: with that method, keep
+collecting the phone at checkout if you need it.

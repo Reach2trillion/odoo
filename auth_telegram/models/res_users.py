@@ -79,7 +79,7 @@ class ResUsers(models.Model):
         has_bot = bool(ICP.get_param('auth_telegram.bot_token') and ICP.get_param('auth_telegram.bot_username'))
         has_oidc = bool(ICP.get_param('auth_telegram.client_id') and ICP.get_param('auth_telegram.client_secret'))
         usable = {
-            'bot': has_bot and bool(ICP.get_param('auth_telegram.webhook_secret')),
+            'bot': has_bot and self.env['telegram.bot']._webhook_registered(),
             'oidc': has_oidc,
             'widget': has_bot,
         }

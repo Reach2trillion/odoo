@@ -1,7 +1,7 @@
 # Part of the auth_telegram module. License LGPL-3.
 {
     'name': 'Telegram Login',
-    'version': '18.0.3.1.0',
+    'version': '18.0.3.2.0',
     'category': 'Authentication',
     'summary': 'Let users sign in or sign up with their Telegram account',
     'description': """
@@ -10,8 +10,9 @@ Telegram Authentication
 Adds a "Log in with Telegram" button to the Odoo login page.
 
 - Chat login: the customer taps Start in your bot, confirms, and is signed
-  in (no OAuth screens); the bot can then message them and ask for their
-  phone number with one tap. OpenID Connect is also supported.
+  in (no OAuth screens); optionally they type a one-time code shown by the
+  bot. The bot can then message them and ask for their phone number with
+  one tap. OpenID Connect is also supported.
 - Existing users linked to a Telegram account can log in with one click.
 - Unknown Telegram accounts can be turned into new (portal) users
   automatically when free sign up is enabled in Settings.

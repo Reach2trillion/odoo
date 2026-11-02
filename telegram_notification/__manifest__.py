@@ -1,7 +1,7 @@
 # Part of the telegram_notification module. License LGPL-3.
 {
     'name': 'Telegram Notifications',
-    'version': '18.0.1.1.1',
+    'version': '18.0.1.1.2',
     'category': 'Sales',
     'summary': 'Notify customers on Telegram: quotations, orders, deliveries, invoices',
     'description': """
@@ -18,8 +18,10 @@ Telegram Login module (auth_telegram):
 Also shows the customer's Telegram username on the contact form so your
 team can reach them at t.me/<username>.
 
-Customers receive messages only if they allowed the bot to contact them
-(the login button asks for this permission) or pressed Start on the bot.
+Customers receive messages only if they allowed the bot to contact them:
+by pressing Start on the bot (always the case with the Telegram chat login),
+by accepting the bot-access consent of the OpenID Connect login, or by
+ticking the permission on the legacy login widget.
 """,
     'author': 'Reach2trillion',
     'website': 'https://github.com/Reach2trillion/odoo',

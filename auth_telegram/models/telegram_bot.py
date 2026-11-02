@@ -1,6 +1,5 @@
 # Part of the auth_telegram module. License LGPL-3.
 import functools
-import hmac
 import logging
 import secrets
 
@@ -29,7 +28,9 @@ MSG_AUTH_REQUEST = (
     "IP: {ip}\n\n"
     "{question}\n\n"
     "⚠️ If you did not start this login on the website, tap Cancel.\n"
-    "⚠️ បើអ្នកមិនបានចាប់ផ្តើមការចូលនេះទេ សូមចុច បោះបង់។"
+    "⚠️ បើអ្នកមិនបានចាប់ផ្តើមការចូលនេះទេ សូមចុច បោះបង់។\n"
+    "⚠️ {company} will never ask you to approve a login or to share a code for someone else.\n"
+    "⚠️ {company} នឹងមិនដែលស្នើឱ្យអ្នកយល់ព្រមការចូល ឬចែករំលែកលេខកូដជំនួសអ្នកដទៃឡើយ។"
 )
 QUESTION_LOGIN = (
     "Do you want to login to {company}?\n"
@@ -39,9 +40,9 @@ QUESTION_LINK = (
     "Link this Telegram to the account <b>{login}</b>?\n"
     "ភ្ជាប់ Telegram នេះទៅគណនី <b>{login}</b>?"
 )
-QUESTION_CODE = (
-    "👇 Tap the number shown on the website.\n"
-    "👇 ចុចលេខដែលបង្ហាញនៅលើគេហទំព័រ។"
+QUESTION_CODE_HINT = (
+    "After you tap Yes, I will send you a one-time code to type on the website.\n"
+    "បន្ទាប់ពីអ្នកចុច យល់ព្រម ខ្ញុំនឹងផ្ញើលេខកូដមួយដងឱ្យអ្នកវាយបញ្ចូលនៅលើគេហទំព័រ។"
 )
 BTN_YES = "✅ Yes, Login / យល់ព្រម ចូល"
 BTN_NO = "❌ Cancel / បោះបង់"
@@ -69,6 +70,16 @@ MSG_LINK_CONFIRMED = (
     "👈 Go back to the website to finish linking your Telegram to your {company} account, {first}.\n"
     "👈 ត្រឡប់ទៅគេហទំព័រវិញ ដើម្បីបញ្ចប់ការភ្ជាប់ Telegram ជាមួយគណនី {company} របស់អ្នក {first}។"
 )
+MSG_CODE = (
+    "✅ <b>Confirmed!</b>\n"
+    "✅ <b>បានបញ្ជាក់!</b>\n\n"
+    "🔢 Your one-time code: <code>{code}</code>\n"
+    "🔢 លេខកូដមួយដងរបស់អ្នក: <code>{code}</code>\n\n"
+    "👈 Type it on the website where you started, to finish.\n"
+    "👈 វាយបញ្ចូលវានៅលើគេហទំព័រដែលអ្នកបានចាប់ផ្តើម ដើម្បីបញ្ចប់។\n\n"
+    "⚠️ Never share this code with anyone. {company} will never ask you for it.\n"
+    "⚠️ កុំចែករំលែកលេខកូដនេះទៅនរណាម្នាក់ឡើយ។ {company} នឹងមិនដែលសួររកវាទេ។"
+)
 MSG_LINK_OK = (
     "✅ <b>Telegram account linked!</b>\n"
     "✅ <b>គណនី Telegram ត្រូវបានភ្ជាប់!</b>\n\n"
@@ -80,8 +91,8 @@ MSG_CANCELLED = (
     "❌ ការចូលប្រើត្រូវបានបោះបង់។"
 )
 MSG_WRONG_CODE = (
-    "❌ Wrong number, login cancelled. Please try again from the website.\n"
-    "❌ លេខមិនត្រឹមត្រូវ ការចូលប្រើត្រូវបានបោះបង់។ សូមព្យាយាមម្តងទៀតពីគេហទំព័រ។"
+    "❌ A wrong code was typed on the website too many times, so this login was cancelled. Please try again from the website.\n"
+    "❌ លេខកូដខុសត្រូវបានវាយបញ្ចូលនៅលើគេហទំព័រច្រើនដងពេក ដូច្នេះការចូលប្រើនេះត្រូវបានបោះបង់។ សូមព្យាយាមម្តងទៀតពីគេហទំព័រ។"
 )
 MSG_EXPIRED = (
     "⚠️ This login link has expired. Please try again from the website.\n"
@@ -223,6 +234,22 @@ class TelegramBot(models.AbstractModel):
         return self._base_url() + '/auth/telegram/webhook'
 
     @api.model
+    def _webhook_registered(self):
+        """ Single source of truth for "the chat login can work": the last
+            registration / status check saw Telegram pointing at *this*
+            server's webhook URL, and the secret registered with it is still
+            known. A secret alone is not enough: it is left in place when a
+            later registration attempt fails (Telegram then still delivers
+            to the old registration) and when the URL changed. """
+        ICP = self.env['ir.config_parameter'].sudo()
+        if not ICP.get_param('auth_telegram.webhook_secret'):
+            return False
+        status = ICP.get_param('auth_telegram.webhook_status') or ''
+        expected = "Registered: %s" % self._webhook_url()
+        # _check_webhook may append " — last error: ..." / " (N pending updates)"
+        return status == expected or status.startswith(expected + ' ')
+
+    @api.model
     def _set_webhook(self):
         """ Register the webhook with a fresh secret. Returns (ok, message);
             the outcome is also stored in the Status shown in Settings. """
@@ -264,7 +291,10 @@ class TelegramBot(models.AbstractModel):
         elif not info.get('url'):
             status = "Not registered"
         elif info['url'] != self._webhook_url():
-            status = "Registered on another URL: %s" % info['url']
+            # the login page hides the chat login while this status is stored
+            # (see _webhook_registered); saving the settings re-registers
+            status = ("Not registered here: Telegram sends updates to %s (this server expects %s). "
+                      "Save or use Register Webhook." % (info['url'], self._webhook_url()))
         else:
             status = "Registered: %s" % info['url']
             if info.get('last_error_message'):
@@ -359,7 +389,7 @@ class TelegramBot(models.AbstractModel):
             # another Telegram account already opened this link (e.g. a
             # photographed QR code): fail closed so neither can complete it,
             # and tell both sides
-            login.state = 'cancelled'
+            login._cancel('conflict')
             self._edit_buttons(login.telegram_chat_id, login.telegram_message_id)
             self._send_message_after_commit(login.telegram_chat_id, MSG_CONFLICT)
             self._send_message_after_commit(chat_id, MSG_CONFLICT)
@@ -374,9 +404,8 @@ class TelegramBot(models.AbstractModel):
             existing = Users.search([('telegram_uid', '=', identity['id'])], limit=1)
             account = existing.name if existing else identity['name'] or '-'
             question = QUESTION_LOGIN.format(company=company)
-        match_code = self._match_code_enabled()
-        if match_code:
-            question += "\n\n" + QUESTION_CODE
+        if login.match_code:
+            question += "\n\n" + QUESTION_CODE_HINT
 
         login.write({
             'telegram_uid': identity['id'],
@@ -392,31 +421,25 @@ class TelegramBot(models.AbstractModel):
             ip=html_escape(login.requester_ip or '-'),
             question=question,
         )
-        cancel = {'text': BTN_NO, 'callback_data': '%sn:%s' % (CALLBACK_PREFIX, login.token)}
-        if match_code:
-            rows = [
-                [{'text': number, 'callback_data': '%sc:%s:%s' % (CALLBACK_PREFIX, login.token, number)}
-                 for number in self._code_choices(login.code)],
-                [cancel],
-            ]
-        else:
-            rows = [[{'text': BTN_YES, 'callback_data': '%sy:%s' % (CALLBACK_PREFIX, login.token)}, cancel]]
+        rows = [[
+            {'text': BTN_YES, 'callback_data': '%sy:%s' % (CALLBACK_PREFIX, login.token)},
+            {'text': BTN_NO, 'callback_data': '%sn:%s' % (CALLBACK_PREFIX, login.token)},
+        ]]
         sent = self._send_message(chat_id, text, reply_markup={'inline_keyboard': rows})
         if isinstance(sent, dict) and sent.get('message_id'):
             login.telegram_message_id = str(sent['message_id'])
-
-    @api.model
-    def _code_choices(self, code):
-        """ The real code plus two decoys, shuffled. """
-        choices = {code}
-        while len(choices) < 3:
-            choices.add('%02d' % secrets.randbelow(100))
-        choices = list(choices)
-        secrets.SystemRandom().shuffle(choices)
-        return choices
+        else:
+            # Telegram did not acknowledge the prompt (unreachable, 429, bad
+            # token...). The request stays pending: a read timeout can still
+            # mean the prompt was delivered, and opening the deep link again
+            # re-sends it. The website page is told (status poll) so it can
+            # ask the user to tap Start again or retry, instead of waiting
+            # for the request to expire.
+            _logger.warning("Telegram login: request %s: prompt to chat %s not acknowledged by Telegram",
+                            login.id, chat_id)
 
     # ------------------------------------------------------------------
-    # Yes / number / Cancel buttons
+    # Yes / Cancel buttons
     # ------------------------------------------------------------------
 
     @api.model
@@ -435,7 +458,6 @@ class TelegramBot(models.AbstractModel):
         parts = data[len(CALLBACK_PREFIX):].split(':')
         action = parts[0]
         token = parts[1] if len(parts) > 1 else ''
-        answer = parts[2] if len(parts) > 2 else ''
 
         login = self.env['auth.telegram.login'].sudo()._get_by_token(token)
         if login:
@@ -453,22 +475,15 @@ class TelegramBot(models.AbstractModel):
             return
 
         self._edit_buttons(chat_id, message.get('message_id'))
-        if action == 'c':
-            if not (answer and login.code and hmac.compare_digest(login.code, answer)):
-                login.state = 'cancelled'
-                self._send_message_after_commit(chat_id, MSG_WRONG_CODE)
-                return
-        elif action == 'y':
-            if self._match_code_enabled():
-                # a plain "Yes" is not enough once number matching is on
-                login.state = 'cancelled'
-                self._send_message_after_commit(chat_id, MSG_EXPIRED)
-                return
-        else:
-            login.state = 'cancelled'
+        if action == 'y':
+            self._confirm_login(login, tg_user, chat_id)
+        elif action == 'n':
+            login._cancel('user')
             self._send_message_after_commit(chat_id, MSG_CANCELLED)
-            return
-        self._confirm_login(login, tg_user, chat_id)
+        else:
+            # button from a prompt sent by an older version of this module
+            login._cancel('stale')
+            self._send_message_after_commit(chat_id, MSG_EXPIRED)
 
     @api.model
     def _edit_buttons(self, chat_id, message_id, keyboard=None):
@@ -490,11 +505,14 @@ class TelegramBot(models.AbstractModel):
             existing = Users.with_context(active_test=False).search(
                 [('telegram_uid', '=', identity['id'])], limit=1)
             if existing and existing.id != login.link_user_id.id:
-                login.state = 'cancelled'
+                login._cancel('taken')
                 self._send_message_after_commit(chat_id, MSG_TAKEN)
                 return
             login.state = 'confirmed'
-            self._send_message_after_commit(chat_id, MSG_LINK_CONFIRMED.format(first=first, company=company))
+            if login.match_code:
+                self._send_message_after_commit(chat_id, MSG_CODE.format(code=login.code, company=company))
+            else:
+                self._send_message_after_commit(chat_id, MSG_LINK_CONFIRMED.format(first=first, company=company))
             return
 
         existed = bool(Users.search([('telegram_uid', '=', identity['id'])], limit=1))
@@ -502,13 +520,34 @@ class TelegramBot(models.AbstractModel):
         try:
             user = Users._auth_telegram_get_or_create_user(identity)
         except AccessDenied:
-            login.state = 'cancelled'
+            login._cancel('no_account')
             self._send_message_after_commit(chat_id, MSG_NO_ACCOUNT)
             return
         login.write({'state': 'confirmed', 'user_id': user.id, 'user_created': not existed})
-        text = (MSG_LOGIN_OK_BACK if existed else MSG_LOGIN_OK_NEW).format(first=first)
-        self._send_message_after_commit(chat_id, text)
+        if login.match_code:
+            # the login is only granted once the browser that started the
+            # request typed this code: the success message follows then
+            self._send_message_after_commit(chat_id, MSG_CODE.format(code=login.code, company=company))
+            return
+        self._send_message_after_commit(chat_id, self._login_ok_text(login, first))
         self._ask_phone_after_commit(user, chat_id)
+
+    @api.model
+    def _login_ok_text(self, login, first):
+        return (MSG_LOGIN_OK_NEW if login.user_created else MSG_LOGIN_OK_BACK).format(first=first)
+
+    @api.model
+    def _notify_login_done(self, login, user):
+        """ Called by /auth/telegram/complete for a one-time code login: the
+            code was typed, the user is signed in. """
+        first = (login.telegram_name or '').split(' ')[0] or login.telegram_username or user.name
+        self._send_message_after_commit(login.telegram_chat_id, self._login_ok_text(login, html_escape(first)))
+        self._ask_phone_after_commit(user, login.telegram_chat_id)
+
+    @api.model
+    def _notify_wrong_code(self, login):
+        """ Called when the website gave up on the one-time code. """
+        self._send_message_after_commit(login.telegram_chat_id, MSG_WRONG_CODE)
 
     @api.model
     def _notify_linked(self, login, user):

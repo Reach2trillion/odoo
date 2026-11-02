@@ -6,6 +6,8 @@ from odoo import api, fields, models
 
 # How long (seconds) a login request started on the website stays valid
 LOGIN_REQUEST_VALIDITY = 600
+# Wrong one-time codes accepted on the website before the request is cancelled
+CODE_MAX_ATTEMPTS = 3
 
 
 class AuthTelegramLogin(models.Model):
@@ -25,11 +27,27 @@ class AuthTelegramLogin(models.Model):
         ('cancelled', 'Cancelled'),
         ('expired', 'Expired'),
     ], default='pending', required=True, index=True, readonly=True)
+    # why the request ended up 'cancelled' (shown on the website page)
+    cancel_reason = fields.Selection([
+        ('user', 'Cancelled by the user'),
+        ('wrong_code', 'Wrong one-time code'),
+        ('conflict', 'Opened by another Telegram account'),
+        ('no_account', 'No account and sign up refused'),
+        ('taken', 'Telegram account linked to another user'),
+        ('stale', 'Outdated button'),
+    ], readonly=True)
     expiration = fields.Datetime(required=True, readonly=True)
     redirect = fields.Char(readonly=True)
-    # two-digit code shown on the website; with "number matching" enabled the
-    # user must tap the same number in Telegram instead of a plain "Yes"
+    # One-time code: with "one-time code" enabled (frozen per request in
+    # `match_code`), the bot shows `code` in Telegram *after* the user tapped
+    # Yes, and the browser that started the request must type it before it can
+    # complete the login. The code is never sent to the browser, so somebody
+    # who sends a customer their own login link still cannot get in without
+    # the customer actively handing the code over.
+    match_code = fields.Boolean(readonly=True)
     code = fields.Char(readonly=True)
+    code_verified = fields.Boolean(readonly=True)
+    code_attempts = fields.Integer(readonly=True, default=0)
     # where the request was started (shown in the Telegram prompt so the user
     # can spot a request they did not start themselves)
     requester_ip = fields.Char(readonly=True)
@@ -50,11 +68,13 @@ class AuthTelegramLogin(models.Model):
     ]
 
     @api.model
-    def _create_request(self, redirect=None, link_uid=False, requester_ip=False, requester_device=False):
+    def _create_request(self, redirect=None, link_uid=False, requester_ip=False,
+                        requester_device=False, match_code=False):
         return self.create({
             # [A-Za-z0-9_-], 32 chars: valid as a Telegram /start payload
             'token': secrets.token_urlsafe(24),
-            'code': '%02d' % secrets.randbelow(100),
+            'match_code': bool(match_code),
+            'code': '%06d' % secrets.randbelow(10 ** 6),
             'expiration': fields.Datetime.now() + timedelta(seconds=LOGIN_REQUEST_VALIDITY),
             'redirect': redirect or False,
             'link_user_id': link_uid or False,
@@ -79,13 +99,30 @@ class AuthTelegramLogin(models.Model):
     def _lock(self):
         """ Row-lock the request and re-read it, so that concurrent handlers
             of the same request (double tap in Telegram, redelivered webhook
-            update, two browser tabs) are serialized and see each other's
-            final state. """
+            update, two browser tabs) are serialized.
+
+            Cursors run REPEATABLE READ: when the previous holder of the lock
+            changed the row, PostgreSQL raises a serialization failure here
+            instead of returning it. The http layer (odoo.service.model
+            .retrying) then rolls back and re-runs the whole request on a
+            fresh snapshot, which is how the later handler gets to see the
+            final state; the expected failure is not logged as a bad query. """
         self.ensure_one()
         self.flush_model()
-        self.env.cr.execute('SELECT id FROM auth_telegram_login WHERE id = %s FOR UPDATE', [self.id])
+        self.env.cr.execute('SELECT id FROM auth_telegram_login WHERE id = %s FOR UPDATE',
+                            [self.id], log_exceptions=False)
         self.invalidate_recordset()
         return self
+
+    def _cancel(self, reason):
+        self.ensure_one()
+        self.write({'state': 'cancelled', 'cancel_reason': reason})
+
+    def _needs_code(self):
+        """ Confirmed in Telegram, but the one-time code shown there has not
+            been typed on the website yet. """
+        self.ensure_one()
+        return self.state == 'confirmed' and self.match_code and not self.code_verified
 
     def _validation(self):
         """ Identity dict in the format expected by res.users._auth_telegram_* """

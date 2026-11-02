@@ -46,7 +46,8 @@
                             <div class="alert alert-warning mt8 mb0" role="alert"
                                  invisible="auth_telegram_webhook_ok">
                                 The chat login stays hidden from the login page until the webhook is
-                                registered. Check the Status line above, then save or use Register Webhook.
+                                registered on this server's URL (shown above). Check the Status line,
+                                then save or use Register Webhook.
                             </div>
                             <div class="mt8">
                                 <field name="auth_telegram_bot_request_phone" class="me-2"/>
@@ -59,9 +60,12 @@
                             <div class="mt8 text-muted">
                                 The customer taps "Log in with Telegram", the bot asks them to confirm,
                                 and they are signed in. Telegram must be able to call the webhook URL
-                                above: web.base.url must be your public https:// address (freeze it with
-                                the web.base.url.freeze system parameter when Odoo runs behind a proxy).
-                                The webhook is registered automatically when you save.
+                                above: web.base.url must be your public https:// address. Behind a
+                                reverse proxy (Docker, nginx...), run Odoo with proxy_mode = True and
+                                forward X-Forwarded-For / -Proto / -Host, otherwise the Telegram prompt
+                                shows the proxy's address instead of the customer's; also set the
+                                web.base.url.freeze system parameter to True so an administrator login
+                                never rewrites the URL. The webhook is registered automatically when you save.
                             </div>
                         </div>
 
