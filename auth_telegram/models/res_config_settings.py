@@ -86,21 +86,19 @@ class ResConfigSettings(models.TransientModel):
         ICP.set_param('auth_telegram.bot_match_code', '1' if self.auth_telegram_bot_match_code else '0')
         # chat login needs the webhook: register it automatically when the
         # method is selected and the webhook is not registered on this
-        # server's URL, or the token changed
-        if self.auth_telegram_login_mode == 'bot' and self.auth_telegram_bot_token:
+        # server's URL, or the token changed. The Register Webhook button
+        # saves with this skipped and registers exactly once itself.
+        if self.auth_telegram_login_mode == 'bot' and self.auth_telegram_bot_token \
+                and not self.env.context.get('auth_telegram_skip_webhook'):
             Bot = self.env['telegram.bot']
             if previous_token != self.auth_telegram_bot_token or not Bot._webhook_registered():
                 Bot._set_webhook()
 
     def action_auth_telegram_register_webhook(self):
-        ICP = self.env['ir.config_parameter'].sudo()
-        secret_before = ICP.get_param('auth_telegram.webhook_secret')
-        self.set_values()
-        # set_values registers when the token changed or nothing was
-        # registered; only register again when it did not just succeed, so
-        # Telegram is not asked twice in a row (flood control)
-        if ICP.get_param('auth_telegram.webhook_secret') == secret_before:
-            self.env['telegram.bot']._set_webhook()
+        # save the form without the automatic registration, then ask
+        # Telegram exactly once whatever the outcome (flood control)
+        self.with_context(auth_telegram_skip_webhook=True).set_values()
+        self.env['telegram.bot']._set_webhook()
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_auth_telegram_check_webhook(self):
