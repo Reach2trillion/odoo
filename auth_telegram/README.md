@@ -182,10 +182,12 @@ legacy widget is never used as a fallback: it only runs when it is the selected
 method (chosen in Settings, or selected by the upgrade from a version before
 3.0 for databases that only had a bot configured), and its callback only
 accepts payloads requested by the same browser session. A failed *Check
-Status* because Telegram could not be reached at that moment does not hide the
-chat login: the registration is kept and the failed check is shown after it.
-When Telegram answers but refuses (wrong or revoked bot token), the chat login
-is hidden until the token is fixed.
+Status* without a usable answer from Telegram (unreachable, rate limited, a
+Telegram-side error) does not hide the chat login: the registration is kept
+and the failed check is shown after it. When Telegram answers that the request
+itself is refused (Unauthorized / Not Found: a wrong or revoked bot token), the
+chat login is hidden until the token is fixed and the settings are saved
+again.
 
 ## Notes
 

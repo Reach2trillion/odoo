@@ -145,10 +145,11 @@ def _redact(exc, token):
 
 
 def _api_call(token, method, payload):
-    """ Call a Bot API method, never raises. Returns the `result`, None when
-        Telegram could not be reached (no answer at all), False when Telegram
-        answered and refused (bad token, bad request...). Callers that only
-        need success test the truth value. """
+    """ Call a Bot API method, never raises. Returns the `result`; None when
+        there is no usable answer (unreachable, not JSON, rate limited, a
+        Telegram-side 5xx); False when Telegram answered and refused the
+        request itself (wrong or revoked token, bad request...). Callers that
+        only need success test the truth value. """
     try:
         response = requests.post(TELEGRAM_API % (token, method), json=payload, timeout=TIMEOUT)
         data = response.json()
@@ -156,8 +157,16 @@ def _api_call(token, method, payload):
         # never log the exception object / traceback itself: it contains the token
         _logger.warning("Telegram API %s failed: %s", method, _redact(e, token))
         return None
+    if not isinstance(data, dict):
+        _logger.warning("Telegram API %s: unexpected answer", method)
+        return None
     if not data.get('ok'):
         _logger.warning("Telegram API %s refused: %s", method, data.get('description'))
+        code = data.get('error_code')
+        if code == 429 or (isinstance(code, int) and code >= 500):
+            # flood control / Telegram-side failure: says nothing about the
+            # token or the registration, same as no answer at all
+            return None
         return False
     return data.get('result', True)
 
@@ -193,7 +202,8 @@ class TelegramBot(models.AbstractModel):
     @api.model
     def _api(self, method, **payload):
         """ Call a Bot API method, never raises: the `result`, None when
-            Telegram was unreachable, False when it refused (see _api_call). """
+            there was no usable answer, False when Telegram refused the
+            request or no token is configured (see _api_call). """
         token = self._token()
         if not token:
             return False
@@ -271,8 +281,14 @@ class TelegramBot(models.AbstractModel):
         secret = secrets.token_urlsafe(32)
         result = self._api('setWebhook', url=url, secret_token=secret,
                            allowed_updates=['message', 'callback_query'])
+        if result is None:
+            # no usable answer: an earlier registration, if any, is untouched
+            # at Telegram, but which secret it uses is no longer certain
+            status = "Registration failed: could not reach Telegram (see server log)"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
         if not result:
-            status = "Registration failed: Telegram refused the webhook (see server log)"
+            status = "Registration failed: Telegram refused the webhook, check the bot token (see server log)"
             ICP.set_param('auth_telegram.webhook_status', status)
             return False, status
         ICP.set_param('auth_telegram.webhook_secret', secret)
@@ -289,6 +305,10 @@ class TelegramBot(models.AbstractModel):
     @api.model
     def _check_webhook(self):
         ICP = self.env['ir.config_parameter'].sudo()
+        if not self._token():
+            status = "Not registered: bot token is not configured"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return status
         info = self._api('getWebhookInfo')
         if info is None and self._webhook_registered():
             # no answer at all (network, proxy, Telegram down): that says
@@ -300,8 +320,9 @@ class TelegramBot(models.AbstractModel):
         elif info is None:
             status = "Could not reach Telegram (see server log)"
         elif not info:
-            # Telegram answered and refused: the token is wrong or revoked,
-            # so the bot cannot work at all. Hides the chat login.
+            # Telegram answered and refused the request itself (Unauthorized
+            # / Not Found): the token is wrong or revoked, so the bot cannot
+            # work at all. Hides the chat login until the token is fixed.
             status = "Telegram refused the request: check the bot token (see server log)"
         elif not info.get('url'):
             status = "Not registered"
