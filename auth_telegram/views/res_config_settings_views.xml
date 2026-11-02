@@ -12,12 +12,8 @@
                          help="Let users sign in (and sign up) with their Telegram account.">
                     <div class="content-group">
                         <div class="row mt8">
-                            <label for="auth_telegram_client_id" string="Client ID" class="col-lg-3 o_light_label"/>
-                            <field name="auth_telegram_client_id" placeholder="e.g. 123456789"/>
-                        </div>
-                        <div class="row">
-                            <label for="auth_telegram_client_secret" string="Client Secret" class="col-lg-3 o_light_label"/>
-                            <field name="auth_telegram_client_secret" password="True"/>
+                            <label for="auth_telegram_login_mode" string="Login Method" class="col-lg-3 o_light_label"/>
+                            <field name="auth_telegram_login_mode"/>
                         </div>
                         <div class="row mt8">
                             <label for="auth_telegram_bot_username" string="Bot Username" class="col-lg-3 o_light_label"/>
@@ -27,12 +23,58 @@
                             <label for="auth_telegram_bot_token" string="Bot Token" class="col-lg-3 o_light_label"/>
                             <field name="auth_telegram_bot_token" password="True" placeholder="e.g. 123456789:AbCdEfGh..."/>
                         </div>
-                        <div class="mt8 text-muted">
-                            In @BotFather, open your bot's Web Login settings and switch to
-                            OpenID Connect Login, register your callback URL
-                            (https://yourdomain/auth/telegram/callback) and your domain as
-                            trusted origin, then copy the Client ID and Client Secret here.
-                            The Bot Token is still used for Telegram notifications.
+
+                        <!-- chat login: webhook + phone request -->
+                        <div invisible="auth_telegram_login_mode != 'bot'">
+                            <div class="row mt8">
+                                <label for="auth_telegram_webhook_url" string="Webhook" class="col-lg-3 o_light_label"/>
+                                <field name="auth_telegram_webhook_url" readonly="1" class="text-muted"/>
+                            </div>
+                            <div class="row">
+                                <label for="auth_telegram_webhook_status" string="Status" class="col-lg-3 o_light_label"/>
+                                <field name="auth_telegram_webhook_status" readonly="1"/>
+                            </div>
+                            <div class="mt8">
+                                <button type="object" name="action_auth_telegram_register_webhook"
+                                        string="Register Webhook" class="btn-link" icon="oi-arrow-right"/>
+                                <button type="object" name="action_auth_telegram_check_webhook"
+                                        string="Check Status" class="btn-link" icon="fa-refresh"/>
+                                <button type="object" name="action_auth_telegram_remove_webhook"
+                                        string="Remove" class="btn-link text-danger" icon="fa-times"/>
+                            </div>
+                            <div class="mt8">
+                                <field name="auth_telegram_bot_request_phone" class="me-2"/>
+                                <label for="auth_telegram_bot_request_phone"/>
+                            </div>
+                            <div class="mt8 text-muted">
+                                The customer taps "Log in with Telegram", the bot asks them to confirm,
+                                and they are signed in. Requires a public https:// web.base.url so
+                                Telegram can call the webhook; the webhook is registered automatically
+                                when you save.
+                            </div>
+                        </div>
+
+                        <!-- OpenID Connect -->
+                        <div invisible="auth_telegram_login_mode != 'oidc'">
+                            <div class="row mt8">
+                                <label for="auth_telegram_client_id" string="Client ID" class="col-lg-3 o_light_label"/>
+                                <field name="auth_telegram_client_id" placeholder="e.g. 123456789"/>
+                            </div>
+                            <div class="row">
+                                <label for="auth_telegram_client_secret" string="Client Secret" class="col-lg-3 o_light_label"/>
+                                <field name="auth_telegram_client_secret" password="True"/>
+                            </div>
+                            <div class="mt8 text-muted">
+                                In @BotFather, open your bot's Web Login settings and switch to
+                                OpenID Connect Login, register your callback URL
+                                (https://yourdomain/auth/telegram/callback) and your domain as
+                                trusted origin, then copy the Client ID and Client Secret here.
+                            </div>
+                        </div>
+
+                        <div invisible="auth_telegram_login_mode != 'widget'" class="mt8 text-muted">
+                            The Login Widget is deprecated by Telegram and only works for bots that
+                            were never switched to OpenID Connect. Requires /setdomain in @BotFather.
                         </div>
                     </div>
                 </setting>

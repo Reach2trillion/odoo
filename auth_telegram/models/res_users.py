@@ -68,14 +68,26 @@ class ResUsers(models.Model):
 
     @api.model
     def _auth_telegram_mode(self):
-        """ 'oidc' when Client ID/Secret are configured (current Telegram
-            login), 'widget' when only the legacy bot username/token pair is
-            configured, False when Telegram login is not configured. """
+        """ Active login flow:
+            - 'bot': the user confirms the login in the bot chat (/start),
+              needs the bot token + username
+            - 'oidc': Telegram OpenID Connect, needs Client ID/Secret
+            - 'widget': legacy Login Widget (deprecated by Telegram)
+            - False: not configured
+        """
         ICP = self.env['ir.config_parameter'].sudo()
-        if ICP.get_param('auth_telegram.client_id') and ICP.get_param('auth_telegram.client_secret'):
+        has_bot = bool(ICP.get_param('auth_telegram.bot_token') and ICP.get_param('auth_telegram.bot_username'))
+        has_oidc = bool(ICP.get_param('auth_telegram.client_id') and ICP.get_param('auth_telegram.client_secret'))
+        mode = ICP.get_param('auth_telegram.login_mode')
+        if mode in ('bot', 'widget') and has_bot:
+            return mode
+        if mode == 'oidc' and has_oidc:
             return 'oidc'
-        if ICP.get_param('auth_telegram.bot_token') and ICP.get_param('auth_telegram.bot_username'):
-            return 'widget'
+        if not mode:
+            if has_bot:
+                return 'bot'
+            if has_oidc:
+                return 'oidc'
         return False
 
     @api.model
@@ -209,7 +221,16 @@ class ResUsers(models.Model):
     @api.model
     def _auth_telegram_signin(self, validation):
         """ Return the user matching a validated Telegram identity together
-            with a fresh single-use login token. When no user matches and
+            with a fresh single-use login token.
+            :raise AccessDenied: no matching user and sign up not allowed
+        """
+        user = self._auth_telegram_get_or_create_user(validation)
+        return user, user._auth_telegram_issue_token()
+
+    @api.model
+    def _auth_telegram_get_or_create_user(self, validation):
+        """ Return the (sudo) user matching a validated Telegram identity,
+            syncing username / phone / photo / tag. When no user matches and
             free sign up is enabled, a new user is created on the fly.
             :raise AccessDenied: no matching user and sign up not allowed
         """
@@ -219,21 +240,28 @@ class ResUsers(models.Model):
             user = self.sudo()._auth_telegram_signup(validation)
         if not user or not user.active:
             raise AccessDenied()
-        key = secrets.token_urlsafe(32)
-        values = {
-            'telegram_token_hash': hashlib.sha256(key.encode()).hexdigest(),
-            'telegram_token_expiration': fields.Datetime.now() + timedelta(seconds=TELEGRAM_TOKEN_VALIDITY),
-        }
+        values = {}
         if user.telegram_username != (validation.get('username') or False):
             values['telegram_username'] = validation.get('username') or False
         if validation.get('phone') and user.telegram_phone != validation['phone']:
             values['telegram_phone'] = validation['phone']
-        user.write(values)
+        if values:
+            user.write(values)
         if validation.get('phone') and not user.partner_id.phone:
             user.partner_id.phone = validation['phone']
         user._auth_telegram_apply_photo(validation)
         user._auth_telegram_apply_tag()
-        return user, key
+        return user
+
+    def _auth_telegram_issue_token(self):
+        """ Store a fresh single-use login token (hashed) and return it. """
+        self.ensure_one()
+        key = secrets.token_urlsafe(32)
+        self.sudo().write({
+            'telegram_token_hash': hashlib.sha256(key.encode()).hexdigest(),
+            'telegram_token_expiration': fields.Datetime.now() + timedelta(seconds=TELEGRAM_TOKEN_VALIDITY),
+        })
+        return key
 
     @api.model
     def _auth_telegram_signup(self, validation):
@@ -323,15 +351,18 @@ class ResUsers(models.Model):
             was itself taken from Telegram. """
         self.ensure_one()
         url = validation.get('picture')
+        # the Bot API download URL embeds the bot token: remember a stable
+        # key instead so the token never lands in the database
+        key = validation.get('picture_key') or url
         try:
-            if not url or url == self.telegram_photo_url:
+            if not url or key == self.telegram_photo_url:
                 return
             if self.partner_id.image_1920 and not self.telegram_photo_url:
                 return  # manually uploaded avatar, leave it alone
             image = self._auth_telegram_fetch_photo(url)
             if image:
                 self.partner_id.image_1920 = image
-                self.telegram_photo_url = url
+                self.telegram_photo_url = key
         except Exception:
             _logger.warning("Telegram: could not apply profile photo for user %s",
                             self.id, exc_info=True)

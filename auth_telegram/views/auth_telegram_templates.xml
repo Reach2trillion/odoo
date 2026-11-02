@@ -89,4 +89,75 @@
         </t>
     </template>
 
+    <!-- Chat login: waiting page while the user confirms in the Telegram bot -->
+    <template id="bot_login_page" name="Telegram Chat Login">
+        <t t-call="web.login_layout">
+            <div class="text-center o_auth_telegram_bot" t-att-data-token="token"
+                 t-att-data-complete-url="'/auth/telegram/complete?token=' + token">
+                <h5 class="mb-2">
+                    <t t-if="is_link">Link with Telegram</t>
+                    <t t-else="">Log in with Telegram</t>
+                </h5>
+                <p class="text-muted small mb-3">
+                    1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
+                </p>
+                <a t-att-href="deeplink" target="_blank" rel="noopener" role="button"
+                   class="btn w-100 text-white fw-bold mb-3"
+                   style="background-color: #54a9eb;">
+                    <i class="fa fa-paper-plane me-2" role="img" aria-label="Telegram"/>Open Telegram
+                </a>
+                <div class="d-none d-md-block mb-3">
+                    <img t-att-src="qr_url" alt="QR code" width="180" height="180"
+                         class="border rounded p-1 bg-white"/>
+                    <div class="text-muted small mt-1">or scan with your phone's camera</div>
+                </div>
+                <div id="o_auth_telegram_status" class="text-muted small">
+                    <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Waiting"/>
+                    Waiting for your confirmation in Telegram (@<t t-esc="bot_username"/>)&#8230;
+                </div>
+                <div id="o_auth_telegram_cancelled" class="alert alert-warning mt-3" hidden="hidden">
+                    Login cancelled in Telegram.
+                    <a href="/auth/telegram/login">Try again</a>
+                </div>
+                <div id="o_auth_telegram_expired" class="alert alert-warning mt-3" hidden="hidden">
+                    This login request has expired.
+                    <a href="/auth/telegram/login">Try again</a>
+                </div>
+                <div class="mt-3">
+                    <a t-att-href="home_url" class="btn btn-link btn-sm">Back</a>
+                </div>
+            </div>
+            <script type="text/javascript">
+                (function () {
+                    var root = document.querySelector('.o_auth_telegram_bot');
+                    if (!root) { return; }
+                    var token = root.getAttribute('data-token');
+                    var completeUrl = root.getAttribute('data-complete-url');
+                    var statusEl = document.getElementById('o_auth_telegram_status');
+                    var delay = 2000;
+                    function show(id) {
+                        statusEl.hidden = true;
+                        document.getElementById(id).hidden = false;
+                    }
+                    function poll() {
+                        fetch('/auth/telegram/status?token=' + encodeURIComponent(token), {
+                            credentials: 'same-origin', cache: 'no-store',
+                        }).then(function (r) { return r.json(); }).then(function (data) {
+                            if (data.state === 'confirmed') {
+                                window.location.href = completeUrl;
+                            } else if (data.state === 'cancelled') {
+                                show('o_auth_telegram_cancelled');
+                            } else if (data.state === 'expired' || data.state === 'invalid' || data.state === 'done') {
+                                show('o_auth_telegram_expired');
+                            } else {
+                                setTimeout(poll, delay);
+                            }
+                        }).catch(function () { setTimeout(poll, delay * 2); });
+                    }
+                    setTimeout(poll, delay);
+                })();
+            </script>
+        </t>
+    </template>
+
 </odoo>

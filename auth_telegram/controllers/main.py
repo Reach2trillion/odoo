@@ -1,9 +1,11 @@
 # Part of the auth_telegram module. License LGPL-3.
 import base64
 import hashlib
+import hmac
+import json
 import logging
 import secrets
-from urllib.parse import urlencode, urljoin
+from urllib.parse import quote as urlquote, urlencode, urljoin
 
 from odoo import api, http, SUPERUSER_ID, _
 from odoo.exceptions import AccessDenied
@@ -11,6 +13,7 @@ from odoo.http import request
 from odoo.modules.registry import Registry
 from odoo.addons.web.controllers.home import Home
 from odoo.addons.web.controllers.utils import ensure_db
+from odoo.addons.auth_telegram.models.auth_telegram_login import LOGIN_REQUEST_MAX_USES
 
 _logger = logging.getLogger(__name__)
 
@@ -39,7 +42,7 @@ class TelegramAuthHome(Home):
         values = {}
         mode = request.env['res.users'].sudo()._auth_telegram_mode()
         redirect = request.params.get('redirect')
-        if mode == 'oidc':
+        if mode in ('bot', 'oidc'):
             login_url = '/auth/telegram/login'
             if redirect:
                 login_url = '%s?%s' % (login_url, urlencode({'redirect': redirect}))
@@ -64,14 +67,18 @@ class TelegramAuthController(http.Controller):
 
     @http.route('/auth/telegram/login', type='http', auth='public', methods=['GET'])
     def telegram_login_start(self, redirect=None, link=None, **kw):
-        """ Start the OpenID Connect authorization code flow (with PKCE).
-            With `link`, the flow links the Telegram account to the already
-            logged-in user instead of signing in. """
+        """ Start a Telegram login: the bot chat flow or the OpenID Connect
+            authorization code flow (with PKCE). With `link`, the flow links
+            the Telegram account to the already logged-in user instead of
+            signing in. """
         Users = request.env['res.users'].sudo()
-        if Users._auth_telegram_mode() != 'oidc':
+        mode = Users._auth_telegram_mode()
+        if mode not in ('bot', 'oidc'):
             return request.redirect('/web/login')
         if link and not request.session.uid:
             return request.redirect('/web/login')
+        if mode == 'bot':
+            return self._telegram_bot_login_start(redirect, link)
         verifier = secrets.token_urlsafe(64)
         challenge = base64.urlsafe_b64encode(
             hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
@@ -87,6 +94,89 @@ class TelegramAuthController(http.Controller):
         url = Users._auth_telegram_oidc_authorize_url(
             _telegram_callback_uri(), state, nonce, challenge)
         return request.redirect(url, local=False)
+
+    # ------------------------------------------------------------------
+    # bot chat flow (/start in Telegram)
+    # ------------------------------------------------------------------
+
+    def _telegram_bot_login_start(self, redirect, link):
+        bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
+        login = request.env['auth.telegram.login'].sudo()._create_request(
+            redirect=redirect, link_uid=request.session.uid if link else False)
+        deeplink = 'https://t.me/%s?start=%s' % (bot_username, login.token)
+        user = request.env.user if request.session.uid else None
+        return request.render('auth_telegram.bot_login_page', {
+            'token': login.token,
+            'deeplink': deeplink,
+            'qr_url': '/report/barcode/QR/%s?width=180&height=180' % urlquote(deeplink, safe=''),
+            'bot_username': bot_username,
+            'is_link': bool(link),
+            'home_url': ('/odoo' if user._is_internal() else '/my') if user else '/web/login',
+            'disable_database_manager': True,
+            'disable_footer': True,
+        })
+
+    @http.route('/auth/telegram/status', type='http', auth='public', methods=['GET'], save_session=False)
+    def telegram_status(self, token=None, **kw):
+        """ Polled by the login page while the user confirms in Telegram. """
+        login = request.env['auth.telegram.login'].sudo()._get_by_token(token)
+        response = request.make_json_response({'state': login.state if login else 'invalid'})
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+
+    @http.route('/auth/telegram/complete', type='http', auth='none', methods=['GET'])
+    def telegram_complete(self, token=None, **kw):
+        """ Final step of the chat flow: reached by the polling login page or
+            by the "Open App" button in Telegram once the user confirmed. """
+        ensure_db()
+        dbname = request.db
+        registry = Registry(dbname)
+        with registry.cursor() as cr:
+            env = api.Environment(cr, SUPERUSER_ID, {})
+            login = env['auth.telegram.login']._get_by_token(token, states=('confirmed',))
+            if not login or login.uses >= LOGIN_REQUEST_MAX_USES:
+                return request.redirect('/web/login?telegram_error=validation')
+            login.uses += 1
+            if login.uses >= LOGIN_REQUEST_MAX_USES:
+                login.state = 'done'
+            if login.link_user_id:
+                cr.commit()
+                if request.session.uid != login.link_user_id.id:
+                    # e.g. opened from Telegram's in-app browser without the session
+                    return request.redirect('/web/login?redirect=%s' % urlquote('/auth/telegram/link?success=linked'))
+                return request.redirect('/auth/telegram/link?success=linked')
+            user = login.user_id
+            if not user or not user.active:
+                return request.redirect('/web/login?telegram_error=no-account')
+            key = user._auth_telegram_issue_token()
+            login_name = user.login
+            redirect_url = self._telegram_safe_redirect(login.redirect, user)
+            cr.commit()
+        return self._telegram_authenticate(dbname, login_name, key, redirect_url)
+
+    @http.route('/auth/telegram/webhook', type='http', auth='public', methods=['POST'],
+                csrf=False, save_session=False)
+    def telegram_webhook(self, **kw):
+        """ Telegram Bot API webhook (messages and button callbacks). """
+        secret = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.webhook_secret') or ''
+        provided = request.httprequest.headers.get('X-Telegram-Bot-Api-Secret-Token') or ''
+        if not secret or not hmac.compare_digest(secret, provided):
+            return request.make_json_response({'ok': False, 'error': 'forbidden'}, status=403)
+        try:
+            update = json.loads(request.httprequest.get_data(as_text=True) or '{}')
+        except ValueError:
+            return request.make_json_response({'ok': False, 'error': 'bad json'}, status=400)
+        try:
+            with request.env.cr.savepoint():
+                request.env['telegram.bot'].sudo()._handle_update(update)
+        except Exception:
+            # always acknowledge, otherwise Telegram keeps re-sending the update
+            _logger.exception("Telegram webhook: error while handling update %s", update.get('update_id'))
+        return request.make_json_response({'ok': True})
+
+    # ------------------------------------------------------------------
+    # OpenID Connect callback (and legacy widget)
+    # ------------------------------------------------------------------
 
     @http.route('/auth/telegram/callback', type='http', auth='none', methods=['GET'])
     def telegram_callback(self, **kw):
@@ -211,7 +301,7 @@ class TelegramAuthController(http.Controller):
             'disable_database_manager': True,
             'disable_footer': True,
         }
-        if mode == 'oidc':
+        if mode in ('bot', 'oidc'):
             values['telegram_login_url'] = '/auth/telegram/login?link=1'
         else:
             nonce = secrets.token_urlsafe(24)
