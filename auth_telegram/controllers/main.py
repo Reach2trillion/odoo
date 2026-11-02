@@ -178,13 +178,20 @@ class TelegramAuthController(http.Controller):
         mode = Users._auth_telegram_mode()
         if mode not in ('bot', 'oidc'):
             return request.redirect('/web/login')
-        if link:
-            if not request.session.uid:
-                return request.redirect('/web/login?redirect=%s' % urlquote('/auth/telegram/link'))
-            if not self._telegram_identity_checked():
-                return request.redirect('/auth/telegram/link')
+        if link and not request.session.uid:
+            return request.redirect('/web/login?redirect=%s' % urlquote('/auth/telegram/link'))
+        if mode == 'bot' and kw.get('ended'):
+            # the request this browser was working on just ended: report it
+            # even when the identity re-check window of a link flow closed in
+            # the meantime (the page discloses nothing, creates nothing, and
+            # "Try again" goes through the check again)
+            page = self._telegram_bot_ended_page(link, kw['ended'])
+            if page is not None:
+                return page
+        if link and not self._telegram_identity_checked():
+            return request.redirect('/auth/telegram/link')
         if mode == 'bot':
-            return self._telegram_bot_login_start(redirect, link, kw.get('code_error'), kw.get('ended'))
+            return self._telegram_bot_login_start(redirect, link, kw.get('code_error'))
         verifier = secrets.token_urlsafe(64)
         challenge = base64.urlsafe_b64encode(
             hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
@@ -205,40 +212,56 @@ class TelegramAuthController(http.Controller):
     # bot chat flow (/start in Telegram)
     # ------------------------------------------------------------------
 
-    def _telegram_bot_login_start(self, redirect, link, code_error=None, ended=None):
+    def _telegram_session_request(self, link):
+        """ The chat login request this browser session is working on, in any
+            state, if it belongs to the same flow (login vs. link). """
+        Login = request.env['auth.telegram.login'].sudo()
+        link_uid = request.session.uid if link else False
+        login = Login._get_by_token(request.session.get(SESSION_LOGIN_KEY))
+        if login and (login.link_user_id.id or False) != (link_uid or False):
+            return Login.browse()
+        return login
+
+    def _telegram_home_url(self):
+        user = request.env.user if request.session.uid else None
+        return ('/odoo' if user._is_internal() else '/my') if user else '/web/login'
+
+    def _telegram_bot_ended_page(self, link, ended):
+        """ When the session's request just ended the way `ended` says (too
+            many wrong codes, expired while typing...): the waiting page
+            showing that outcome, without a new request; "Try again" creates
+            the next one. None when the flag does not match the request. """
+        login = self._telegram_session_request(link)
+        if not login or login.state not in ('cancelled', 'expired'):
+            return None
+        reason = login.cancel_reason if login.state == 'cancelled' else 'expired'
+        if reason != ended:
+            return None
+        return request.render('auth_telegram.bot_login_page', {
+            'deeplink': False,
+            'qr_src': False,
+            'bot_username': request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username'),
+            'is_link': bool(link),
+            'match_code': login.match_code,
+            'needs_code': False,
+            'attempts_left': 0,
+            'ended_alert': {'wrong_code': 'wrong_code', 'conflict': 'conflict',
+                            'expired': 'expired', 'stale': 'expired'}.get(reason, 'cancelled'),
+            'retry_url': self._telegram_wait_url(login),
+            'home_url': self._telegram_home_url(),
+            'disable_database_manager': True,
+            'disable_footer': True,
+        })
+
+    def _telegram_bot_login_start(self, redirect, link, code_error=None):
         ICP = request.env['ir.config_parameter'].sudo()
         bot_username = ICP.get_param('auth_telegram.bot_username')
         Login = request.env['auth.telegram.login'].sudo()
         link_uid = request.session.uid if link else False
-        user = request.env.user if request.session.uid else None
-        home_url = ('/odoo' if user._is_internal() else '/my') if user else '/web/login'
         # reuse the request this browser already started (page reload, coming
         # back from Telegram, wrong one-time code) so a confirmation already
         # given is not lost
-        login = Login._get_by_token(request.session.get(SESSION_LOGIN_KEY))
-        if login and (login.link_user_id.id or False) != (link_uid or False):
-            login = None
-        if login and ended and login.state in ('cancelled', 'expired'):
-            # the request this browser was working on just ended (too many
-            # wrong codes, expired while typing): say so instead of silently
-            # handing out a new request; "Try again" creates the next one
-            reason = login.cancel_reason if login.state == 'cancelled' else 'expired'
-            if reason == ended:
-                return request.render('auth_telegram.bot_login_page', {
-                    'deeplink': False,
-                    'qr_src': False,
-                    'bot_username': bot_username,
-                    'is_link': bool(link),
-                    'match_code': login.match_code,
-                    'needs_code': False,
-                    'attempts_left': 0,
-                    'ended_alert': {'wrong_code': 'wrong_code', 'conflict': 'conflict',
-                                    'expired': 'expired', 'stale': 'expired'}.get(reason, 'cancelled'),
-                    'retry_url': self._telegram_wait_url(login),
-                    'home_url': home_url,
-                    'disable_database_manager': True,
-                    'disable_footer': True,
-                })
+        login = self._telegram_session_request(link)
         if login and login.state not in ('pending', 'confirmed'):
             login = None
         if not login:
@@ -281,7 +304,7 @@ class TelegramAuthController(http.Controller):
             'attempts_left': attempts_left,
             'ended_alert': False,
             'retry_url': self._telegram_wait_url(login),
-            'home_url': home_url,
+            'home_url': self._telegram_home_url(),
             'disable_database_manager': True,
             'disable_footer': True,
         })

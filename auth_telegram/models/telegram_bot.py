@@ -145,14 +145,17 @@ def _redact(exc, token):
 
 
 def _api_call(token, method, payload):
-    """ Call a Bot API method. Returns the `result` or False, never raises. """
+    """ Call a Bot API method, never raises. Returns the `result`, None when
+        Telegram could not be reached (no answer at all), False when Telegram
+        answered and refused (bad token, bad request...). Callers that only
+        need success test the truth value. """
     try:
         response = requests.post(TELEGRAM_API % (token, method), json=payload, timeout=TIMEOUT)
         data = response.json()
     except (requests.RequestException, ValueError) as e:
         # never log the exception object / traceback itself: it contains the token
         _logger.warning("Telegram API %s failed: %s", method, _redact(e, token))
-        return False
+        return None
     if not data.get('ok'):
         _logger.warning("Telegram API %s refused: %s", method, data.get('description'))
         return False
@@ -189,7 +192,8 @@ class TelegramBot(models.AbstractModel):
 
     @api.model
     def _api(self, method, **payload):
-        """ Call a Bot API method. Returns the `result` or False, never raises. """
+        """ Call a Bot API method, never raises: the `result`, None when
+            Telegram was unreachable, False when it refused (see _api_call). """
         token = self._token()
         if not token:
             return False
@@ -286,15 +290,19 @@ class TelegramBot(models.AbstractModel):
     def _check_webhook(self):
         ICP = self.env['ir.config_parameter'].sudo()
         info = self._api('getWebhookInfo')
-        if not info:
-            if self._webhook_registered():
-                # a failed *read* says nothing about the registration, which
-                # Telegram keeps: stay registered (so the chat login stays
-                # offered) and show the failed check after it
-                status = ("Registered: %s — last status check failed: could not reach Telegram "
-                          "(check bot token / server log)" % self._webhook_url())
-            else:
-                status = "Could not reach Telegram (check bot token / server log)"
+        if info is None and self._webhook_registered():
+            # no answer at all (network, proxy, Telegram down): that says
+            # nothing about the registration, which Telegram keeps. Stay
+            # registered so the chat login stays offered, and show the
+            # failed check after it.
+            status = ("Registered: %s — last status check failed: could not reach Telegram "
+                      "(see server log)" % self._webhook_url())
+        elif info is None:
+            status = "Could not reach Telegram (see server log)"
+        elif not info:
+            # Telegram answered and refused: the token is wrong or revoked,
+            # so the bot cannot work at all. Hides the chat login.
+            status = "Telegram refused the request: check the bot token (see server log)"
         elif not info.get('url'):
             status = "Not registered"
         elif info['url'] != self._webhook_url():

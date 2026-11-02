@@ -173,14 +173,19 @@ Client Secret; the *Legacy Login Widget* needs the bot username and token. If
 the selected method is not complete (the webhook registration failed, the
 Client ID/Secret were cleared...), the module falls back to the other complete
 non-deprecated method (OpenID Connect or Telegram chat); when none is complete
-the "Log in with Telegram" button is hidden, and the *Status* line in Settings
-says why (a webhook refused by Telegram is also logged on the server). The
+the "Log in with Telegram" button is hidden. For the *Telegram chat* method the
+*Status* line in Settings reports the webhook registration (a webhook refused
+by Telegram is also logged on the server); a missing Bot Username, Bot Token,
+Client ID or Client Secret simply hides the button without a message, so check
+that those fields are filled in for the selected method. The
 legacy widget is never used as a fallback: it only runs when it is the selected
 method (chosen in Settings, or selected by the upgrade from a version before
 3.0 for databases that only had a bot configured), and its callback only
 accepts payloads requested by the same browser session. A failed *Check
-Status* (Telegram unreachable at that moment) does not hide the chat login:
-the registration is kept and the failed check is shown after it.
+Status* because Telegram could not be reached at that moment does not hide the
+chat login: the registration is kept and the failed check is shown after it.
+When Telegram answers but refuses (wrong or revoked bot token), the chat login
+is hidden until the token is fixed.
 
 ## Notes
 

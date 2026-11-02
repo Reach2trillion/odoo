@@ -66,7 +66,7 @@
                         <t t-else="">Telegram account ID <b t-esc="telegram_uid"/>.</t>
                     </p>
                 </t>
-                <t t-else="">
+                <t t-elif="not no_credential">
                     <p class="text-muted">
                         Link a Telegram account to <b t-esc="user_name"/> to sign in with one click.
                     </p>
@@ -160,7 +160,7 @@
                     <t t-if="is_link">Link with Telegram</t>
                     <t t-else="">Log in with Telegram</t>
                 </h5>
-                <t t-if="not ended_alert">
+                <div id="o_auth_telegram_steps" t-if="not ended_alert">
                     <p t-if="match_code" class="text-muted small mb-3">
                         1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
                         &#8594; 4. Type the code the bot sends you below
@@ -168,7 +168,7 @@
                     <p t-else="" class="text-muted small mb-3">
                         1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
                     </p>
-                </t>
+                </div>
                 <div id="o_auth_telegram_open" t-att-hidden="'hidden' if needs_code or ended_alert else None">
                     <a t-att-href="deeplink" target="_blank" rel="noopener" role="button"
                        class="btn w-100 text-white fw-bold mb-3"
@@ -243,6 +243,7 @@
                     if (!root) { return; }
                     var statusEl = document.getElementById('o_auth_telegram_status');
                     var openEl = document.getElementById('o_auth_telegram_open');
+                    var stepsEl = document.getElementById('o_auth_telegram_steps');
                     var formEl = document.getElementById('o_auth_telegram_code');
                     var noMessageEl = document.getElementById('o_auth_telegram_nomessage');
                     var codeShown = !!root.getAttribute('data-needs-code');
@@ -256,6 +257,7 @@
                         statusEl.hidden = true;
                         noMessageEl.hidden = true;
                         openEl.hidden = true;
+                        if (stepsEl) { stepsEl.hidden = true; }
                         document.getElementById(id).hidden = false;
                     }
                     function showCodeForm() {
