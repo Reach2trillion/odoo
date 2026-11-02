@@ -94,12 +94,12 @@ class ResUsers(models.Model):
                     _logger.info("Telegram login: method %r is not usable, falling back to %r", mode, fallback)
                     return fallback
             return False
-        # no explicit choice yet (database upgraded from an older version):
-        # keep the behaviour of those versions
+        # no method stored (parameters entered outside Settings; upgrades
+        # store one): the deprecated widget is only ever used when selected
         if has_oidc:
             return 'oidc'
-        if has_bot:
-            return 'widget'
+        if usable['bot']:
+            return 'bot'
         return False
 
     @api.model
@@ -209,7 +209,10 @@ class ResUsers(models.Model):
         data_check_string = '\n'.join('%s=%s' % (k, data[k]) for k in sorted(data))
         secret_key = hashlib.sha256(bot_token.encode()).digest()
         expected_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-        if not hmac.compare_digest(expected_hash, received_hash):
+        # the hash comes from the query string: compare bytes, compare_digest()
+        # raises on non-ASCII text
+        if not isinstance(received_hash, str) or not hmac.compare_digest(
+                expected_hash.encode(), received_hash.encode('utf-8', 'replace')):
             raise AccessDenied()
         try:
             auth_date = int(data['auth_date'])

@@ -28,9 +28,9 @@
             customer their own login link cannot get in without the customer handing the code over
             (the bot warns them never to).</li>
         <li>Self-service linking at <code>/auth/telegram/link</code>: users with a password re-enter
-            it first, accounts without one log in with their current Telegram again; the previously
-            linked Telegram account is notified when it is replaced or unlinked; an account that can
-            only sign in with Telegram cannot be unlinked.</li>
+            it first, accounts without one log in with their current Telegram again (an account with
+            neither sets a password first); the previously linked Telegram account is notified when it
+            is replaced or unlinked; an account that can only sign in with Telegram cannot be unlinked.</li>
         <li>Single-use, hashed login tokens; the bot token is never written to the logs.</li>
     </ul>
     <h3>Setup (Telegram chat login)</h3>

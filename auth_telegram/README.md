@@ -71,8 +71,8 @@ Messages are bilingual English / Khmer; edit the `MSG_*` constants in
 
 With *One-time code* enabled in Settings, the bot sends a six-digit code
 **after** the customer taps Yes, and the website where the login was started
-asks for it (three attempts, then the request is cancelled and the customer is
-told in Telegram). The code is never sent to the browser. Someone who sends a
+asks for it (three attempts, then the request is cancelled and both the website
+and the Telegram chat say so). The code is never sent to the browser. Someone who sends a
 customer their own login link ("open this and tap Yes") therefore still cannot
 get in: the code only appears in the customer's Telegram, together with a
 warning never to share it, and only the attacker's browser could use it. This
@@ -91,7 +91,12 @@ adds or removes a way to sign in, users who have a password must re-enter it
 first (valid for 10 minutes, like Odoo's own identity check); accounts without
 a password (created by the Telegram sign up) must log in with their currently
 linked Telegram account again (same 10 minute window), so an unattended
-logged-in browser cannot be used to take over the account. The Telegram
+logged-in browser cannot be used to take over the account. An account with
+neither a password nor a linked Telegram account (a user signed in through
+another SSO module, or whose link an administrator removed) has nothing to
+confirm with and cannot link one from this page: the user sets a password
+first (the page offers the password reset when it is available) or asks an
+administrator to link the account. The Telegram
 account that was linked before is notified when it is unlinked or replaced.
 An account that can only sign in with Telegram (no password, and no e-mail
 address or the public password reset disabled) cannot be unlinked, only
@@ -168,11 +173,14 @@ Client Secret; the *Legacy Login Widget* needs the bot username and token. If
 the selected method is not complete (the webhook registration failed, the
 Client ID/Secret were cleared...), the module falls back to the other complete
 non-deprecated method (OpenID Connect or Telegram chat); when none is complete
-the "Log in with Telegram" button is hidden and the server log says why. The
+the "Log in with Telegram" button is hidden, and the *Status* line in Settings
+says why (a webhook refused by Telegram is also logged on the server). The
 legacy widget is never used as a fallback: it only runs when it is the selected
 method (chosen in Settings, or selected by the upgrade from a version before
 3.0 for databases that only had a bot configured), and its callback only
-accepts payloads requested by the same browser session.
+accepts payloads requested by the same browser session. A failed *Check
+Status* (Telegram unreachable at that moment) does not hide the chat login:
+the registration is kept and the failed check is shown after it.
 
 ## Notes
 

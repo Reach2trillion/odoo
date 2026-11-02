@@ -103,6 +103,17 @@
                                 data-request-access="write"/>
                     </div>
                 </t>
+                <!-- neither a password nor a linked Telegram account: nothing to confirm with -->
+                <t t-elif="no_credential">
+                    <p class="text-muted small">
+                        This account has no password and no linked Telegram account, so a Telegram
+                        account cannot be linked from here.
+                        <t t-if="can_set_password">Set a password first, then come back to this page.</t>
+                        <t t-else="">Please ask an administrator to link your Telegram account.</t>
+                    </p>
+                    <a t-if="can_set_password" href="/web/reset_password" role="button"
+                       class="btn btn-primary my-3">Set a password</a>
+                </t>
                 <t t-else="">
                     <t t-if="telegram_uid">
                         <form t-if="can_unlink" action="/auth/telegram/unlink" method="post" class="mb-3">
@@ -143,19 +154,22 @@
     <!-- Chat login: waiting page while the user confirms in the Telegram bot -->
     <template id="bot_login_page" name="Telegram Chat Login">
         <t t-call="web.login_layout">
-            <div class="text-center o_auth_telegram_bot" t-att-data-needs-code="'1' if needs_code else None">
+            <div class="text-center o_auth_telegram_bot" t-att-data-needs-code="'1' if needs_code else None"
+                 t-att-data-ended="'1' if ended_alert else None">
                 <h5 class="mb-2">
                     <t t-if="is_link">Link with Telegram</t>
                     <t t-else="">Log in with Telegram</t>
                 </h5>
-                <p t-if="match_code" class="text-muted small mb-3">
-                    1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
-                    &#8594; 4. Type the code the bot sends you below
-                </p>
-                <p t-else="" class="text-muted small mb-3">
-                    1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
-                </p>
-                <div id="o_auth_telegram_open" t-att-hidden="'hidden' if needs_code else None">
+                <t t-if="not ended_alert">
+                    <p t-if="match_code" class="text-muted small mb-3">
+                        1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
+                        &#8594; 4. Type the code the bot sends you below
+                    </p>
+                    <p t-else="" class="text-muted small mb-3">
+                        1. Open Telegram &#8594; 2. Tap <b>Start</b> &#8594; 3. Tap <b>Yes, Login</b>
+                    </p>
+                </t>
+                <div id="o_auth_telegram_open" t-att-hidden="'hidden' if needs_code or ended_alert else None">
                     <a t-att-href="deeplink" target="_blank" rel="noopener" role="button"
                        class="btn w-100 text-white fw-bold mb-3"
                        style="background-color: #54a9eb;">
@@ -168,7 +182,7 @@
                     </div>
                 </div>
                 <div id="o_auth_telegram_status" class="text-muted small" role="status"
-                     t-att-hidden="'hidden' if needs_code else None">
+                     t-att-hidden="'hidden' if needs_code or ended_alert else None">
                     <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Waiting"/>
                     Waiting for your confirmation in Telegram (@<t t-esc="bot_username"/>)&#8230;
                 </div>
@@ -193,20 +207,25 @@
                     Telegram could not be reached to send you the confirmation. Open Telegram and tap
                     <b>Start</b> again, or <a t-att-href="retry_url">try again</a>.
                 </div>
-                <div id="o_auth_telegram_cancelled" class="alert alert-warning mt-3" hidden="hidden" role="alert">
+                <!-- outcome alerts: shown by the status poll, or server-side (ended_alert) -->
+                <div id="o_auth_telegram_cancelled" class="alert alert-warning mt-3" role="alert"
+                     t-att-hidden="None if ended_alert == 'cancelled' else 'hidden'">
                     <t t-if="is_link">Linking cancelled in Telegram.</t>
                     <t t-else="">Login cancelled in Telegram.</t>
                     <a t-att-href="retry_url">Try again</a>
                 </div>
-                <div id="o_auth_telegram_wrong_code" class="alert alert-warning mt-3" hidden="hidden" role="alert">
+                <div id="o_auth_telegram_wrong_code" class="alert alert-warning mt-3" role="alert"
+                     t-att-hidden="None if ended_alert == 'wrong_code' else 'hidden'">
                     Too many wrong codes, this request was cancelled.
                     <a t-att-href="retry_url">Try again</a>
                 </div>
-                <div id="o_auth_telegram_conflict" class="alert alert-warning mt-3" hidden="hidden" role="alert">
+                <div id="o_auth_telegram_conflict" class="alert alert-warning mt-3" role="alert"
+                     t-att-hidden="None if ended_alert == 'conflict' else 'hidden'">
                     This link was opened by another Telegram account, so the request was cancelled.
                     <a t-att-href="retry_url">Try again</a>
                 </div>
-                <div id="o_auth_telegram_expired" class="alert alert-warning mt-3" hidden="hidden" role="alert">
+                <div id="o_auth_telegram_expired" class="alert alert-warning mt-3" role="alert"
+                     t-att-hidden="None if ended_alert == 'expired' else 'hidden'">
                     This request has expired.
                     <a t-att-href="retry_url">Try again</a>
                 </div>
@@ -228,9 +247,15 @@
                     var noMessageEl = document.getElementById('o_auth_telegram_nomessage');
                     var codeShown = !!root.getAttribute('data-needs-code');
                     var delay = 2000;
+                    if (root.getAttribute('data-ended')) {
+                        // the request already ended (outcome rendered by the server): nothing to poll
+                        return;
+                    }
                     function show(id) {
+                        // a finished request: the deep link / QR code must go with the spinner
                         statusEl.hidden = true;
                         noMessageEl.hidden = true;
+                        openEl.hidden = true;
                         document.getElementById(id).hidden = false;
                     }
                     function showCodeForm() {

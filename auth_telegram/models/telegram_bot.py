@@ -287,7 +287,14 @@ class TelegramBot(models.AbstractModel):
         ICP = self.env['ir.config_parameter'].sudo()
         info = self._api('getWebhookInfo')
         if not info:
-            status = "Could not reach Telegram (check bot token / server log)"
+            if self._webhook_registered():
+                # a failed *read* says nothing about the registration, which
+                # Telegram keeps: stay registered (so the chat login stays
+                # offered) and show the failed check after it
+                status = ("Registered: %s — last status check failed: could not reach Telegram "
+                          "(check bot token / server log)" % self._webhook_url())
+            else:
+                status = "Could not reach Telegram (check bot token / server log)"
         elif not info.get('url'):
             status = "Not registered"
         elif info['url'] != self._webhook_url():

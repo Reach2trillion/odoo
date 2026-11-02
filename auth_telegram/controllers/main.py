@@ -49,6 +49,14 @@ def _telegram_callback_uri():
     return urljoin(request.httprequest.url_root, '/auth/telegram/callback')
 
 
+def _token_matches(expected, provided):
+    """ Constant-time comparison of a session token with request input.
+        compare_digest() raises TypeError on non-ASCII str, and the input is
+        whatever the browser sent: compare bytes instead. """
+    return bool(expected) and isinstance(provided, str) and secrets.compare_digest(
+        expected.encode(), provided.encode('utf-8', 'replace'))
+
+
 def _telegram_widget_login_url(redirect=None):
     """ auth-url for the legacy Login Widget. The widget has no state
         parameter, so the signed payload Telegram sends back is tied to this
@@ -176,7 +184,7 @@ class TelegramAuthController(http.Controller):
             if not self._telegram_identity_checked():
                 return request.redirect('/auth/telegram/link')
         if mode == 'bot':
-            return self._telegram_bot_login_start(redirect, link, kw.get('code_error'))
+            return self._telegram_bot_login_start(redirect, link, kw.get('code_error'), kw.get('ended'))
         verifier = secrets.token_urlsafe(64)
         challenge = base64.urlsafe_b64encode(
             hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
@@ -197,16 +205,43 @@ class TelegramAuthController(http.Controller):
     # bot chat flow (/start in Telegram)
     # ------------------------------------------------------------------
 
-    def _telegram_bot_login_start(self, redirect, link, code_error=None):
+    def _telegram_bot_login_start(self, redirect, link, code_error=None, ended=None):
         ICP = request.env['ir.config_parameter'].sudo()
         bot_username = ICP.get_param('auth_telegram.bot_username')
         Login = request.env['auth.telegram.login'].sudo()
         link_uid = request.session.uid if link else False
+        user = request.env.user if request.session.uid else None
+        home_url = ('/odoo' if user._is_internal() else '/my') if user else '/web/login'
         # reuse the request this browser already started (page reload, coming
         # back from Telegram, wrong one-time code) so a confirmation already
         # given is not lost
-        login = Login._get_by_token(request.session.get(SESSION_LOGIN_KEY), states=('pending', 'confirmed'))
-        if not login or (login.link_user_id.id or False) != (link_uid or False):
+        login = Login._get_by_token(request.session.get(SESSION_LOGIN_KEY))
+        if login and (login.link_user_id.id or False) != (link_uid or False):
+            login = None
+        if login and ended and login.state in ('cancelled', 'expired'):
+            # the request this browser was working on just ended (too many
+            # wrong codes, expired while typing): say so instead of silently
+            # handing out a new request; "Try again" creates the next one
+            reason = login.cancel_reason if login.state == 'cancelled' else 'expired'
+            if reason == ended:
+                return request.render('auth_telegram.bot_login_page', {
+                    'deeplink': False,
+                    'qr_src': False,
+                    'bot_username': bot_username,
+                    'is_link': bool(link),
+                    'match_code': login.match_code,
+                    'needs_code': False,
+                    'attempts_left': 0,
+                    'ended_alert': {'wrong_code': 'wrong_code', 'conflict': 'conflict',
+                                    'expired': 'expired', 'stale': 'expired'}.get(reason, 'cancelled'),
+                    'retry_url': self._telegram_wait_url(login),
+                    'home_url': home_url,
+                    'disable_database_manager': True,
+                    'disable_footer': True,
+                })
+        if login and login.state not in ('pending', 'confirmed'):
+            login = None
+        if not login:
             httprequest = request.httprequest
             login = Login._create_request(
                 redirect=redirect, link_uid=link_uid,
@@ -235,7 +270,6 @@ class TelegramAuthController(http.Controller):
             attempts_left = 0
         if not 0 < attempts_left < CODE_MAX_ATTEMPTS:
             attempts_left = 0
-        user = request.env.user if request.session.uid else None
         return request.render('auth_telegram.bot_login_page', {
             'deeplink': deeplink,
             'qr_src': qr_src,
@@ -245,15 +279,18 @@ class TelegramAuthController(http.Controller):
             'match_code': login.match_code,
             'needs_code': login._needs_code(),
             'attempts_left': attempts_left,
+            'ended_alert': False,
             'retry_url': self._telegram_wait_url(login),
-            'home_url': ('/odoo' if user._is_internal() else '/my') if user else '/web/login',
+            'home_url': home_url,
             'disable_database_manager': True,
             'disable_footer': True,
         })
 
-    def _telegram_wait_url(self, login, attempts_left=None):
+    def _telegram_wait_url(self, login, attempts_left=None, ended=None):
         """ The waiting page of `login` (which /auth/telegram/login reuses while
-            the request is pending or confirmed). """
+            the request is pending or confirmed). With `ended` (a cancel reason
+            or 'expired'), the page reports that outcome instead of starting a
+            new request. """
         params = {}
         if login and login.link_user_id:
             params['link'] = '1'
@@ -261,6 +298,8 @@ class TelegramAuthController(http.Controller):
             params['redirect'] = login.redirect
         if attempts_left:
             params['code_error'] = str(attempts_left)
+        if ended:
+            params['ended'] = ended
         return '/auth/telegram/login' + ('?%s' % urlencode(params) if params else '')
 
     def _telegram_done_url(self, login):
@@ -311,8 +350,11 @@ class TelegramAuthController(http.Controller):
         if login:
             login._lock()
         if not login or not login._needs_code():
-            return request.redirect(self._telegram_wait_url(login))
-        if isinstance(code, str) and login.code and hmac.compare_digest(login.code, code.strip()):
+            return request.redirect(self._telegram_ended_url(login))
+        # six ASCII digits or nothing: compare_digest() raises on other text,
+        # and a malformed guess still counts as one
+        code = code.strip() if isinstance(code, str) else ''
+        if login.code and code.isascii() and code.isdigit() and hmac.compare_digest(login.code, code):
             login.code_verified = True
             return request.redirect('/auth/telegram/complete')
         login.code_attempts += 1
@@ -320,8 +362,29 @@ class TelegramAuthController(http.Controller):
         if attempts_left <= 0:
             login._cancel('wrong_code')
             request.env['telegram.bot'].sudo()._notify_wrong_code(login)
-            return request.redirect(self._telegram_wait_url(login))
+            return request.redirect(self._telegram_wait_url(login, ended='wrong_code'))
         return request.redirect(self._telegram_wait_url(login, attempts_left=attempts_left))
+
+    def _telegram_ended_url(self, login):
+        """ Where the code form should send a browser whose request is no
+            longer waiting for a code: on to the completion when it was
+            verified in another tab, to the outcome page when it ended, back
+            to the waiting page otherwise. """
+        if not login:
+            return self._telegram_wait_url(login)
+        if login.state == 'done':
+            return self._telegram_done_url(login)
+        if login.state == 'confirmed':
+            return '/auth/telegram/complete'
+        if login.state == 'cancelled':
+            if login.cancel_reason == 'no_account':
+                return '/web/login?telegram_error=no-account'
+            if login.cancel_reason == 'taken':
+                return '/auth/telegram/link?error=taken'
+            return self._telegram_wait_url(login, ended=login.cancel_reason or 'user')
+        if login.state == 'expired':
+            return self._telegram_wait_url(login, ended='expired')
+        return self._telegram_wait_url(login)
 
     @http.route('/auth/telegram/complete', type='http', auth='none', methods=['GET'], readonly=False)
     def telegram_complete(self, **kw):
@@ -439,8 +502,7 @@ class TelegramAuthController(http.Controller):
             if link_uid:
                 return request.redirect('/auth/telegram/link?error=failed')
             return request.redirect('/web/login?telegram_error=failed')
-        state = kw.get('state') or ''
-        if not flow.get('state') or not secrets.compare_digest(flow['state'], state):
+        if not _token_matches(flow.get('state'), kw.get('state')):
             return request.redirect('/web/login?telegram_error=validation')
 
         dbname = request.db
@@ -483,9 +545,7 @@ class TelegramAuthController(http.Controller):
         # the payload may only sign in the browser that rendered the widget;
         # pop first so it cannot be replayed against this session
         expected_nonce = request.session.pop('telegram_widget_nonce', None)
-        provided_nonce = kw.get('login_nonce')
-        if not (expected_nonce and isinstance(provided_nonce, str)
-                and secrets.compare_digest(expected_nonce, provided_nonce)):
+        if not _token_matches(expected_nonce, kw.get('login_nonce')):
             _logger.info("Telegram login: widget payload not bound to this session (remote %s)",
                          request.httprequest.remote_addr)
             return request.redirect('/web/login?telegram_error=session')
@@ -518,7 +578,7 @@ class TelegramAuthController(http.Controller):
     def _telegram_widget_link_callback(self, kw):
         expected_nonce = request.session.pop('telegram_link_nonce', None)
         uid = request.session.uid
-        if not (uid and expected_nonce and secrets.compare_digest(expected_nonce, kw['link_nonce'])):
+        if not (uid and _token_matches(expected_nonce, kw.get('link_nonce'))):
             return request.redirect('/web/login?telegram_error=validation')
         registry = Registry(request.db)
         with registry.cursor() as cr:
@@ -552,17 +612,24 @@ class TelegramAuthController(http.Controller):
             return request.redirect('/web/login')
         user = request.env.user
         has_password = self._telegram_has_password(user)
+        telegram_uid = user.sudo().telegram_uid
         identity_checked = self._telegram_identity_checked()
+        can_recover = self._telegram_can_recover(user)
         values = {
             'user_name': user.name,
             'telegram_username': user.sudo().telegram_username,
-            'telegram_uid': user.sudo().telegram_uid,
+            'telegram_uid': telegram_uid,
             'home_url': '/odoo' if user._is_internal() else '/my',
             'link_error': kw.get('error'),
             'link_success': kw.get('success'),
             'needs_password': not identity_checked and has_password,
-            'needs_telegram': not identity_checked and not has_password,
-            'can_unlink': self._telegram_can_recover(user),
+            'needs_telegram': not identity_checked and not has_password and bool(telegram_uid),
+            # neither a password nor a Telegram account to prove possession
+            # of (SSO user, link removed by an administrator): nothing this
+            # session could present, so it cannot add a login method
+            'no_credential': not identity_checked and not has_password and not telegram_uid,
+            'can_set_password': can_recover,
+            'can_unlink': can_recover,
             'disable_database_manager': True,
             'disable_footer': True,
         }
@@ -642,11 +709,12 @@ class TelegramAuthController(http.Controller):
         user = request.env.user
         if self._telegram_has_password(user):
             last = request.session.get('identity-check-last') or 0
-        elif user.sudo().telegram_uid:
-            last = request.session.get(SESSION_TELEGRAM_AUTH_KEY) or 0
         else:
-            # no password and no Telegram account yet: nothing to re-check against
-            return True
+            # proof of possession of the linked Telegram account. An account
+            # with neither credential has nothing to present and fails here,
+            # like Odoo's own check_identity: an unattended session must not
+            # be able to add a login method to it.
+            last = request.session.get(SESSION_TELEGRAM_AUTH_KEY) or 0
         return time.time() - last < IDENTITY_CHECK_VALIDITY
 
     def _telegram_authenticate(self, dbname, login, key, redirect_url):
