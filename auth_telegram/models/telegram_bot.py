@@ -144,31 +144,48 @@ def _redact(exc, token):
     return text.replace(token, '<token>') if token else text
 
 
-def _api_call(token, method, payload):
-    """ Call a Bot API method, never raises. Returns the `result`; None when
-        there is no usable answer (unreachable, not JSON, rate limited, a
-        Telegram-side 5xx); False when Telegram answered and refused the
-        request itself (wrong or revoked token, bad request...). Callers that
-        only need success test the truth value. """
+def _api_call_detail(token, method, payload):
+    """ Call a Bot API method, never raises. Returns (result, error_code,
+        description): `result` is the method's result; None when there is no
+        usable answer (unreachable, not JSON, rate limited, a Telegram-side
+        5xx); False when Telegram answered and refused the request itself
+        (wrong or revoked token, bad request...). error_code / description
+        are Telegram's, only set on a refusal. """
     try:
         response = requests.post(TELEGRAM_API % (token, method), json=payload, timeout=TIMEOUT)
         data = response.json()
     except (requests.RequestException, ValueError) as e:
         # never log the exception object / traceback itself: it contains the token
         _logger.warning("Telegram API %s failed: %s", method, _redact(e, token))
-        return None
+        return None, None, None
     if not isinstance(data, dict):
         _logger.warning("Telegram API %s: unexpected answer", method)
-        return None
+        return None, None, None
     if not data.get('ok'):
-        _logger.warning("Telegram API %s refused: %s", method, data.get('description'))
         code = data.get('error_code')
+        description = data.get('description')
+        _logger.warning("Telegram API %s refused: %s", method, description)
         if code == 429 or (isinstance(code, int) and code >= 500):
             # flood control / Telegram-side failure: says nothing about the
             # token or the registration, same as no answer at all
-            return None
-        return False
-    return data.get('result', True)
+            return None, code, description
+        return False, code, description
+    return data.get('result', True), None, None
+
+
+def _api_call(token, method, payload):
+    """ _api_call_detail without the error details: the `result`, None or
+        False. Callers that only need success test the truth value. """
+    return _api_call_detail(token, method, payload)[0]
+
+
+def _refusal_text(code, description):
+    """ Status wording for a refused request: a token problem is named as
+        such, anything else shows Telegram's own reason. """
+    if code in (401, 404):
+        return "check the bot token (see server log)"
+    text = str(description or '')[:200] if isinstance(description, str) else ''
+    return "%s (see server log)" % text if text else "(see server log)"
 
 
 def _message_payload(chat_id, text, reply_markup=None):
@@ -204,10 +221,15 @@ class TelegramBot(models.AbstractModel):
         """ Call a Bot API method, never raises: the `result`, None when
             there was no usable answer, False when Telegram refused the
             request or no token is configured (see _api_call). """
+        return self._api_detail(method, **payload)[0]
+
+    @api.model
+    def _api_detail(self, method, **payload):
+        """ _api with Telegram's error code and description: see _api_call_detail. """
         token = self._token()
         if not token:
-            return False
-        return _api_call(token, method, payload)
+            return False, None, None
+        return _api_call_detail(token, method, payload)
 
     @api.model
     def _send_message(self, chat_id, text, reply_markup=None):
@@ -279,8 +301,9 @@ class TelegramBot(models.AbstractModel):
             ICP.set_param('auth_telegram.webhook_status', status)
             return False, status
         secret = secrets.token_urlsafe(32)
-        result = self._api('setWebhook', url=url, secret_token=secret,
-                           allowed_updates=['message', 'callback_query'])
+        result, code, description = self._api_detail(
+            'setWebhook', url=url, secret_token=secret,
+            allowed_updates=['message', 'callback_query'])
         if result is None:
             # no usable answer: an earlier registration, if any, is untouched
             # at Telegram, but which secret it uses is no longer certain
@@ -288,7 +311,9 @@ class TelegramBot(models.AbstractModel):
             ICP.set_param('auth_telegram.webhook_status', status)
             return False, status
         if not result:
-            status = "Registration failed: Telegram refused the webhook, check the bot token (see server log)"
+            # a wrong token, or a URL Telegram cannot use (port, unresolvable
+            # host...): say which, the administrator fixes different things
+            status = "Registration failed: Telegram refused the webhook, %s" % _refusal_text(code, description)
             ICP.set_param('auth_telegram.webhook_status', status)
             return False, status
         ICP.set_param('auth_telegram.webhook_secret', secret)
@@ -297,10 +322,28 @@ class TelegramBot(models.AbstractModel):
 
     @api.model
     def _delete_webhook(self):
+        """ Unregister the webhook. Returns (ok, status); the outcome is also
+            stored in the Status shown in Settings. The secret is only dropped
+            once Telegram confirmed the removal: until then Telegram keeps
+            delivering to the registration, and the status must not claim
+            otherwise. """
         ICP = self.env['ir.config_parameter'].sudo()
-        self._api('deleteWebhook')
+        if not self._token():
+            status = "Not removed: bot token is not configured"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
+        result, code, description = self._api_detail('deleteWebhook')
+        if result is None:
+            status = "Removal failed: could not reach Telegram (see server log)"
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
+        if not result:
+            status = "Removal failed: Telegram refused the request, %s" % _refusal_text(code, description)
+            ICP.set_param('auth_telegram.webhook_status', status)
+            return False, status
         ICP.set_param('auth_telegram.webhook_secret', False)
         ICP.set_param('auth_telegram.webhook_status', "Not registered")
+        return True, "Not registered"
 
     @api.model
     def _check_webhook(self):

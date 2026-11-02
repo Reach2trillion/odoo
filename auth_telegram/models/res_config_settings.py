@@ -93,8 +93,14 @@ class ResConfigSettings(models.TransientModel):
                 Bot._set_webhook()
 
     def action_auth_telegram_register_webhook(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        secret_before = ICP.get_param('auth_telegram.webhook_secret')
         self.set_values()
-        self.env['telegram.bot']._set_webhook()
+        # set_values registers when the token changed or nothing was
+        # registered; only register again when it did not just succeed, so
+        # Telegram is not asked twice in a row (flood control)
+        if ICP.get_param('auth_telegram.webhook_secret') == secret_before:
+            self.env['telegram.bot']._set_webhook()
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_auth_telegram_check_webhook(self):
