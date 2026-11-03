@@ -23,9 +23,17 @@
                         <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Waiting"/>
                         Waiting for your confirmation in Telegram (@<t t-esc="telegram_chat_bot"/>)&#8230;
                         <a id="o_auth_telegram_again" href="#" target="_blank" rel="noopener">Open Telegram again</a>
+                        <span class="d-none d-md-inline"> &#183;
+                            <a t-att-href="telegram_login_url">Telegram on your phone? Scan a QR code</a></span>
                     </div>
                     <div id="o_auth_telegram_nomsg" class="text-warning mt-1" hidden="hidden" role="alert">
                         Telegram could not send you the confirmation. Open Telegram and tap Start again.
+                    </div>
+                    <!-- a login confirmed in Telegram that still needs the one-time code:
+                         offered, never forced, so the login page stays usable -->
+                    <div id="o_auth_telegram_code" class="text-muted mt-1" hidden="hidden">
+                        Confirmed in Telegram.
+                        <a t-att-href="telegram_login_url">Type the one-time code the bot sent you</a>
                     </div>
                     <!-- why a request ended; the matching line is shown by the script -->
                     <div id="o_auth_telegram_ended" class="alert alert-warning py-2 mt-2 mb-0" hidden="hidden" role="alert">
@@ -42,19 +50,37 @@
                         var btn = document.getElementById('o_auth_telegram_btn');
                         if (!box || !btn || !window.fetch || !window.FormData) { return; }
                         var fallbackHref = btn.getAttribute('href');
+                        var redirect = box.getAttribute('data-redirect') || '';
+                        // this tab's own target (several login tabs share one request)
+                        var completeUrl = '/auth/telegram/complete' + (redirect ? '?redirect=' + encodeURIComponent(redirect) : '');
                         var waitEl = document.getElementById('o_auth_telegram_wait');
                         var againEl = document.getElementById('o_auth_telegram_again');
                         var noMsgEl = document.getElementById('o_auth_telegram_nomsg');
+                        var codeEl = document.getElementById('o_auth_telegram_code');
                         var endedEl = document.getElementById('o_auth_telegram_ended');
-                        var ready = false;
-                        var waiting = false;
+                        var ready = false;      // the button holds a Telegram link
+                        var waiting = false;    // polling after a tap (or a resumed login)
+                        var leaving = false;    // a navigation was started: do nothing more
+                        var linkDeadline = 0;   // when the current Telegram link expires (ms)
                         var pollTimer = null;
                         var refreshTimer = null;
+                        var pollGen = 0;
+                        var prepGen = 0;
 
+                        function go(url) {
+                            leaving = true;
+                            waiting = false;
+                            clearTimeout(pollTimer);
+                            clearTimeout(refreshTimer);
+                            window.location.href = url;
+                        }
                         function useFallback() {
                             ready = false;
                             btn.setAttribute('href', fallbackHref);
                             btn.removeAttribute('target');
+                        }
+                        function linkStale(margin) {
+                            return Date.now() > linkDeadline - margin * 1000;
                         }
                         function showEnded(reason) {
                             var spans = endedEl.querySelectorAll('span[data-reason]');
@@ -65,101 +91,131 @@
                         }
                         function stopWaiting() {
                             waiting = false;
+                            pollGen++;
                             clearTimeout(pollTimer);
                             waitEl.hidden = true;
                             noMsgEl.hidden = true;
                         }
+                        function schedulePoll(ms) {
+                            clearTimeout(pollTimer);
+                            pollTimer = setTimeout(poll, ms);
+                        }
                         function startWaiting() {
                             endedEl.hidden = true;
+                            codeEl.hidden = true;
                             waitEl.hidden = false;
                             clearTimeout(refreshTimer);
                             if (waiting) { return; }
                             waiting = true;
-                            pollTimer = setTimeout(poll, 2000);
+                            schedulePoll(2000);
                         }
-                        function prepare() {
+                        function scheduleRefresh(seconds) {
+                            clearTimeout(refreshTimer);
+                            refreshTimer = setTimeout(function () {
+                                // a hidden tab is refreshed when it becomes visible again
+                                if (document.visibilityState === 'visible') { prepare(false); }
+                            }, seconds * 1000);
+                        }
+                        function prepare(initial) {
+                            if (leaving) { return; }
+                            var gen = ++prepGen;
                             var body = new FormData();
                             body.append('csrf_token', box.getAttribute('data-csrf'));
-                            body.append('redirect', box.getAttribute('data-redirect') || '');
+                            body.append('redirect', redirect);
                             fetch('/auth/telegram/prepare', {
                                 method: 'POST', body: body, credentials: 'same-origin', cache: 'no-store',
                             }).then(function (r) { return r.json(); }).then(function (data) {
-                                if (data.state === 'done') {
-                                    window.location.href = data.redirect || '/web';
+                                if (leaving || gen !== prepGen) { return; }
+                                if (!data.deeplink) { useFallback(); return; }
+                                if (data.state === 'confirmed' ? data.needs_code : false) {
+                                    useFallback();
+                                    if (!waiting) { codeEl.hidden = false; }
                                     return;
                                 }
-                                if (!data.deeplink) { useFallback(); return; }
                                 btn.setAttribute('href', data.deeplink);
                                 btn.setAttribute('target', '_blank');
                                 btn.setAttribute('rel', 'noopener');
                                 againEl.setAttribute('href', data.deeplink);
                                 ready = true;
-                                if (data.state !== 'pending' || data.opened) {
+                                linkDeadline = Date.now() + (data.expires_in || 0) * 1000;
+                                if (initial ? (data.state !== 'pending' || data.opened) : false) {
                                     // this browser already started a login (page reloaded)
                                     startWaiting();
                                     return;
                                 }
-                                clearTimeout(refreshTimer);
-                                if (!waiting) {
-                                    // renew the link before it expires
-                                    var delay = Math.max((data.expires_in || 0) - 90, 30);
-                                    refreshTimer = setTimeout(prepare, delay * 1000);
-                                }
-                            }).catch(useFallback);
+                                if (!waiting) { scheduleRefresh(Math.max((data.expires_in || 0) - 90, 30)); }
+                            }).catch(function () { if (gen === prepGen) { useFallback(); } });
                         }
                         function poll() {
+                            if (leaving || !waiting) { return; }
+                            clearTimeout(pollTimer);
+                            var gen = ++pollGen;   // only the latest poll may act
                             fetch('/auth/telegram/status', {
                                 credentials: 'same-origin', cache: 'no-store',
                             }).then(function (r) { return r.json(); }).then(function (data) {
-                                if (!waiting) { return; }
+                                if (leaving || !waiting || gen !== pollGen) { return; }
                                 if (data.state === 'confirmed') {
-                                    if (data.needs_code) {
-                                        // one-time code: typed on the full page
-                                        window.location.href = fallbackHref;
-                                    } else {
-                                        window.location.href = '/auth/telegram/complete';
-                                    }
+                                    // one-time code: typed on the full page
+                                    go(data.needs_code ? fallbackHref : completeUrl);
                                     return;
                                 }
                                 if (data.state === 'done') {
-                                    window.location.href = data.redirect || '/web';
+                                    go(data.redirect || '/web');
                                     return;
                                 }
                                 if (data.state === 'cancelled') {
                                     if (data.reason === 'no_account') {
-                                        window.location.href = '/web/login?telegram_error=no-account';
+                                        go('/web/login?telegram_error=no-account');
                                         return;
                                     }
                                     stopWaiting();
                                     showEnded(data.reason === 'stale' ? 'expired' : (data.reason || 'user'));
-                                    prepare();
+                                    prepare(false);
                                     return;
                                 }
                                 if (data.state === 'expired' || data.state === 'invalid') {
                                     stopWaiting();
                                     showEnded('expired');
-                                    prepare();
+                                    prepare(false);
                                     return;
                                 }
                                 // pending: tell the customer when the bot could not send the prompt
                                 noMsgEl.hidden = !data.prompt_missing;
-                                pollTimer = setTimeout(poll, 2000);
+                                schedulePoll(2000);
                             }).catch(function () {
-                                if (waiting) { pollTimer = setTimeout(poll, 4000); }
+                                if (!leaving ? (waiting ? gen === pollGen : false) : false) { schedulePoll(4000); }
                             });
                         }
+                        function onVisible() {
+                            if (leaving) { return; }
+                            if (waiting) { poll(); return; }
+                            // coming back after a while: never offer an expired link
+                            if (ready ? linkStale(120) : false) { prepare(false); }
+                        }
 
-                        btn.addEventListener('click', function () {
+                        btn.addEventListener('click', function (ev) {
+                            if (!ready) { return; }   // the full page /auth/telegram/login
+                            if (linkStale(0)) {
+                                ev.preventDefault();
+                                go(fallbackHref);
+                                return;
+                            }
                             // the link itself opens Telegram; this page keeps waiting
-                            if (ready) { startWaiting(); }
+                            startWaiting();
                         });
                         document.addEventListener('visibilitychange', function () {
-                            // coming back from Telegram: check right away
-                            if (document.visibilityState === 'visible') {
-                                if (waiting) { clearTimeout(pollTimer); poll(); }
+                            if (document.visibilityState === 'visible') { onVisible(); }
+                        });
+                        window.addEventListener('pageshow', function (ev) {
+                            if (ev.persisted) {
+                                // restored from the back/forward cache: start over
+                                leaving = false;
+                                stopWaiting();
+                                useFallback();
+                                prepare(true);
                             }
                         });
-                        prepare();
+                        prepare(true);
                     })();
                 </script>
             </t>

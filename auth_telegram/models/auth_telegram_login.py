@@ -8,6 +8,9 @@ from odoo import api, fields, models
 
 # How long (seconds) a login request started on the website stays valid
 LOGIN_REQUEST_VALIDITY = 600
+# A request nobody opened in Telegram yet can be renewed in place (same token,
+# so every open login tab keeps a working link) up to this age (seconds)
+MAX_REQUEST_LIFETIME = 3600
 # Wrong one-time codes accepted on the website before the request is cancelled
 CODE_MAX_ATTEMPTS = 3
 # How long (seconds) the "Open website" button of the success message works
@@ -123,6 +126,26 @@ class AuthTelegramLogin(models.Model):
                             [self.id], log_exceptions=False)
         self.invalidate_recordset()
         return self
+
+    def _renew(self, min_validity):
+        """ Call after _lock(). Keep a request this browser is still using:
+            one in use (opened in Telegram, or confirmed) is kept as is; an
+            unopened pending one gets a later expiration with the same token,
+            within MAX_REQUEST_LIFETIME of its creation. Returns False when
+            the request cannot be used any more (it is then expired). """
+        self.ensure_one()
+        if self.state not in ('pending', 'confirmed'):
+            return False
+        if self.state == 'confirmed' or self.telegram_uid:
+            return True
+        now = fields.Datetime.now()
+        expiration = min(now + timedelta(seconds=LOGIN_REQUEST_VALIDITY),
+                         self.create_date + timedelta(seconds=MAX_REQUEST_LIFETIME))
+        if (expiration - now).total_seconds() < min_validity:
+            self.state = 'expired'
+            return False
+        self.expiration = expiration
+        return True
 
     def _seconds_left(self):
         """ Seconds until the request expires (0 when past). """

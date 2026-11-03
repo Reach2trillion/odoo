@@ -43,14 +43,21 @@ With "One-time code" enabled, after Yes:
 ```
 
 1. When the login page loads, it asks the server (`/auth/telegram/prepare`)
-   for a short-lived login request (10 minutes, renewed in the background) and
-   turns **Log in with Telegram** into its Telegram link: one tap opens
-   Telegram directly, and the login page itself shows "Waiting for your
-   confirmation in Telegram..." and polls the request status every 2 seconds.
-   The request is bound to the browser session; its token is only in the
-   session and in the Telegram link. Without JavaScript, and for the
-   one-time code, the button falls back to the full page
-   `/auth/telegram/login` (**Open Telegram** button, QR code on desktop).
+   for a short-lived login request (10 minutes) and turns **Log in with
+   Telegram** into its Telegram link: one tap opens Telegram directly, and the
+   login page itself shows "Waiting for your confirmation in Telegram..." and
+   polls the request status every 2 seconds. The request is bound to the
+   browser session (all login tabs of the browser share it; its token is only
+   in the session and in the Telegram link). While nobody opened it in
+   Telegram, it is renewed in place before it expires (same link, up to one
+   hour), and a page that comes back after a while refreshes it first. The
+   tab that was tapped passes its own target to the completion, so several
+   login tabs never send each other to the wrong page. The full page
+   `/auth/telegram/login` (**Open Telegram** button, QR code) remains for:
+   desktop customers who use Telegram on their phone ("Scan a QR code" link
+   under the waiting line), typing the one-time code, browsers without
+   JavaScript, and sessions that are already (partly) signed in, e.g. waiting
+   for the two-factor code.
 2. Telegram opens your bot with `/start <token>`; the bot (via webhook) sends
    the **Authentication Request** message, showing the device and IP address
    the request came from, with Yes / Cancel buttons. Only the Telegram user who

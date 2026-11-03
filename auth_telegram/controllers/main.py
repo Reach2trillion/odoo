@@ -149,9 +149,10 @@ class TelegramAuthHome(Home):
             if redirect:
                 login_url = '%s?%s' % (login_url, urlencode({'redirect': redirect}))
             values['telegram_login_url'] = login_url
-        if mode == 'bot':
+        if mode == 'bot' and not (request.session.uid or request.session.get('pre_uid')):
             # the button opens Telegram directly and this page waits for the
-            # confirmation; /auth/telegram/login stays the no-JS fallback
+            # confirmation; /auth/telegram/login stays the fallback (no JS,
+            # one-time code, QR code, sessions already (partly) signed in)
             values['telegram_chat_inline'] = True
             values['telegram_redirect'] = redirect or ''
             values['telegram_chat_bot'] = request.env['ir.config_parameter'].sudo().get_param(
@@ -261,12 +262,13 @@ class TelegramAuthController(http.Controller):
             'disable_footer': True,
         })
 
-    def _telegram_bot_request(self, redirect, link, min_validity=0):
+    def _telegram_bot_request(self, redirect, link, min_validity=0, update_redirect=True):
         """ The chat login request of this browser session: the one it already
             started (page reload, coming back from Telegram, wrong one-time
             code) so a confirmation already given is not lost, or a new one.
-            A pending request that nobody opened in Telegram yet and that
-            expires within `min_validity` seconds is replaced. """
+            A pending request nobody opened in Telegram yet that expires
+            within `min_validity` seconds is renewed in place (same token:
+            other login tabs keep a working link, the session is not written). """
         Login = request.env['auth.telegram.login'].sudo()
         link_uid = request.session.uid if link else False
         login = self._telegram_session_request(link)
@@ -274,8 +276,10 @@ class TelegramAuthController(http.Controller):
             login = None
         if login and min_validity and login.state == 'pending' and not login.telegram_uid \
                 and login._seconds_left() < min_validity:
-            login.state = 'expired'
-            login = None
+            # serialize with a /start for the same token arriving meanwhile
+            login._lock()
+            if not login._renew(min_validity):
+                login = None
         if not login:
             httprequest = request.httprequest
             login = Login._create_request(
@@ -288,7 +292,7 @@ class TelegramAuthController(http.Controller):
             # the token only ever lives in this browser's session and in the
             # Telegram deep link: never in a URL the browser requests
             request.session[SESSION_LOGIN_KEY] = login.token
-        elif redirect and login.redirect != redirect:
+        elif update_redirect and redirect and login.redirect != redirect:
             login.redirect = redirect
         return login
 
@@ -331,15 +335,23 @@ class TelegramAuthController(http.Controller):
             its Telegram deep link, so that "Log in with Telegram" opens
             Telegram directly (a plain link tap, which browsers and phones
             always allow) while the login page waits for the confirmation. """
-        if request.env['res.users'].sudo()._auth_telegram_mode() != 'bot':
+        # 'unavailable' keeps the button on the full page /auth/telegram/login:
+        # sessions already (partly) signed in, and a request another tab of
+        # this browser just completed (creating a new one would write this
+        # stale, pre-login session and could log that tab out again)
+        current = None
+        if request.env['res.users'].sudo()._auth_telegram_mode() == 'bot' \
+                and not (request.session.uid or request.session.get('pre_uid')):
+            current = self._telegram_session_request(False)
+        if current is None or (current and current.state == 'done'):
             data = {'state': 'unavailable'}
-        elif request.session.uid or request.session.get('pre_uid'):
-            data = {'state': 'done', 'redirect': self._telegram_done_url(None)}
         else:
             redirect = redirect if isinstance(redirect, str) and len(redirect) <= 2048 else None
             # never hand out a link that expires while the customer is still
-            # on its way to Telegram
-            login = self._telegram_bot_request(redirect, False, min_validity=120)
+            # on its way to Telegram; a login tab never changes where another
+            # tab's login lands (the clicked tab passes its own target to
+            # /auth/telegram/complete)
+            login = self._telegram_bot_request(redirect, False, min_validity=120, update_redirect=False)
             bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
             data = {
                 'state': login.state,
@@ -453,7 +465,7 @@ class TelegramAuthController(http.Controller):
         return self._telegram_wait_url(login)
 
     @http.route('/auth/telegram/complete', type='http', auth='none', methods=['GET'], readonly=False)
-    def telegram_complete(self, **kw):
+    def telegram_complete(self, redirect=None, **kw):
         """ Final step of the chat flow, reached by the page that started the
             request once Telegram confirmed it. Only the browser session that
             created the request can complete it, and only once.
@@ -506,7 +518,10 @@ class TelegramAuthController(http.Controller):
                 env['telegram.bot']._notify_login_done(login, user)
             key = user._auth_telegram_issue_token()
             login_name = user.login
-            redirect_url = self._telegram_safe_redirect(login.redirect, user)
+            # the login page that waited passes its own target (several login
+            # tabs share one request); still same-origin paths only
+            target = redirect if isinstance(redirect, str) and 0 < len(redirect) <= 2048 else login.redirect
+            redirect_url = self._telegram_safe_redirect(target, user)
             # leaving the block commits (and sends the queued messages)
         return self._telegram_authenticate(dbname, login_name, key, redirect_url)
 
