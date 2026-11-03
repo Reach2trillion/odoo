@@ -271,13 +271,14 @@ class TelegramAuthController(http.Controller):
             'attempts_left': 0,
             'ended_alert': {'wrong_code': 'wrong_code', 'conflict': 'conflict',
                             'expired': 'expired', 'stale': 'expired'}.get(reason, 'cancelled'),
+            'login_ref': False,
             'retry_url': self._telegram_wait_url(login),
             'home_url': self._telegram_home_url(),
             'disable_database_manager': True,
             'disable_footer': True,
         })
 
-    def _telegram_bot_request(self, redirect, link, min_validity=0, update_redirect=True):
+    def _telegram_bot_request(self, redirect, link, min_validity=0, update_redirect=True, keep=False):
         """ The chat login request of this browser session: the one it already
             started (page reload, coming back from Telegram, wrong one-time
             code) so a confirmation already given is not lost, or a new one.
@@ -293,7 +294,7 @@ class TelegramAuthController(http.Controller):
                 and login._seconds_left() < min_validity:
             # serialize with a /start for the same token arriving meanwhile
             login._lock()
-            if not login._renew(min_validity):
+            if not login._renew(min_validity, keep=keep):
                 login = None
         if not login:
             httprequest = request.httprequest
@@ -339,6 +340,8 @@ class TelegramAuthController(http.Controller):
             'needs_code': login._needs_code(),
             'attempts_left': attempts_left,
             'ended_alert': False,
+            # which request this page shows: another tab may replace it
+            'login_ref': _token_ref(login.token),
             'retry_url': self._telegram_wait_url(login),
             'home_url': self._telegram_home_url(),
             'disable_database_manager': True,
@@ -346,7 +349,7 @@ class TelegramAuthController(http.Controller):
         })
 
     @http.route('/auth/telegram/prepare', type='http', auth='public', methods=['POST'], sitemap=False)
-    def telegram_prepare(self, redirect=None, **kw):
+    def telegram_prepare(self, redirect=None, keep=None, **kw):
         """ Called by the login page: the request of this browser session and
             its Telegram deep link, so that "Log in with Telegram" opens
             Telegram directly (a plain link tap, which browsers and phones
@@ -367,8 +370,10 @@ class TelegramAuthController(http.Controller):
             # on its way to Telegram; a login tab never changes where another
             # tab's login lands (the clicked tab passes its own target to
             # /auth/telegram/complete)
+            # keep=1: the page is waiting on this link (keep-alive), so a request
+            # at the end of its lifetime is extended, not replaced
             login = self._telegram_bot_request(redirect, False, min_validity=LINK_MIN_VALIDITY,
-                                               update_redirect=False)
+                                               update_redirect=False, keep=keep == '1')
             bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
             data = {
                 'state': login.state,

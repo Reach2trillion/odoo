@@ -67,6 +67,7 @@
                         var leaving = false;    // a navigation was started: do nothing more
                         var linkDeadline = 0;   // when the current Telegram link expires (ms)
                         var linkRef = null;     // fingerprint of the request behind that link
+                        var waitRef = null;     // fingerprint of the link this tab followed
                         var pollTimer = null;
                         var refreshTimer = null;
                         var pollGen = 0;
@@ -96,6 +97,7 @@
                         }
                         function stopWaiting() {
                             waiting = false;
+                            waitRef = null;
                             pollGen++;
                             clearTimeout(pollTimer);
                             waitEl.hidden = true;
@@ -112,6 +114,9 @@
                             clearTimeout(refreshTimer);
                             if (waiting) { return; }
                             waiting = true;
+                            // the link being followed now (a refresh in flight may change
+                            // linkRef afterwards: polls compare with this one)
+                            waitRef = linkRef;
                             schedulePoll(2000);
                         }
                         function scheduleRefresh(seconds) {
@@ -127,6 +132,8 @@
                             var body = new FormData();
                             body.append('csrf_token', box.getAttribute('data-csrf'));
                             body.append('redirect', redirect);
+                            // keep-alive of the link this tab is waiting on: never replaced
+                            body.append('keep', waiting ? '1' : '0');
                             fetch('/auth/telegram/prepare', {
                                 method: 'POST', body: body, credentials: 'same-origin', cache: 'no-store',
                             }).then(function (r) { return r.json(); }).then(function (data) {
@@ -186,7 +193,7 @@
                                     prepare(false);
                                     return;
                                 }
-                                if (data.ref ? (linkRef ? data.ref !== linkRef : false) : false) {
+                                if (data.ref ? (waitRef ? data.ref !== waitRef : false) : false) {
                                     // another login tab of this browser started a new request:
                                     // the link this tab opened is gone
                                     stopWaiting();
@@ -222,6 +229,10 @@
                             }
                             // the link itself opens Telegram; this page keeps waiting
                             startWaiting();
+                        });
+                        againEl.addEventListener('click', function () {
+                            // following the current link again: wait on that one
+                            if (waiting) { waitRef = linkRef; }
                         });
                         document.addEventListener('visibilitychange', function () {
                             if (document.visibilityState === 'visible') { onVisible(); }
@@ -379,7 +390,7 @@
     <template id="bot_login_page" name="Telegram Chat Login">
         <t t-call="web.login_layout">
             <div class="text-center o_auth_telegram_bot" t-att-data-needs-code="'1' if needs_code else None"
-                 t-att-data-ended="'1' if ended_alert else None">
+                 t-att-data-ended="'1' if ended_alert else None" t-att-data-ref="login_ref or None">
                 <h5 class="mb-2">
                     <t t-if="is_link">Link with Telegram</t>
                     <t t-else="">Log in with Telegram</t>
@@ -471,6 +482,8 @@
                     var formEl = document.getElementById('o_auth_telegram_code');
                     var noMessageEl = document.getElementById('o_auth_telegram_nomessage');
                     var codeShown = !!root.getAttribute('data-needs-code');
+                    // the request this page shows (another login tab may replace it)
+                    var pageRef = root.getAttribute('data-ref');
                     var delay = 2000;
                     if (root.getAttribute('data-ended')) {
                         // the request already ended (outcome rendered by the server): nothing to poll
@@ -534,6 +547,13 @@
                                 formEl.hidden = true;
                                 show('o_auth_telegram_expired');
                             } else {
+                                if (data.ref ? (pageRef ? data.ref !== pageRef : false) : false) {
+                                    // another login tab of this browser started a new request:
+                                    // this page's link and QR code are gone ("Try again" shows it)
+                                    formEl.hidden = true;
+                                    show('o_auth_telegram_expired');
+                                    return;
+                                }
                                 // pending: tell the user when the bot could not send the prompt
                                 var missing = !!data.prompt_missing;
                                 noMessageEl.hidden = !missing;

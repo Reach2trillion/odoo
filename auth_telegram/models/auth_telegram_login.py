@@ -127,12 +127,15 @@ class AuthTelegramLogin(models.Model):
         self.invalidate_recordset()
         return self
 
-    def _renew(self, min_validity):
+    def _renew(self, min_validity, keep=False):
         """ Call after _lock(). Keep a request this browser is still using:
             one in use (opened in Telegram, or confirmed) is kept as is; an
             unopened pending one gets a later expiration with the same token,
             within MAX_REQUEST_LIFETIME of its creation. Returns False when
-            the request cannot be used any more (it is then expired). """
+            the request cannot be used any more (it is then expired). With
+            `keep` (a page is waiting on this very link), a request at the
+            end of its lifetime is extended as far as allowed and kept, never
+            replaced under the customer's feet. """
         self.ensure_one()
         if self.state not in ('pending', 'confirmed'):
             return False
@@ -142,6 +145,9 @@ class AuthTelegramLogin(models.Model):
         expiration = min(now + timedelta(seconds=LOGIN_REQUEST_VALIDITY),
                          self.create_date + timedelta(seconds=MAX_REQUEST_LIFETIME))
         if (expiration - now).total_seconds() < min_validity:
+            if keep:
+                self.expiration = max(self.expiration, expiration)
+                return True
             self.state = 'expired'
             return False
         self.expiration = expiration
