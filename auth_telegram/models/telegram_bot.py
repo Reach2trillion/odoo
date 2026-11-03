@@ -50,9 +50,7 @@ MSG_LOGIN_OK_BACK = (
     "✅ <b>Login Successful!</b>\n"
     "✅ <b>ចូលប្រើដោយជោគជ័យ!</b>\n\n"
     "Welcome back, {first}! 🎉\n"
-    "សូមស្វាគមន៍ការត្រឡប់មកវិញ {first}! 🎉\n\n"
-    "👈 Go back to the website: you are now signed in.\n"
-    "👈 ត្រឡប់ទៅគេហទំព័រវិញ៖ អ្នកបានចូលប្រើរួចហើយ។"
+    "សូមស្វាគមន៍ការត្រឡប់មកវិញ {first}! 🎉"
 )
 MSG_LOGIN_OK_NEW = (
     "✅ <b>Login Successful!</b>\n"
@@ -60,10 +58,20 @@ MSG_LOGIN_OK_NEW = (
     "Welcome, {first}! 🎉\n"
     "សូមស្វាគមន៍ {first}! 🎉\n\n"
     "Your account has been created.\n"
-    "គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។\n\n"
+    "គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។"
+)
+# last lines of the success message: without / with the "Open website" button
+MSG_GO_BACK = (
     "👈 Go back to the website: you are now signed in.\n"
     "👈 ត្រឡប់ទៅគេហទំព័រវិញ៖ អ្នកបានចូលប្រើរួចហើយ។"
 )
+MSG_OPEN_SITE = (
+    "👇 Tap <b>Open website</b> to continue, already signed in.\n"
+    "👇 ចុច <b>បើកគេហទំព័រ</b> ដើម្បីបន្ត ដោយបានចូលប្រើរួចហើយ។\n\n"
+    "🔒 The button works once, within 10 minutes. Do not forward this message.\n"
+    "🔒 ប៊ូតុងនេះប្រើបានតែម្តង ក្នុងរយៈពេល ១០ នាទី។ សូមកុំបញ្ជូនសារនេះបន្តទៅអ្នកដទៃ។"
+)
+BTN_OPEN_SITE = "🌐 Open website / បើកគេហទំព័រ"
 MSG_LINK_CONFIRMED = (
     "✅ <b>Confirmed!</b>\n"
     "✅ <b>បានបញ្ជាក់!</b>\n\n"
@@ -608,19 +616,39 @@ class TelegramBot(models.AbstractModel):
             # request typed this code: the success message follows then
             self._send_message_after_commit(chat_id, MSG_CODE.format(code=login.code, company=company))
             return
-        self._send_message_after_commit(chat_id, self._login_ok_text(login, first))
+        self._send_login_ok_after_commit(login, chat_id, first)
         self._ask_phone_after_commit(user, chat_id)
 
     @api.model
-    def _login_ok_text(self, login, first):
-        return (MSG_LOGIN_OK_NEW if login.user_created else MSG_LOGIN_OK_BACK).format(first=first)
+    def _login_ok_text(self, login, first, open_button=False):
+        text = (MSG_LOGIN_OK_NEW if login.user_created else MSG_LOGIN_OK_BACK).format(first=first)
+        return text + "\n\n" + (MSG_OPEN_SITE if open_button else MSG_GO_BACK)
+
+    @api.model
+    def _send_login_ok_after_commit(self, login, chat_id, first):
+        """ "Login Successful", with an "Open website" button: Telegram opens
+            links in its own browser, which does not share the cookies of the
+            browser where the login was started, so the button carries a
+            single-use, short-lived secret that signs that browser in too.
+            The secret sits in the URL fragment: browsers never send it to
+            the server, so it never lands in access logs or Referer headers;
+            the page posts it (see /auth/telegram/open). """
+        base = self._base_url()
+        if not base:
+            self._send_message_after_commit(chat_id, self._login_ok_text(login, first))
+            return
+        key = login._issue_open_token()
+        url = '%s/auth/telegram/open#%s' % (base, key)
+        self._send_message_after_commit(chat_id, self._login_ok_text(login, first, open_button=True), reply_markup={
+            'inline_keyboard': [[{'text': BTN_OPEN_SITE, 'url': url}]],
+        })
 
     @api.model
     def _notify_login_done(self, login, user):
         """ Called by /auth/telegram/complete for a one-time code login: the
             code was typed, the user is signed in. """
         first = (login.telegram_name or '').split(' ')[0] or login.telegram_username or user.name
-        self._send_message_after_commit(login.telegram_chat_id, self._login_ok_text(login, html_escape(first)))
+        self._send_login_ok_after_commit(login, login.telegram_chat_id, html_escape(first))
         self._ask_phone_after_commit(user, login.telegram_chat_id)
 
     @api.model

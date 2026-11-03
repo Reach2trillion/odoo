@@ -42,6 +42,7 @@ def _telegram_error_message(code):
         'validation': _("Your Telegram sign in could not be verified. Please try again."),
         'no-account': _("No account is linked to this Telegram account, and sign up is not allowed."),
         'session': _("Please finish the Telegram login in the browser where you started it."),
+        'open-link': _("This Telegram button was already used or has expired. Please log in again."),
     }.get(code, _("Telegram sign in failed. Please try again."))
 
 
@@ -467,6 +468,56 @@ class TelegramAuthController(http.Controller):
             # leaving the block commits (and sends the queued messages)
         return self._telegram_authenticate(dbname, login_name, key, redirect_url)
 
+    # ------------------------------------------------------------------
+    # "Open website" button of the success message
+    # ------------------------------------------------------------------
+
+    @http.route('/auth/telegram/open', type='http', auth='public', methods=['GET'],
+                website=True, multilang=False, sitemap=False)
+    def telegram_open(self, **kw):
+        """ Target of the "Open website" button. The secret is in the URL
+            fragment, which the browser never sends: this page reads it and
+            posts it (CSRF-protected) to /auth/telegram/open/confirm. """
+        return request.render('auth_telegram.open_site_page', {
+            'disable_database_manager': True,
+            'disable_footer': True,
+        })
+
+    @http.route('/auth/telegram/open/confirm', type='http', auth='none', methods=['POST'], readonly=False)
+    def telegram_open_confirm(self, key=None, **kw):
+        """ Sign in whichever browser opened the "Open website" button (most
+            often Telegram's own browser) as the user who approved the login
+            in Telegram. Single use, short-lived, only for approved logins of
+            users still linked to that Telegram account. """
+        ensure_db()
+        dbname = request.db
+        registry = Registry(dbname)
+        with registry.cursor() as cr:
+            env = api.Environment(cr, SUPERUSER_ID, {})
+            login = env['auth.telegram.login']._get_by_open_token(key)
+            if login:
+                login._lock()
+            if not login or not login._open_token_usable(key):
+                if request.session.uid:
+                    # e.g. the button tapped again in the same browser
+                    return request.redirect('/web')
+                return request.redirect('/web/login?telegram_error=open-link')
+            login._consume_open_token()
+            user = login.user_id
+            redirect_url = self._telegram_safe_redirect(login.redirect, user)
+            if request.session.uid == user.id:
+                return request.redirect(redirect_url)
+            key = user._auth_telegram_issue_token()
+            login_name = user.login
+            # leaving the block commits the consumed secret and the token
+        if request.session.uid or request.session.get('pre_uid'):
+            # another account is (partially) signed in in this browser: do
+            # not carry its session data (identity re-check...) over
+            request.session.logout(keep_db=True)
+        # a forwarded button must not unlock Telegram link changes: no
+        # Telegram re-authentication stamp for this kind of sign in
+        return self._telegram_authenticate(dbname, login_name, key, redirect_url, telegram_proof=False)
+
     @http.route('/auth/telegram/webhook', type='http', auth='public', methods=['POST'],
                 csrf=False, save_session=False)
     def telegram_webhook(self, **kw):
@@ -740,8 +791,11 @@ class TelegramAuthController(http.Controller):
             last = request.session.get(SESSION_TELEGRAM_AUTH_KEY) or 0
         return time.time() - last < IDENTITY_CHECK_VALIDITY
 
-    def _telegram_authenticate(self, dbname, login, key, redirect_url):
+    def _telegram_authenticate(self, dbname, login, key, redirect_url, telegram_proof=True):
         credential = {'login': login, 'token': key, 'type': 'telegram_token'}
+        if not telegram_proof:
+            # session data survives authenticate(): never inherit a stamp
+            request.session.pop(SESSION_TELEGRAM_AUTH_KEY, None)
         try:
             # same flow as the standard login: authenticate on the current
             # session, the http layer rotates it and sets the cookie
@@ -752,7 +806,8 @@ class TelegramAuthController(http.Controller):
         # credential of Telegram-created users (a private key on purpose:
         # core's 'identity-check-last' would also unlock password changes,
         # API keys and 2FA settings). Session data survives the rotation.
-        request.session[SESSION_TELEGRAM_AUTH_KEY] = time.time()
+        if telegram_proof:
+            request.session[SESSION_TELEGRAM_AUTH_KEY] = time.time()
         uid = auth_info['uid'] if isinstance(auth_info, dict) else auth_info
         # users with 2FA only get a partial session here and must go through
         # /web/login/totp first, like after the standard login form

@@ -32,7 +32,8 @@ Website                      Telegram bot chat                       Website tab
                              App / Account / Username / Device / IP
                              [✅ Yes, Login] [❌ Cancel]
                              ✅ Login Successful! Welcome, X!
-                             👈 Go back to the website            ──►  signed in, redirected
+                             [🌐 Open website]  (signed in)      ──►  signed in, redirected
+                             or go back to the website tab
                              📱 Share phone number? (optional)
 
 With "One-time code" enabled, after Yes:
@@ -59,13 +60,30 @@ With "One-time code" enabled, after Yes:
    complete it, exactly once; afterwards the request is spent. Users with
    two-factor authentication are sent to the TOTP step like after a password
    login.
-5. Optionally the bot then asks the customer to **share their phone number**
+5. The success message has an **Open website** button that opens the site
+   already signed in, also in Telegram's own browser (see below).
+6. Optionally the bot then asks the customer to **share their phone number**
    (one tap, Telegram's `request_contact`), which is saved on the user and
    contact. Because the customer pressed Start, the bot can now message them
    (used by the `telegram_notification` module).
 
 Messages are bilingual English / Khmer; edit the `MSG_*` constants in
 `models/telegram_bot.py` to change them.
+
+### "Open website" button
+
+Telegram opens links in its own browser, which does not share the cookies of
+the browser where the customer tapped "Log in with Telegram". So the button
+under **Login Successful** carries a secret that signs in whichever browser
+opens it: random, single use, valid 10 minutes, only its hash is stored, and
+it only works for an approved login of a user still linked to that Telegram
+account. The secret is in the URL fragment (`/auth/telegram/open#...`), which
+browsers never send to the server, so it does not appear in access logs; the
+page posts it to `/auth/telegram/open/confirm` (CSRF-protected). Tapping the
+button again in the same browser just opens the site. The message asks the
+customer not to forward it. A sign in through this button does not count as
+a Telegram re-authentication for changing the Telegram link of an account
+without password. The original tab still signs in on its own as before.
 
 ### One-time code (recommended)
 

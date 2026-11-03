@@ -1,4 +1,6 @@
 # Part of the auth_telegram module. License LGPL-3.
+import hashlib
+import hmac
 import secrets
 from datetime import timedelta
 
@@ -8,6 +10,8 @@ from odoo import api, fields, models
 LOGIN_REQUEST_VALIDITY = 600
 # Wrong one-time codes accepted on the website before the request is cancelled
 CODE_MAX_ATTEMPTS = 3
+# How long (seconds) the "Open website" button of the success message works
+OPEN_LINK_VALIDITY = 600
 
 
 class AuthTelegramLogin(models.Model):
@@ -48,6 +52,12 @@ class AuthTelegramLogin(models.Model):
     code = fields.Char(readonly=True)
     code_verified = fields.Boolean(readonly=True)
     code_attempts = fields.Integer(readonly=True, default=0)
+    # "Open website" button sent with the success message: a single-use
+    # secret (only its hash is stored) that signs in whichever browser opens
+    # it, because Telegram opens links in its own browser, which does not
+    # share the cookies of the browser where the login was started
+    open_token_hash = fields.Char(readonly=True, copy=False, index=True)
+    open_token_expiration = fields.Datetime(readonly=True, copy=False)
     # where the request was started (shown in the Telegram prompt so the user
     # can spot a request they did not start themselves)
     requester_ip = fields.Char(readonly=True)
@@ -134,6 +144,55 @@ class AuthTelegramLogin(models.Model):
             'phone': False,
             'picture': False,
         }
+
+    def _issue_open_token(self):
+        """ New secret for the "Open website" button (replacing any earlier
+            one); returns it, only its hash is stored. """
+        self.ensure_one()
+        key = secrets.token_urlsafe(32)
+        self.write({
+            'open_token_hash': hashlib.sha256(key.encode()).hexdigest(),
+            'open_token_expiration': fields.Datetime.now() + timedelta(seconds=OPEN_LINK_VALIDITY),
+        })
+        return key
+
+    @api.model
+    def _get_by_open_token(self, key):
+        """ The request whose "Open website" secret is `key` (empty when
+            unknown); see _open_token_usable for whether it may be used. """
+        if not key or not isinstance(key, str) or len(key) > 128:
+            return self.browse()
+        key_hash = hashlib.sha256(key.encode('utf-8', 'replace')).hexdigest()
+        return self.search([('open_token_hash', '=', key_hash)], limit=1)
+
+    def _open_token_usable(self, key):
+        """ Call after _lock(): `key` is still this request's unused, unexpired
+            "Open website" secret, for an approved login of a user that is
+            still active and still linked to the Telegram account that
+            approved it. """
+        self.ensure_one()
+        if not (self.open_token_hash and self.open_token_expiration and isinstance(key, str)):
+            return False
+        if self.open_token_expiration < fields.Datetime.now():
+            return False
+        if not hmac.compare_digest(self.open_token_hash,
+                                   hashlib.sha256(key.encode('utf-8', 'replace')).hexdigest()):
+            return False
+        # issued on approval: 'expired' only means the browser that started
+        # the request did not come back in time, the approval still stands
+        if self.link_user_id or self.state not in ('confirmed', 'done', 'expired') or self._needs_code_pending():
+            return False
+        user = self.user_id
+        return bool(user and user.active and self.telegram_uid and user.telegram_uid == self.telegram_uid)
+
+    def _needs_code_pending(self):
+        """ One-time code required and not typed yet (whatever the state). """
+        self.ensure_one()
+        return bool(self.match_code and not self.code_verified)
+
+    def _consume_open_token(self):
+        self.ensure_one()
+        self.write({'open_token_hash': False, 'open_token_expiration': False})
 
     @api.autovacuum
     def _gc_login_requests(self):

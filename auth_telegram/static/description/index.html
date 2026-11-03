@@ -23,6 +23,9 @@
         <li>Chat login requests are short-lived (10 minutes), bound to the browser that started
             them, confirmed only by the Telegram account that opened the link, and completed
             exactly once. The prompt shows the requesting device and IP address.</li>
+        <li>The <b>Login Successful</b> message has an <b>Open website</b> button that opens the site
+            already signed in, also in Telegram's own browser: a single-use secret valid 10 minutes,
+            kept in the URL fragment so it never reaches server logs.</li>
         <li><b>One-time code</b>: the code is shown in Telegram only after the customer taps Yes
             and must be typed on the website where the login was started, so somebody who sends a
             customer their own login link cannot get in without the customer handing the code over
