@@ -42,11 +42,15 @@ With "One-time code" enabled, after Yes:
                              ✅ Login Successful! (+ phone request)
 ```
 
-1. The website creates a short-lived login request (10 minutes) and shows a
-   waiting page with an **Open Telegram** button (and a QR code on desktop).
-   The request token is kept in the browser session and in the Telegram deep
-   link only, never in a URL the browser requests. The page polls the request
-   status every 2 seconds.
+1. When the login page loads, it asks the server (`/auth/telegram/prepare`)
+   for a short-lived login request (10 minutes, renewed in the background) and
+   turns **Log in with Telegram** into its Telegram link: one tap opens
+   Telegram directly, and the login page itself shows "Waiting for your
+   confirmation in Telegram..." and polls the request status every 2 seconds.
+   The request is bound to the browser session; its token is only in the
+   session and in the Telegram link. Without JavaScript, and for the
+   one-time code, the button falls back to the full page
+   `/auth/telegram/login` (**Open Telegram** button, QR code on desktop).
 2. Telegram opens your bot with `/start <token>`; the bot (via webhook) sends
    the **Authentication Request** message, showing the device and IP address
    the request came from, with Yes / Cancel buttons. Only the Telegram user who

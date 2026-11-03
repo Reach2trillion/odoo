@@ -149,6 +149,13 @@ class TelegramAuthHome(Home):
             if redirect:
                 login_url = '%s?%s' % (login_url, urlencode({'redirect': redirect}))
             values['telegram_login_url'] = login_url
+        if mode == 'bot':
+            # the button opens Telegram directly and this page waits for the
+            # confirmation; /auth/telegram/login stays the no-JS fallback
+            values['telegram_chat_inline'] = True
+            values['telegram_redirect'] = redirect or ''
+            values['telegram_chat_bot'] = request.env['ir.config_parameter'].sudo().get_param(
+                'auth_telegram.bot_username')
         elif mode == 'widget':
             bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
             values.update(telegram_bot_username=bot_username,
@@ -254,16 +261,20 @@ class TelegramAuthController(http.Controller):
             'disable_footer': True,
         })
 
-    def _telegram_bot_login_start(self, redirect, link, code_error=None):
-        ICP = request.env['ir.config_parameter'].sudo()
-        bot_username = ICP.get_param('auth_telegram.bot_username')
+    def _telegram_bot_request(self, redirect, link, min_validity=0):
+        """ The chat login request of this browser session: the one it already
+            started (page reload, coming back from Telegram, wrong one-time
+            code) so a confirmation already given is not lost, or a new one.
+            A pending request that nobody opened in Telegram yet and that
+            expires within `min_validity` seconds is replaced. """
         Login = request.env['auth.telegram.login'].sudo()
         link_uid = request.session.uid if link else False
-        # reuse the request this browser already started (page reload, coming
-        # back from Telegram, wrong one-time code) so a confirmation already
-        # given is not lost
         login = self._telegram_session_request(link)
         if login and login.state not in ('pending', 'confirmed'):
+            login = None
+        if login and min_validity and login.state == 'pending' and not login.telegram_uid \
+                and login._seconds_left() < min_validity:
+            login.state = 'expired'
             login = None
         if not login:
             httprequest = request.httprequest
@@ -279,7 +290,11 @@ class TelegramAuthController(http.Controller):
             request.session[SESSION_LOGIN_KEY] = login.token
         elif redirect and login.redirect != redirect:
             login.redirect = redirect
+        return login
 
+    def _telegram_bot_login_start(self, redirect, link, code_error=None):
+        bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
+        login = self._telegram_bot_request(redirect, link)
         deeplink = 'https://t.me/%s?start=%s' % (bot_username, login.token)
         qr_src = False
         try:
@@ -309,6 +324,33 @@ class TelegramAuthController(http.Controller):
             'disable_database_manager': True,
             'disable_footer': True,
         })
+
+    @http.route('/auth/telegram/prepare', type='http', auth='public', methods=['POST'], sitemap=False)
+    def telegram_prepare(self, redirect=None, **kw):
+        """ Called by the login page: the request of this browser session and
+            its Telegram deep link, so that "Log in with Telegram" opens
+            Telegram directly (a plain link tap, which browsers and phones
+            always allow) while the login page waits for the confirmation. """
+        if request.env['res.users'].sudo()._auth_telegram_mode() != 'bot':
+            data = {'state': 'unavailable'}
+        elif request.session.uid or request.session.get('pre_uid'):
+            data = {'state': 'done', 'redirect': self._telegram_done_url(None)}
+        else:
+            redirect = redirect if isinstance(redirect, str) and len(redirect) <= 2048 else None
+            # never hand out a link that expires while the customer is still
+            # on its way to Telegram
+            login = self._telegram_bot_request(redirect, False, min_validity=120)
+            bot_username = request.env['ir.config_parameter'].sudo().get_param('auth_telegram.bot_username')
+            data = {
+                'state': login.state,
+                'opened': bool(login.telegram_uid),
+                'deeplink': 'https://t.me/%s?start=%s' % (bot_username, login.token),
+                'expires_in': login._seconds_left(),
+                'needs_code': login._needs_code(),
+            }
+        response = request.make_json_response(data)
+        response.headers['Cache-Control'] = 'no-store'
+        return response
 
     def _telegram_wait_url(self, login, attempts_left=None, ended=None):
         """ The waiting page of `login` (which /auth/telegram/login reuses while

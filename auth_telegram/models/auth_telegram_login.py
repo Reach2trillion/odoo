@@ -124,6 +124,11 @@ class AuthTelegramLogin(models.Model):
         self.invalidate_recordset()
         return self
 
+    def _seconds_left(self):
+        """ Seconds until the request expires (0 when past). """
+        self.ensure_one()
+        return max(0, int((self.expiration - fields.Datetime.now()).total_seconds()))
+
     def _cancel(self, reason):
         self.ensure_one()
         self.write({'state': 'cancelled', 'cancel_reason': reason})

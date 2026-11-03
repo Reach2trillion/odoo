@@ -7,13 +7,161 @@
             <t t-if="telegram_login_url or telegram_bot_username">
                 <em class="d-block text-center text-muted small my-2">- or -</em>
             </t>
-            <!-- chat / OpenID Connect flow: plain server-side redirect -->
+            <!-- chat / OpenID Connect flow. Chat login: the script below turns the
+                 button into the Telegram deep link, so a tap opens Telegram directly
+                 and this page waits for the confirmation; without the script the
+                 button goes to /auth/telegram/login as before -->
             <t t-if="telegram_login_url">
-                <a t-att-href="telegram_login_url" role="button"
+                <a id="o_auth_telegram_btn" t-att-href="telegram_login_url" role="button"
                    class="btn w-100 text-white fw-bold"
                    style="background-color: #54a9eb;">
                     <i class="fa fa-paper-plane me-2" role="img" aria-label="Telegram"/>Log in with Telegram
                 </a>
+                <div t-if="telegram_chat_inline" id="o_auth_telegram_inline" class="text-center small mt-2"
+                     t-att-data-csrf="request.csrf_token()" t-att-data-redirect="telegram_redirect">
+                    <div id="o_auth_telegram_wait" class="text-muted" hidden="hidden" role="status">
+                        <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Waiting"/>
+                        Waiting for your confirmation in Telegram (@<t t-esc="telegram_chat_bot"/>)&#8230;
+                        <a id="o_auth_telegram_again" href="#" target="_blank" rel="noopener">Open Telegram again</a>
+                    </div>
+                    <div id="o_auth_telegram_nomsg" class="text-warning mt-1" hidden="hidden" role="alert">
+                        Telegram could not send you the confirmation. Open Telegram and tap Start again.
+                    </div>
+                    <!-- why a request ended; the matching line is shown by the script -->
+                    <div id="o_auth_telegram_ended" class="alert alert-warning py-2 mt-2 mb-0" hidden="hidden" role="alert">
+                        <span data-reason="user" hidden="hidden">Login cancelled in Telegram.</span>
+                        <span data-reason="conflict" hidden="hidden">This link was opened by another Telegram account, so the request was cancelled.</span>
+                        <span data-reason="wrong_code" hidden="hidden">Too many wrong codes, this request was cancelled.</span>
+                        <span data-reason="expired" hidden="hidden">This request has expired.</span>
+                        Tap <b>Log in with Telegram</b> to try again.
+                    </div>
+                </div>
+                <script t-if="telegram_chat_inline" type="text/javascript">
+                    (function () {
+                        var box = document.getElementById('o_auth_telegram_inline');
+                        var btn = document.getElementById('o_auth_telegram_btn');
+                        if (!box || !btn || !window.fetch || !window.FormData) { return; }
+                        var fallbackHref = btn.getAttribute('href');
+                        var waitEl = document.getElementById('o_auth_telegram_wait');
+                        var againEl = document.getElementById('o_auth_telegram_again');
+                        var noMsgEl = document.getElementById('o_auth_telegram_nomsg');
+                        var endedEl = document.getElementById('o_auth_telegram_ended');
+                        var ready = false;
+                        var waiting = false;
+                        var pollTimer = null;
+                        var refreshTimer = null;
+
+                        function useFallback() {
+                            ready = false;
+                            btn.setAttribute('href', fallbackHref);
+                            btn.removeAttribute('target');
+                        }
+                        function showEnded(reason) {
+                            var spans = endedEl.querySelectorAll('span[data-reason]');
+                            for (var i = 0; i !== spans.length; i++) {
+                                spans[i].hidden = spans[i].getAttribute('data-reason') !== reason;
+                            }
+                            endedEl.hidden = false;
+                        }
+                        function stopWaiting() {
+                            waiting = false;
+                            clearTimeout(pollTimer);
+                            waitEl.hidden = true;
+                            noMsgEl.hidden = true;
+                        }
+                        function startWaiting() {
+                            endedEl.hidden = true;
+                            waitEl.hidden = false;
+                            clearTimeout(refreshTimer);
+                            if (waiting) { return; }
+                            waiting = true;
+                            pollTimer = setTimeout(poll, 2000);
+                        }
+                        function prepare() {
+                            var body = new FormData();
+                            body.append('csrf_token', box.getAttribute('data-csrf'));
+                            body.append('redirect', box.getAttribute('data-redirect') || '');
+                            fetch('/auth/telegram/prepare', {
+                                method: 'POST', body: body, credentials: 'same-origin', cache: 'no-store',
+                            }).then(function (r) { return r.json(); }).then(function (data) {
+                                if (data.state === 'done') {
+                                    window.location.href = data.redirect || '/web';
+                                    return;
+                                }
+                                if (!data.deeplink) { useFallback(); return; }
+                                btn.setAttribute('href', data.deeplink);
+                                btn.setAttribute('target', '_blank');
+                                btn.setAttribute('rel', 'noopener');
+                                againEl.setAttribute('href', data.deeplink);
+                                ready = true;
+                                if (data.state !== 'pending' || data.opened) {
+                                    // this browser already started a login (page reloaded)
+                                    startWaiting();
+                                    return;
+                                }
+                                clearTimeout(refreshTimer);
+                                if (!waiting) {
+                                    // renew the link before it expires
+                                    var delay = Math.max((data.expires_in || 0) - 90, 30);
+                                    refreshTimer = setTimeout(prepare, delay * 1000);
+                                }
+                            }).catch(useFallback);
+                        }
+                        function poll() {
+                            fetch('/auth/telegram/status', {
+                                credentials: 'same-origin', cache: 'no-store',
+                            }).then(function (r) { return r.json(); }).then(function (data) {
+                                if (!waiting) { return; }
+                                if (data.state === 'confirmed') {
+                                    if (data.needs_code) {
+                                        // one-time code: typed on the full page
+                                        window.location.href = fallbackHref;
+                                    } else {
+                                        window.location.href = '/auth/telegram/complete';
+                                    }
+                                    return;
+                                }
+                                if (data.state === 'done') {
+                                    window.location.href = data.redirect || '/web';
+                                    return;
+                                }
+                                if (data.state === 'cancelled') {
+                                    if (data.reason === 'no_account') {
+                                        window.location.href = '/web/login?telegram_error=no-account';
+                                        return;
+                                    }
+                                    stopWaiting();
+                                    showEnded(data.reason === 'stale' ? 'expired' : (data.reason || 'user'));
+                                    prepare();
+                                    return;
+                                }
+                                if (data.state === 'expired' || data.state === 'invalid') {
+                                    stopWaiting();
+                                    showEnded('expired');
+                                    prepare();
+                                    return;
+                                }
+                                // pending: tell the customer when the bot could not send the prompt
+                                noMsgEl.hidden = !data.prompt_missing;
+                                pollTimer = setTimeout(poll, 2000);
+                            }).catch(function () {
+                                if (waiting) { pollTimer = setTimeout(poll, 4000); }
+                            });
+                        }
+
+                        btn.addEventListener('click', function () {
+                            // the link itself opens Telegram; this page keeps waiting
+                            if (ready) { startWaiting(); }
+                        });
+                        document.addEventListener('visibilitychange', function () {
+                            // coming back from Telegram: check right away
+                            if (document.visibilityState === 'visible') {
+                                if (waiting) { clearTimeout(pollTimer); poll(); }
+                            }
+                        });
+                        prepare();
+                    })();
+                </script>
             </t>
             <!-- legacy Login Widget flow -->
             <t t-elif="telegram_bot_username">
