@@ -355,12 +355,14 @@
                         <input type="hidden" name="key" id="o_auth_telegram_open_key"/>
                         <p id="o_auth_telegram_open_wait" class="muted" hidden="hidden">Signing you in&#8230;</p>
                     </form>
+                    <!-- hidden while the secret is being posted: leaving the page then
+                         would drop the response that carries the new session -->
                     <div id="o_auth_telegram_open_missing" class="alert" role="alert">
                         This link was already opened, or it is incomplete. If you are not signed in,
                         please log in again.
                         <noscript><br/>Please enable JavaScript to use the Telegram button.</noscript>
+                        <br/><a href="/" class="btn">Continue to the website</a>
                     </div>
-                    <a href="/" class="btn">Continue to the website</a>
                 </div>
                 <script type="text/javascript">
                     (function () {
