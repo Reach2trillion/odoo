@@ -472,16 +472,18 @@ class TelegramAuthController(http.Controller):
     # "Open website" button of the success message
     # ------------------------------------------------------------------
 
-    @http.route('/auth/telegram/open', type='http', auth='public', methods=['GET'],
-                website=True, multilang=False, sitemap=False)
+    @http.route('/auth/telegram/open', type='http', auth='public', methods=['GET'], sitemap=False)
     def telegram_open(self, **kw):
         """ Target of the "Open website" button. The secret is in the URL
             fragment, which the browser never sends: this page reads it and
-            posts it (CSRF-protected) to /auth/telegram/open/confirm. """
-        return request.render('auth_telegram.open_site_page', {
-            'disable_database_manager': True,
-            'disable_footer': True,
+            posts it (CSRF-protected) to /auth/telegram/open/confirm. Not a
+            website page on purpose: no tracking code runs on it. """
+        response = request.render('auth_telegram.open_site_page', {
+            'company_name': request.env.company.sudo().name,
         })
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['Referrer-Policy'] = 'no-referrer'
+        return response
 
     @http.route('/auth/telegram/open/confirm', type='http', auth='none', methods=['POST'], readonly=False)
     def telegram_open_confirm(self, key=None, **kw):

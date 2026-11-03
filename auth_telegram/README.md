@@ -79,8 +79,11 @@ opens it: random, single use, valid 10 minutes, only its hash is stored, and
 it only works for an approved login of a user still linked to that Telegram
 account. The secret is in the URL fragment (`/auth/telegram/open#...`), which
 browsers never send to the server, so it does not appear in access logs; the
-page posts it to `/auth/telegram/open/confirm` (CSRF-protected). Tapping the
-button again in the same browser just opens the site. The message asks the
+page, a standalone page without the website layout so that no tracking code
+runs on it, posts it once to `/auth/telegram/open/confirm` (CSRF-protected).
+Tapping the button again in the same browser just opens the site. The message
+first tells the customer to go back to the tab where they started (signed in
+there, with their cart); the button is the alternative. The message asks the
 customer not to forward it. A sign in through this button does not count as
 a Telegram re-authentication for changing the Telegram link of an account
 without password. The original tab still signs in on its own as before.

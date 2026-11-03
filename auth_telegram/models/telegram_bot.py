@@ -60,14 +60,15 @@ MSG_LOGIN_OK_NEW = (
     "Your account has been created.\n"
     "គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។"
 )
-# last lines of the success message: without / with the "Open website" button
+# last lines of the success message: the tab where the login started is
+# signed in (it keeps the cart); the button is an extra way in
 MSG_GO_BACK = (
     "👈 Go back to the website: you are now signed in.\n"
     "👈 ត្រឡប់ទៅគេហទំព័រវិញ៖ អ្នកបានចូលប្រើរួចហើយ។"
 )
 MSG_OPEN_SITE = (
-    "👇 Tap <b>Open website</b> to continue, already signed in.\n"
-    "👇 ចុច <b>បើកគេហទំព័រ</b> ដើម្បីបន្ត ដោយបានចូលប្រើរួចហើយ។\n\n"
+    "👇 Or tap <b>Open website</b> to continue here, already signed in.\n"
+    "👇 ឬចុច <b>បើកគេហទំព័រ</b> ដើម្បីបន្តនៅទីនេះ ដោយបានចូលប្រើរួចហើយ។\n\n"
     "🔒 The button works once, within 10 minutes. Do not forward this message.\n"
     "🔒 ប៊ូតុងនេះប្រើបានតែម្តង ក្នុងរយៈពេល ១០ នាទី។ សូមកុំបញ្ជូនសារនេះបន្តទៅអ្នកដទៃ។"
 )
@@ -622,7 +623,10 @@ class TelegramBot(models.AbstractModel):
     @api.model
     def _login_ok_text(self, login, first, open_button=False):
         text = (MSG_LOGIN_OK_NEW if login.user_created else MSG_LOGIN_OK_BACK).format(first=first)
-        return text + "\n\n" + (MSG_OPEN_SITE if open_button else MSG_GO_BACK)
+        text += "\n\n" + MSG_GO_BACK
+        if open_button:
+            text += "\n\n" + MSG_OPEN_SITE
+        return text
 
     @api.model
     def _send_login_ok_after_commit(self, login, chat_id, first):

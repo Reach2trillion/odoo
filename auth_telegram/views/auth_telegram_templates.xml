@@ -324,49 +324,75 @@
         </t>
     </template>
 
-    <!-- "Open website" button of the Telegram success message: the secret is in
-         the URL fragment (never sent to the server); this page posts it -->
-    <template id="open_site_page" name="Telegram Open Website">
-        <t t-call="web.login_layout">
-            <div class="text-center o_auth_telegram_open_site">
-                <form id="o_auth_telegram_open_form" method="post" action="/auth/telegram/open/confirm"
-                      class="mx-auto" style="max-width: 320px;">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                    <input type="hidden" name="key" id="o_auth_telegram_open_key"/>
-                    <p class="text-muted">
-                        <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Signing in"/>
-                        Signing you in&#8230;
-                    </p>
-                    <button type="submit" class="btn btn-primary w-100">Continue</button>
-                </form>
-                <div id="o_auth_telegram_open_missing" class="alert alert-warning" hidden="hidden" role="alert">
-                    This link is incomplete. Please tap the button in Telegram again, or log in.
+    <!-- "Open website" button of the Telegram success message. A standalone page
+         on purpose: no website layout, so no tracking / analytics code ever runs
+         while the secret is still in the URL fragment (never sent to the server).
+         The script reads it, removes it from the address bar and posts it once. -->
+    <template id="open_site_page" name="Telegram Open Website">&lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="robots" content="noindex, nofollow"/>
+                <meta name="referrer" content="no-referrer"/>
+                <title t-esc="company_name"/>
+                <style>
+                    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0;
+                           background: #f8f9fa; color: #212529; text-align: center; }
+                    .box { max-width: 360px; margin: 18vh auto 0; padding: 0 16px; }
+                    .muted { color: #6c757d; }
+                    .alert { background: #fff3cd; border-radius: 6px; padding: 12px; margin: 16px 0; }
+                    a.btn { display: inline-block; margin-top: 12px; padding: 10px 18px; border-radius: 6px;
+                            background: #54a9eb; color: #fff; text-decoration: none; font-weight: bold; }
+                    [hidden] { display: none !important; }
+                </style>
+            </head>
+            <body>
+                <div class="box">
+                    <h3 t-esc="company_name"/>
+                    <form id="o_auth_telegram_open_form" method="post" action="/auth/telegram/open/confirm">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="key" id="o_auth_telegram_open_key"/>
+                        <p id="o_auth_telegram_open_wait" class="muted" hidden="hidden">Signing you in&#8230;</p>
+                    </form>
+                    <div id="o_auth_telegram_open_missing" class="alert" role="alert">
+                        This link was already opened, or it is incomplete. If you are not signed in,
+                        please log in again.
+                        <noscript><br/>Please enable JavaScript to use the Telegram button.</noscript>
+                    </div>
+                    <a href="/" class="btn">Continue to the website</a>
                 </div>
-                <div class="mt-3">
-                    <a href="/web/login" class="btn btn-link btn-sm">Log in</a>
-                </div>
-            </div>
-            <script type="text/javascript">
-                (function () {
-                    var form = document.getElementById('o_auth_telegram_open_form');
-                    if (!form) { return; }
-                    var key = window.location.hash ? window.location.hash.substring(1) : '';
-                    // drop the secret from the address bar and the history
-                    if (window.history) {
-                        if (window.history.replaceState) {
-                            window.history.replaceState(null, '', window.location.pathname);
+                <script type="text/javascript">
+                    (function () {
+                        var form = document.getElementById('o_auth_telegram_open_form');
+                        var wait = document.getElementById('o_auth_telegram_open_wait');
+                        var missing = document.getElementById('o_auth_telegram_open_missing');
+                        var key = window.location.hash ? window.location.hash.substring(1) : '';
+                        // drop the secret from the address bar and the history at once
+                        if (window.history) {
+                            if (window.history.replaceState) {
+                                window.history.replaceState(null, '', window.location.pathname);
+                            }
                         }
-                    }
-                    if (!key) {
-                        form.hidden = true;
-                        document.getElementById('o_auth_telegram_open_missing').hidden = false;
-                        return;
-                    }
-                    document.getElementById('o_auth_telegram_open_key').value = key;
-                    form.submit();
-                })();
-            </script>
-        </t>
+                        // back button / page restored from the cache: never post again
+                        window.addEventListener('pageshow', function (ev) {
+                            if (ev.persisted) {
+                                wait.hidden = true;
+                                missing.hidden = false;
+                            }
+                        });
+                        if (!key) { return; }
+                        if (form.getAttribute('data-sent')) { return; }
+                        // a single-use secret: post it exactly once (no button to post it twice)
+                        form.setAttribute('data-sent', '1');
+                        document.getElementById('o_auth_telegram_open_key').value = key;
+                        missing.hidden = true;
+                        wait.hidden = false;
+                        form.submit();
+                    })();
+                </script>
+            </body>
+        </html>
     </template>
 
 </odoo>
