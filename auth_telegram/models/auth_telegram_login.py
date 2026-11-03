@@ -146,7 +146,8 @@ class AuthTelegramLogin(models.Model):
                          self.create_date + timedelta(seconds=MAX_REQUEST_LIFETIME))
         if (expiration - now).total_seconds() < min_validity:
             if keep:
-                self.expiration = max(self.expiration, expiration)
+                if expiration > self.expiration:
+                    self.expiration = expiration
                 return True
             self.state = 'expired'
             return False

@@ -68,6 +68,7 @@
                         var linkDeadline = 0;   // when the current Telegram link expires (ms)
                         var linkRef = null;     // fingerprint of the request behind that link
                         var waitRef = null;     // fingerprint of the link this tab followed
+                        var linkAtMax = false;  // the server cannot extend that link any more
                         var pollTimer = null;
                         var refreshTimer = null;
                         var pollGen = 0;
@@ -98,6 +99,7 @@
                         function stopWaiting() {
                             waiting = false;
                             waitRef = null;
+                            linkAtMax = false;
                             pollGen++;
                             clearTimeout(pollTimer);
                             waitEl.hidden = true;
@@ -152,6 +154,9 @@
                                 againEl.setAttribute('href', data.deeplink);
                                 ready = true;
                                 linkDeadline = Date.now() + (data.expires_in || 0) * 1000;
+                                // end of the request's lifetime: no more keep-alives, /status
+                                // reports 'expired' when it is over
+                                linkAtMax = waiting ? REFRESH_BEFORE >= (data.expires_in || 0) : false;
                                 if (initial ? (data.state !== 'pending' || data.opened) : false) {
                                     // this browser already started a login (page reloaded)
                                     startWaiting();
@@ -204,7 +209,7 @@
                                 // pending: tell the customer when the bot could not send the prompt
                                 noMsgEl.hidden = !data.prompt_missing;
                                 // not opened in Telegram yet: keep the link alive (renewed in place)
-                                if (!data.opened ? linkStale(REFRESH_BEFORE) : false) { prepare(false); }
+                                if (!data.opened ? (linkStale(REFRESH_BEFORE) ? !linkAtMax : false) : false) { prepare(false); }
                                 schedulePoll(2000);
                             }).catch(function () {
                                 if (!leaving ? (waiting ? gen === pollGen : false) : false) { schedulePoll(4000); }
@@ -227,10 +232,17 @@
                                 go(fallbackHref);
                                 return;
                             }
-                            // the link itself opens Telegram; this page keeps waiting
+                            // the link itself opens Telegram; this page keeps waiting (on
+                            // the link followed now, also when tapped again while waiting)
+                            if (waiting) { waitRef = linkRef; }
                             startWaiting();
                         });
-                        againEl.addEventListener('click', function () {
+                        againEl.addEventListener('click', function (ev) {
+                            if (linkStale(TAP_MIN)) {
+                                ev.preventDefault();
+                                go(fallbackHref);
+                                return;
+                            }
                             // following the current link again: wait on that one
                             if (waiting) { waitRef = linkRef; }
                         });
