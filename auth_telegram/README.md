@@ -50,9 +50,11 @@ With "One-time code" enabled, after Yes:
    browser session (all login tabs of the browser share it; its token is only
    in the session and in the Telegram link). While nobody opened it in
    Telegram, it is renewed in place before it expires (same link, up to one
-   hour), and a page that comes back after a while refreshes it first. The
-   tab that was tapped passes its own target to the completion, so several
-   login tabs never send each other to the wrong page. The full page
+   hour), so a link handed to a customer always has at least 3 minutes left,
+   and a page that becomes visible again picks up the session's current
+   request first (another login tab may have started a new one). The tab that
+   was tapped passes its own target to the completion (an empty one meaning
+   "none"), so several login tabs never send each other to the wrong page. The full page
    `/auth/telegram/login` (**Open Telegram** button, QR code) remains for:
    desktop customers who use Telegram on their phone ("Scan a QR code" link
    under the waiting line), typing the one-time code, browsers without

@@ -51,8 +51,12 @@
                         if (!box || !btn || !window.fetch || !window.FormData) { return; }
                         var fallbackHref = btn.getAttribute('href');
                         var redirect = box.getAttribute('data-redirect') || '';
-                        // this tab's own target (several login tabs share one request)
-                        var completeUrl = '/auth/telegram/complete' + (redirect ? '?redirect=' + encodeURIComponent(redirect) : '');
+                        // this tab's own target, even "none" (several login tabs share one request)
+                        var completeUrl = '/auth/telegram/complete?redirect=' + encodeURIComponent(redirect);
+                        // the server renews a link with less than 240 s left: refresh at 210 s
+                        // left, never follow one with less than 180 s left
+                        var REFRESH_BEFORE = 210;
+                        var TAP_MIN = 180;
                         var waitEl = document.getElementById('o_auth_telegram_wait');
                         var againEl = document.getElementById('o_auth_telegram_again');
                         var noMsgEl = document.getElementById('o_auth_telegram_nomsg');
@@ -62,6 +66,7 @@
                         var waiting = false;    // polling after a tap (or a resumed login)
                         var leaving = false;    // a navigation was started: do nothing more
                         var linkDeadline = 0;   // when the current Telegram link expires (ms)
+                        var linkRef = null;     // fingerprint of the request behind that link
                         var pollTimer = null;
                         var refreshTimer = null;
                         var pollGen = 0;
@@ -132,6 +137,8 @@
                                     if (!waiting) { codeEl.hidden = false; }
                                     return;
                                 }
+                                codeEl.hidden = true;
+                                linkRef = data.ref || null;
                                 btn.setAttribute('href', data.deeplink);
                                 btn.setAttribute('target', '_blank');
                                 btn.setAttribute('rel', 'noopener');
@@ -143,7 +150,7 @@
                                     startWaiting();
                                     return;
                                 }
-                                if (!waiting) { scheduleRefresh(Math.max((data.expires_in || 0) - 90, 30)); }
+                                if (!waiting) { scheduleRefresh(Math.max((data.expires_in || 0) - REFRESH_BEFORE, 30)); }
                             }).catch(function () { if (gen === prepGen) { useFallback(); } });
                         }
                         function poll() {
@@ -179,8 +186,18 @@
                                     prepare(false);
                                     return;
                                 }
+                                if (data.ref ? (linkRef ? data.ref !== linkRef : false) : false) {
+                                    // another login tab of this browser started a new request:
+                                    // the link this tab opened is gone
+                                    stopWaiting();
+                                    showEnded('expired');
+                                    prepare(false);
+                                    return;
+                                }
                                 // pending: tell the customer when the bot could not send the prompt
                                 noMsgEl.hidden = !data.prompt_missing;
+                                // not opened in Telegram yet: keep the link alive (renewed in place)
+                                if (!data.opened ? linkStale(REFRESH_BEFORE) : false) { prepare(false); }
                                 schedulePoll(2000);
                             }).catch(function () {
                                 if (!leaving ? (waiting ? gen === pollGen : false) : false) { schedulePoll(4000); }
@@ -189,13 +206,16 @@
                         function onVisible() {
                             if (leaving) { return; }
                             if (waiting) { poll(); return; }
-                            // coming back after a while: never offer an expired link
-                            if (ready ? linkStale(120) : false) { prepare(false); }
+                            // coming back: pick up the session's current request (another
+                            // tab may have started a new one) with a fresh link; cheap, the
+                            // server renews in place and keeps the same token
+                            prepare(false);
                         }
 
                         btn.addEventListener('click', function (ev) {
                             if (!ready) { return; }   // the full page /auth/telegram/login
-                            if (linkStale(0)) {
+                            if (linkStale(TAP_MIN)) {
+                                // too close to its expiry: the full page renews it first
                                 ev.preventDefault();
                                 go(fallbackHref);
                                 return;
