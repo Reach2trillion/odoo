@@ -35,6 +35,7 @@ EXPIRY_GRACE_SECONDS = 15
 # Cancelled / expired QR codes re-checked by the cron to catch late payments.
 LATE_PAYMENT_WINDOW_MINUTES = 30
 RECOVER_WINDOW_HOURS = 24  # a paid QR can be put on its POS order this long after
+SETTLE_DELAY_SECONDS = 120  # give the POS this long to record the payment itself
 
 
 class PosAbaKhqrRequest(models.Model):
@@ -160,6 +161,12 @@ class PosAbaKhqrRequest(models.Model):
         recovered = self._aba_khqr_recover_paid(method, order_uuid, amount, currency, exclude_tran_ids)
         if recovered:
             return recovered
+        if order_uuid:
+            saved = self.env['pos.order'].sudo().search([('uuid', '=', order_uuid)], limit=1)
+            if saved and saved.state != 'draft':
+                raise UserError(_(
+                    'This order is already paid and saved as %s. Do not take the payment '
+                    'again: the Point of Sale is refreshing its orders.', saved.name))
         # PayWay wants "1.00" for USD and "4000" for KHR
         amount_text = '%d' % amount if currency.name == 'KHR' else '%.2f' % amount
 
@@ -296,6 +303,104 @@ class PosAbaKhqrRequest(models.Model):
         self.write(vals)
         if vals['late_payment']:
             _logger.warning('ABA KHQR %s was paid after it was %s.', self.tran_id, previous_state)
+            # The POS stopped waiting for this QR: nobody else will record the money.
+            self._aba_khqr_settle_orders(immediate=True)
+
+    # ------------------------------------------------------------------
+    # Paid, but the POS never recorded it: finish the order on the server
+    # ------------------------------------------------------------------
+
+    def _aba_khqr_settle_orders(self, immediate=False):
+        """Make sure money received ends up on a validated POS order.
+
+        Normally the POS adds the payment line and validates. When it does not
+        (popup closed, QR cancelled or expired before the customer confirmed,
+        browser reloaded, device lost its connection) the order was saved on
+        the server as a draft before the QR was shown, so it is finished here.
+        """
+        now = fields.Datetime.now()
+        for request in self:
+            if request.state != 'paid' or request.pos_payment_id or not request.pos_order_uuid:
+                continue
+            if (not immediate and request.paid_at
+                    and (now - request.paid_at).total_seconds() < SETTLE_DELAY_SECONDS):
+                continue
+            try:
+                with self.env.cr.savepoint():
+                    request._aba_khqr_settle_order()
+            except Exception as error:  # pylint: disable=broad-except
+                _logger.exception('ABA KHQR %s: could not finish the POS order.', request.tran_id)
+                request._aba_khqr_flag(_('Paid, but the order could not be finished '
+                                         'automatically: %s', str(error)[:150]))
+
+    def _aba_khqr_flag(self, message):
+        self.ensure_one()
+        _logger.error('ABA KHQR %s needs attention: %s', self.tran_id, message)
+        self.write({'late_payment': True, 'last_message': message[:250]})
+
+    def _aba_khqr_settle_order(self):
+        self.ensure_one()
+        order = self.env['pos.order'].sudo().search([('uuid', '=', self.pos_order_uuid)], limit=1)
+        if not order:
+            return self._aba_khqr_flag(_(
+                'Paid, but the order was never saved on the server. Ring it up again and '
+                'record this payment by hand.'))
+        order = order.with_company(order.company_id)
+        method = self.payment_method_id
+        rounding = order.currency_id.rounding
+
+        on_order = order.payment_ids.filtered(lambda p: p.transaction_id == self.tran_id)[:1]
+        if on_order:
+            return self.write({'pos_payment_id': on_order.id, 'pos_order_id': order.id})
+        if order.state != 'draft':
+            return self._aba_khqr_flag(_(
+                'Paid, but order %s was already settled another way. The customer may have '
+                'paid twice: check and refund.', order.name))
+        if order.session_id.state != 'opened':
+            return self._aba_khqr_flag(_(
+                'Paid, but the POS session of the order is closed. Record the payment by hand.'))
+
+        # The line the POS saved while it was showing this QR, if it is still there.
+        pending = order.payment_ids.filtered(
+            lambda p: p.payment_method_id == method and not p.transaction_id
+            and float_compare(p.amount, self.amount, precision_rounding=rounding) == 0)[:1]
+        paid_total = sum(order.payment_ids.mapped('amount')) + (0.0 if pending else self.amount)
+        if float_compare(paid_total, order._get_rounded_amount(order.amount_total),
+                         precision_rounding=rounding) != 0:
+            return self._aba_khqr_flag(_(
+                'Paid %(amount)s, but that does not settle order %(order)s exactly (the cart '
+                'changed or other payments are missing). Open the order at the POS and tap '
+                'the KHQR method again to put this payment on it.',
+                amount=self.amount, order=order.pos_reference or order.name))
+
+        vals = {
+            'transaction_id': self.tran_id,
+            'card_type': 'KHQR',
+            'payment_date': self.paid_at or fields.Datetime.now(),
+        }
+        if pending:
+            pending.write(vals)
+            payment = pending
+        else:
+            payment = self.env['pos.payment'].sudo().create(dict(
+                vals, pos_order_id=order.id, payment_method_id=method.id, amount=self.amount,
+                name=_('ABA KHQR %s', self.tran_id)))
+        order.write({'amount_paid': sum(order.payment_ids.mapped('amount'))})
+        order._process_saved_order(False)
+        if order.state == 'draft':
+            raise UserError(_('Order %s could not be validated.', order.pos_reference or order.name))
+        self.write({
+            'pos_payment_id': payment.id,
+            'pos_order_id': order.id,
+            'last_message': _('Customer paid after the POS stopped waiting: order %s was '
+                              'finished by the server.', order.name),
+        })
+        _logger.warning('ABA KHQR %s: POS order %s finished by the server.', self.tran_id, order.name)
+        try:
+            # Tell the devices of this POS so the order leaves their open orders.
+            order.config_id.notify_synchronisation(order.session_id.id, 0, {})
+        except Exception:  # pylint: disable=broad-except
+            _logger.info('ABA KHQR %s: could not notify the POS devices.', self.tran_id)
 
     def _aba_khqr_check_payway(self):
         """Ask PayWay for the status. Never trust the webhook body alone."""
@@ -435,3 +540,10 @@ class PosAbaKhqrRequest(models.Model):
         ], limit=200)
         for request in recent:
             request._aba_khqr_check_payway()
+        # Paid, yet no POS payment carries it: finish the order here.
+        self.search([
+            ('state', '=', 'paid'),
+            ('pos_payment_id', '=', False),
+            ('pos_order_uuid', '!=', False),
+            ('paid_at', '>=', now - timedelta(hours=RECOVER_WINDOW_HOURS)),
+        ], limit=200)._aba_khqr_settle_orders()

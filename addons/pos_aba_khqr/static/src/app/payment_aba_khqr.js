@@ -115,6 +115,10 @@ export class PaymentAbaKhqr extends PaymentInterface {
         this._stopTimers(session);
         Object.assign(ui, { state: "loading", request: null, error: "", warning: "" });
         this._syncDisplay(session);
+        await this._saveOrderOnServer(session);
+        if (session.done) {
+            return;
+        }
         try {
             const request = await this._call("aba_khqr_create_request", [
                 this.pos.config.id,
@@ -139,6 +143,30 @@ export class PaymentAbaKhqr extends PaymentInterface {
             ui.state = "error";
             ui.error = this._errorMessage(error);
             this._syncDisplay(session);
+            // The server may have finished this order already: refresh the open orders.
+            this.pos.deviceSync?.readDataFromServer?.().catch(() => {});
+        }
+    }
+
+    /**
+     * Save the unpaid order on the server before the QR is shown.
+     *
+     * If the customer pays and this device never records it (popup closed,
+     * QR expired, page reloaded, connection lost), the server still knows the
+     * products and can finish the order itself. Without this the money would
+     * arrive with no order behind it.
+     */
+    async _saveOrderOnServer(session) {
+        const order = session.order;
+        if (!order || session.orderSaved) {
+            return;
+        }
+        try {
+            this.pos.addPendingOrder([order.id]);
+            await this.pos.syncAllOrders({ orders: [order], throw: true });
+            session.orderSaved = true;
+        } catch (error) {
+            console.warn("ABA KHQR: the order could not be saved before the QR", error);
         }
     }
 

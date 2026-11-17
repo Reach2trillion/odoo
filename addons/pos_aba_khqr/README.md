@@ -148,3 +148,17 @@ carries it. From 2.3.0, tapping the KHQR method again on the **same order for
 the same amount** asks PayWay once more and, if that order was already paid,
 puts the existing payment on the order instead of showing a new QR (within 24
 hours; a payment already on the order is never reused).
+
+## A paid KHQR always becomes a POS order (18.0.2.4.0)
+
+* Before the QR is shown, the POS saves the unpaid order on the server.
+* If ABA confirms a payment the POS did not record (popup closed, QR cancelled
+  or expired, page reloaded, connection lost), the **server puts the payment on
+  that saved order and validates it**: at once for a payment on a cancelled or
+  expired QR, otherwise after 2 minutes (the cron now runs every 3 minutes).
+* The server only does this when the payment settles the order exactly. In
+  every other case (order never saved, order already paid another way, session
+  closed, cart changed) the request is flagged under *ABA KHQR Payments →
+  Needs attention* with the reason, and nothing is changed.
+* Asking for a new QR on an order the server already finished is refused, so
+  the customer cannot be charged twice.
