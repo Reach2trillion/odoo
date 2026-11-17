@@ -138,3 +138,13 @@ ones with PayWay to catch such late payments.
 * QR is rendered server-side with error-correction level Q so the currency
   mark in the centre doesn't affect scanning.
 * Tests: `odoo -d <db> -u pos_aba_khqr --test-tags /pos_aba_khqr --stop-after-init`
+
+## Paid but not on the order (18.0.2.3.0)
+
+A customer can pay a second after the cashier closes the popup, after the QR
+is cancelled or expired, or while the POS reloads. The money arrives and the
+request shows as **Paid** under *ABA KHQR Payments*, but no payment line
+carries it. From 2.3.0, tapping the KHQR method again on the **same order for
+the same amount** asks PayWay once more and, if that order was already paid,
+puts the existing payment on the order instead of showing a new QR (within 24
+hours; a payment already on the order is never reused).

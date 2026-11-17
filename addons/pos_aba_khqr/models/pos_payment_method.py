@@ -122,13 +122,15 @@ class PosPaymentMethod(models.Model):
             raise UserError(_('Unknown KHQR payment request.'))
         return request
 
-    def aba_khqr_create_request(self, config_id, amount, order_reference=None, order_uuid=None):
+    def aba_khqr_create_request(self, config_id, amount, order_reference=None, order_uuid=None,
+                                used_tran_ids=None):
         self._aba_khqr_check_pos_access()
         config = self.env['pos.config'].browse(int(config_id)).exists()
         if not config or self not in config.payment_method_ids:
             raise UserError(_('"%s" is not enabled on this Point of Sale.', self.name))
         request = self.env['pos.aba.khqr.request'].sudo()._aba_khqr_create(
-            self.sudo(), config, amount, order_reference, order_uuid)
+            self.sudo(), config, amount, order_reference, order_uuid,
+            exclude_tran_ids=[str(t) for t in (used_tran_ids or [])])
         return request._aba_khqr_pos_data(with_image=True)
 
     def aba_khqr_check_request(self, request_id, force=False):

@@ -34,6 +34,7 @@ CHECK_THROTTLE_SECONDS = 3
 EXPIRY_GRACE_SECONDS = 15
 # Cancelled / expired QR codes re-checked by the cron to catch late payments.
 LATE_PAYMENT_WINDOW_MINUTES = 30
+RECOVER_WINDOW_HOURS = 24  # a paid QR can be put on its POS order this long after
 
 
 class PosAbaKhqrRequest(models.Model):
@@ -108,7 +109,43 @@ class PosAbaKhqrRequest(models.Model):
         return re.sub(r'[^\x20-\x7E]', '', text or '').strip()[:limit]
 
     @api.model
-    def _aba_khqr_create(self, method, config, amount, order_reference=None, order_uuid=None):
+    def _aba_khqr_recover_paid(self, method, order_uuid, amount, currency, exclude_tran_ids=None):
+        """Find money already received for this POS order but not on it yet.
+
+        A customer can pay after the cashier closed the popup, after the QR was
+        cancelled or expired, or while the POS was reloading. The request is
+        then marked paid by the webhook / cron, but no POS payment line carries
+        it. When the cashier asks for a QR again for the same order and amount,
+        hand that paid request back instead of charging the customer twice.
+        """
+        if not order_uuid:
+            return self.browse()
+        base = [
+            ('payment_method_id', '=', method.id),
+            ('pos_order_uuid', '=', order_uuid),
+            ('pos_payment_id', '=', False),
+            ('tran_id', 'not in', list(exclude_tran_ids or [])),
+        ]
+        since = fields.Datetime.now() - timedelta(hours=RECOVER_WINDOW_HOURS)
+        # Not swept yet? Ask PayWay now.
+        for request in self.search(base + [
+                ('mode', '=', 'payway'),
+                ('state', 'in', ('pending', 'cancelled', 'expired')),
+                ('create_date', '>=', since)]):
+            request._aba_khqr_check_payway()
+        for request in self.search(base + [('state', '=', 'paid'), ('create_date', '>=', since)],
+                                   order='id desc'):
+            if (request.currency_id == currency and float_compare(
+                    request.amount, amount, precision_rounding=currency.rounding) == 0):
+                _logger.warning('ABA KHQR %s: paid earlier, recovered onto POS order %s.',
+                                request.tran_id, order_uuid)
+                request.last_message = _('Paid earlier; recovered onto the order at the POS.')
+                return request
+        return self.browse()
+
+    @api.model
+    def _aba_khqr_create(self, method, config, amount, order_reference=None, order_uuid=None,
+                         exclude_tran_ids=None):
         currency = config.currency_id
         if currency.name not in khqr.CURRENCY_CODES:
             raise UserError(_('KHQR only supports USD and KHR, but this Point of Sale '
@@ -120,6 +157,9 @@ class PosAbaKhqrRequest(models.Model):
             khqr.format_amount(amount, currency.name)  # validates KHR = whole riel
         except khqr.KHQRError as error:
             raise UserError(str(error)) from error
+        recovered = self._aba_khqr_recover_paid(method, order_uuid, amount, currency, exclude_tran_ids)
+        if recovered:
+            return recovered
         # PayWay wants "1.00" for USD and "4000" for KHR
         amount_text = '%d' % amount if currency.name == 'KHR' else '%.2f' % amount
 

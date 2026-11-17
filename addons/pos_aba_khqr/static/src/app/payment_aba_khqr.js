@@ -121,6 +121,10 @@ export class PaymentAbaKhqr extends PaymentInterface {
                 session.amount,
                 ui.orderRef,
                 session.order?.uuid || false,
+                // KHQR already on this order: never hand the same payment back twice.
+                (session.order?.payment_ids || [])
+                    .map((paymentLine) => paymentLine.transaction_id)
+                    .filter(Boolean),
             ]);
             if (session.done) {
                 // The cashier closed the popup while the QR was being made.
